@@ -169,10 +169,10 @@ At a minimum, the MPU9250 must be used to measure the following:
 \begin{itemize}
 	\item $a_z$ (16 bits, full-scale range $\pm 2g$)
 	\item $w_y$ (16 bits, full-scale range $\pm 250 \ [\deg/s]$)
-	\item $H_x$, $H_y$, $H_z$ (14 bits each, full-scale range $\pm 4800 \ [uT]$)
+	\item $H_x$, $H_y$, $H_z$ (14 bits each, full-scale range $\pm 4912 \ [uT]$)
 \end{itemize}
 
-Note that these full-scale ranges were the defaults and also the most suitable since they provided the highest resolution for the window of interest.
+Note that these full-scale ranges were the defaults and also the most suitable since they provided the highest resolution for the window of interest. Note that the full-scale range of 4912 for $H_i$ was taken from page 50 of the register map, while the datasheet specific 4800.
 \newline
 \newline
 
