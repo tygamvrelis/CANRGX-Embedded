@@ -53,7 +53,7 @@
 // Scales for readings
 #define MPU9250_ACCEL_FULL_SCALE 2 * g // twice the gravitationa acceleration due to Earth
 #define MPU9250_GYRO_FULL_SCALE 250 // degree/s
-#define MPU9250_MAG_FULL_SCALE 4800 // microTeslas
+#define MPU9250_MAG_FULL_SCALE 4912 // microTeslas. See pg. 50 of the register map
 
 
 

@@ -82,6 +82,8 @@ osStaticThreadDef_t DataLogTaskControlBlock;
 osThreadId MPU9250TaskHandle;
 uint32_t MPU9250TaskBuffer[ 256 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
+osSemaphoreId semMPU9250Handle;
+osStaticSemaphoreDef_t semMPU9250ControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
@@ -145,6 +147,11 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* definition and creation of semMPU9250 */
+  osSemaphoreStaticDef(semMPU9250, &semMPU9250ControlBlock);
+  semMPU9250Handle = osSemaphoreCreate(osSemaphore(semMPU9250), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -238,7 +245,7 @@ void StartDataLogTask(void const * argument)
 void StartMPU9250Task(void const * argument)
 {
   /* USER CODE BEGIN StartMPU9250Task */
-  MPU9250Init(myMPU9250); // Initialize MPU9250
+  int mpuInitStatus = MPU9250Init(myMPU9250); // Initialize MPU9250
 
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
@@ -260,34 +267,40 @@ void StartMPU9250Task(void const * argument)
 
 
     // Read az
-    HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+    while(HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2) != HAL_OK){
+    	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+    }
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
     temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
-    myMPU9250 -> az = (float) temp / (32767) * MPU9250_ACCEL_FULL_SCALE; // Scale to physical units
+    myMPU9250 -> az = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE); // Scale to physical units
 
 
     // Read vy
-	HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+	while(HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2) != HAL_OK){
+		xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	}
 	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
 	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> vy = (float) temp / (32767) * MPU9250_ACCEL_FULL_SCALE;
+	myMPU9250 -> vy = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE);
 
 
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
 	// due to the way the registers are mapped
-	HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
+	while(HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_MAG_ADDR, MPU9250_MAG_X_ADDR_L, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6) != HAL_OK){
+		xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	}
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
 	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hx = (float) temp / (32760) * MPU9250_MAG_FULL_SCALE;
+	myMPU9250 -> hx = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
 
 	temp = (mpu_buff[3] << 8 | mpu_buff[2]);
 	temp = (mpu_buff[3] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hy = (float) temp / (32760) * MPU9250_MAG_FULL_SCALE;
+	myMPU9250 -> hy = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
 
 	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
 	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hz = (float) temp / (32760) * MPU9250_MAG_FULL_SCALE;
+	myMPU9250 -> hz = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
   }
   /* USER CODE END StartMPU9250Task */
 }

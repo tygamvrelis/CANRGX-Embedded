@@ -244,26 +244,50 @@ void StartMPU9250Task(void const * argument)
   xLastWakeTime = xTaskGetTickCount();
 
   uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
+  uint16_t temp;
 
   /* Infinite loop */
   for(;;)
   {
     vTaskDelayUntil(&xLastWakeTime, MPU9250_CYCLE_MS); // Service this task every MPU9250_CYCLE_MS milliseconds
 
+
+    /********** Acquire data **********/
+    // Note: The following pattern is used below.
+    //    1. Acquire data
+    //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
+    //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
+
+
     // Read az
     HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-    myMPU9250 -> az = (mpu_buff[0] << 8 | mpu_buff[1]) / (65535) * MPU9250_ACCEL_FULL_SCALE;
+    temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
+    temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
+    myMPU9250 -> az = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE); // Scale to physical units
+
 
     // Read vy
 	HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-	myMPU9250 -> vy = (mpu_buff[0] << 8 | mpu_buff[1]) / (65535) * MPU9250_GYRO_FULL_SCALE;
+	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250 -> vy = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE);
+
 
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
 	// due to the way the registers are mapped
 	HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
-	myMPU9250 -> hx = (mpu_buff[1] << 8 | mpu_buff[0]) / (65535) * MPU9250_MAG_FULL_SCALE;
-	myMPU9250 -> hy = (mpu_buff[3] << 8 | mpu_buff[2]) / (65535) * MPU9250_MAG_FULL_SCALE;
-	myMPU9250 -> hz = (mpu_buff[5] << 8 | mpu_buff[4]) / (65535) * MPU9250_MAG_FULL_SCALE;
+
+	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
+	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250 -> hx = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+
+	temp = (mpu_buff[3] << 8 | mpu_buff[2]);
+	temp = (mpu_buff[3] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250 -> hy = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+
+	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
+	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250 -> hz = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
   }
   /* USER CODE END StartMPU9250Task */
 }

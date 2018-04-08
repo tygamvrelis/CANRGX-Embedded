@@ -54,6 +54,7 @@
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
+#include "cmsis_os.h"
 
 /* USER CODE END 0 */
 
@@ -162,7 +163,12 @@ void HAL_FMPI2C_MspDeInit(FMPI2C_HandleTypeDef* fmpi2cHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+extern osSemaphoreId semMPU9250Handle;
 
+void HAL_FMPI2C_MemRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c){
+	/* Returns the semaphore taken after non-blocking transmission begins. */
+	xSemaphoreGive(semMPU9250Handle);
+}
 /* USER CODE END 1 */
 
 /**
