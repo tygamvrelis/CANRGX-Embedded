@@ -59,15 +59,23 @@
 
 
 /*********************************** Types ************************************/
+// All flight events besides none are transitions
+enum flightEvents {
+	PULLUP,
+	REDUCEDGRAVITY,
+	PULLOUT,
+	NONE
+};
+
+// Stores data from the sensor in a global struct
 typedef struct{
 	float az; // Acceleration along z-axis
 	float vy; // Pitch rate about y-axis
 	float hx; // Magnetic field along x
 	float hy; // Magnetic field along y
 	float hz; // Magnetic field along z
+	enum flightEvents theEvent; // Hold info about flight events
 }MPU9250_t;
-
-
 
 
 

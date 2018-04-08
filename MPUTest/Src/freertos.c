@@ -88,7 +88,7 @@ osStaticSemaphoreDef_t semMPU9250ControlBlock;
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
 //volatile uint16_t uhADC_results[ADC_DATA_N];
-static char print_buff[300];
+static char print_buff[400];
 uint16_t str_size;
 /* USER CODE END Variables */
 
@@ -225,7 +225,20 @@ void StartDataLogTask(void const * argument)
   for(;;)
   {
 	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
-	  str_size=sprintf(print_buff, "%5d, %d, %4.2f, %d, %4.2f \r\n",xTaskGetTickCount(),uhADC_results[0],ADC1_Filtered(0),uhADC_results[1],ADC1_Filtered(1));
+	  str_size=sprintf(print_buff,
+			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %6.3f, %6.3f, %7.2f, %7.2f, %7.2f, %d '\r' '\n\'",
+			  	  	  (int) xTaskGetTickCount(),
+					  uhADC_results[0],
+					  ADC1_Filtered(0),
+					  uhADC_results[1],
+					  ADC1_Filtered(1),
+					  myMPU9250 -> az,
+					  myMPU9250 -> vy,
+					  myMPU9250 -> hx,
+					  myMPU9250 -> hy,
+					  myMPU9250 -> hz,
+					  myMPU9250 -> theEvent
+					  );
 	  //uint16_t str_size=strlen(print_buff);
 	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);
 
@@ -259,12 +272,19 @@ void StartMPU9250Task(void const * argument)
     vTaskDelayUntil(&xLastWakeTime, MPU9250_CYCLE_MS); // Service this task every MPU9250_CYCLE_MS milliseconds
 
 
+
+
     /********** Acquire data **********/
     // Note: The following pattern is used below.
     //    1. Acquire data
     //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
-
+    //
+    // At 400 kHz bus speed, we are reading back 2 + 2 + 2 * 3 = 10 bytes, and also need to make the requests for the bytes.
+    // Each request is about 2 bytes (slave address, register address), and 3 requests are made.
+    // So total is about 16 bytes, so approximately 16 * 8 = 128 bits of data transferred in this section.
+    // 128 / 400,000 = 320 microseconds to acquire data. Also, during most of this time, other tasks can run since this is
+    // interrupt-driven with DMA
 
     // Read az
     while(HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2) != HAL_OK){
@@ -301,6 +321,37 @@ void StartMPU9250Task(void const * argument)
 	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
 	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
 	myMPU9250 -> hz = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+
+
+
+
+	/********** Use the data to update state **********/
+	//TODO
+	if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+		// Transition from straight and level to pull-up
+		myMPU9250 -> theEvent = PULLUP;
+	}
+	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+		// Transition from pull-up to reduced gravity
+		myMPU9250 -> theEvent = REDUCEDGRAVITY;
+	}
+	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+		// Transition from reduced gravity to pull-out
+		myMPU9250 -> theEvent = PULLOUT;
+	}
+	else{
+		// No state change
+		myMPU9250 -> theEvent = NONE;
+	}
+
+	// TODO: Notify task to start experiment here
+
+
+
+
+
+	/********* Log data **********/
+	//TODO
   }
   /* USER CODE END StartMPU9250Task */
 }
