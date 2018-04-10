@@ -289,12 +289,6 @@ void StartMPU9250Task(void const * argument)
     //    1. Acquire data
     //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
-    //
-    // At 400 kHz bus speed, we are reading back 2 + 2 + 2 * 3 = 10 bytes, and also need to make the requests for the bytes.
-    // Each request is about 2 bytes (slave address, register address), and 3 requests are made.
-    // So total is about 16 bytes, so approximately 16 * 8 = 128 bits of data transferred in this section.
-    // 128 / 400,000 = 320 microseconds to acquire data. Also, during most of this time, other tasks can run since this is
-    // interrupt-driven with DMA
 
     // Read az
     HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);

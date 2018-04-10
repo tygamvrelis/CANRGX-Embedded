@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  9 APR 2018 22:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  10 APR 2018 13:20
 entering extended mode
 **./CANRGX-Embedded.tex
 (CANRGX-Embedded.tex
@@ -367,38 +367,38 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ] [4
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 161--164
+Underfull \hbox (badness 10000) in paragraph at lines 162--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 161--164
+Underfull \hbox (badness 10000) in paragraph at lines 162--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 165--169
+Underfull \hbox (badness 10000) in paragraph at lines 166--170
 
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 170.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 171.
 
 ("D:\Program Files\MiKTeX 2.9\tex\latex\base\omscmr.fd"
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 170.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 171.
 
-Underfull \hbox (badness 10000) in paragraph at lines 175--178
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 175--178
+Underfull \hbox (badness 10000) in paragraph at lines 176--179
 
  []
 
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 179.
+
+Underfull \hbox (badness 10000) in paragraph at lines 176--179
+
+ []
+
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 180.
 
 ("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1pcr.fd"
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
@@ -408,7 +408,7 @@ File: images/MPU9250_axisOrientation.jpg Graphic file (type jpg)
 
 <use images/MPU9250_axisOrientation.jpg>
 Package pdftex.def Info: images/MPU9250_axisOrientation.jpg used on input line 
-183.
+184.
 (pdftex.def)             Requested size: 352.31624pt x 242.57568pt.
 
 <images/MPU9250_magnetometerRegs.jpg, id=20, 973.6375pt x 890.32625pt>
@@ -416,46 +416,68 @@ File: images/MPU9250_magnetometerRegs.jpg Graphic file (type jpg)
 
 <use images/MPU9250_magnetometerRegs.jpg>
 Package pdftex.def Info: images/MPU9250_magnetometerRegs.jpg used on input line
- 191.
+ 192.
 (pdftex.def)             Requested size: 352.31624pt x 322.16103pt.
  [5
 
 ] [6 <./images/MPU9250_axisOrientation.jpg> <./images/MPU9250_magnetometerRegs.
-jpg>] [7
+jpg>]
+Underfull \hbox (badness 10000) in paragraph at lines 216--222
 
-] [8
+ []
 
-] [9
+
+Underfull \hbox (badness 10000) in paragraph at lines 245--248
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 245--248
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 249--255
+
+ []
+
+[7
+
+] [8] [9
+
+] [10
+
+] [11
 
 ]
-Overfull \hbox (0.24475pt too wide) in paragraph at lines 238--239
+Overfull \hbox (0.24475pt too wide) in paragraph at lines 317--318
 \OT1/cmr/m/n/10 The afore-men-tioned com-po-nents were in-te-grated us-ing a ST
 M32F446RE mi-cro-con-troller on a Nucleo-F446RE
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 247--247
+Underfull \hbox (badness 10000) in paragraph at lines 326--326
 []|\OT1/cmr/m/n/10 Offset
  []
 
 
-Overfull \hbox (44.23624pt too wide) in paragraph at lines 245--258
+Overfull \hbox (44.23624pt too wide) in paragraph at lines 324--337
  [][] 
  []
 
-[10
+[12
 
 ] 
 AED: lastpage setting LastPage
 (CANRGX-Embedded.aux) ) 
 Here is how much of TeX's memory you used:
- 5152 strings out of 493323
- 75459 string characters out of 3139066
- 147934 words of memory out of 3000000
- 8565 multiletter control sequences out of 15000+200000
+ 5153 strings out of 493323
+ 75477 string characters out of 3139066
+ 147944 words of memory out of 3000000
+ 8566 multiletter control sequences out of 15000+200000
  12720 words of font info for 49 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,11n,43p,640b,374s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 42i,11n,43p,640b,378s stack positions out of 5000i,500n,10000p,200000b,50000s
 {D:/Program Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc
 }<D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><D:/Pro
 gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><D:/Program Fil
@@ -464,13 +486,14 @@ eX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><D:/Program Files/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmmi7.pfb><D:/Program Files/MiKTeX 2.9/fonts/type
 1/public/amsfonts/cm/cmr10.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/
 amsfonts/cm/cmr12.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmr8.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.
-pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D:/
-Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><D:/Program 
-Files/MiKTeX 2.9/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on CANRGX-Embedded.pdf (10 pages, 380727 bytes).
+cm/cmr7.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pf
+b><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><D:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><D:/Program Files/MiKT
+eX 2.9/fonts/type1/urw/courier/ucrr8a.pfb>
+Output written on CANRGX-Embedded.pdf (12 pages, 405371 bytes).
 PDF statistics:
- 86 PDF objects out of 1000 (max. 8388607)
+ 96 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

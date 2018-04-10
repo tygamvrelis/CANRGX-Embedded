@@ -1,7 +1,7 @@
 \contentsline {section}{\numberline {1}Overview}{4}
-\contentsline {section}{\numberline {2}MPU9250 (accelerometer, gyroscope, magnetometer)}{5}
-\contentsline {section}{\numberline {3}MC9701A (temperature sensor)}{7}
-\contentsline {section}{\numberline {4}DRV8871 (H-bridge)}{8}
-\contentsline {section}{\numberline {5}TEC (thermoelectric cooler)}{9}
-\contentsline {section}{\numberline {6}Integration}{10}
-\contentsline {subsection}{\numberline {6.1}Data Logging}{10}
+\contentsline {section}{\numberline {2}MPU9250}{5}
+\contentsline {section}{\numberline {3}MC9701A}{9}
+\contentsline {section}{\numberline {4}DRV8871}{10}
+\contentsline {section}{\numberline {5}TEC}{11}
+\contentsline {section}{\numberline {6}Integration}{12}
+\contentsline {subsection}{\numberline {6.1}Data Logging}{12}

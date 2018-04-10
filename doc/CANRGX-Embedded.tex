@@ -125,7 +125,7 @@ The proceeding sections will describe each of these in more detail, and subseque
 %
 %
 
-\section{MPU9250 (accelerometer, gyroscope, magnetometer)} \label{MPU}
+\section{MPU9250} \label{MPU}
 As the MPU9250 measures acceleration, it is capable of automatically triggering the experiment through software once the acceleration magnitude is below a certain threshold. It can also detect other events of interest throughout the flight. All these events can be detected according to the following algorithm, where:
 
 \begin{enumerate}
@@ -136,6 +136,7 @@ As the MPU9250 measures acceleration, it is capable of automatically triggering 
 
 \begin{algorithm}
 	\caption{Algorithm for triggering flight events}
+	\label{alg:flightEvents}
 	\begin{algorithmic}[1]
 		\Procedure{FlightEvents}{}
 			\State{Measure $w_y$ and $a_y$}
@@ -195,7 +196,81 @@ Due to the importance of the readings from the MPU9250, it was decided that the 
 
 \clearpage
 
-From the code side of things, the accelerometer and gyroscope have a slave address of 0x68. Note that ST's HAL libraries require the slave address to be shifted 1 bit to the left in the calls to the I2C functions. The magnetometer has a slave address of 0x0C.
+Implementation details will now be described. To begin, it was decided that the $400 \ [kHz]$ I\textsuperscript{2}C bus would be used to transfer data to and from the sensor. However, there is no reason why this could not be changed to $1 \ [MHz]$ or $20 \ [MHz]$ SPI. The code related to the MPU9250 was split into $2$ parts:
+\begin{enumerate}
+	\item start-up routine, where the peripheral is initialized
+	
+	\item data-gathering and processing routine used during the experiment
+\end{enumerate}
+
+\textit{Start-up routine}
+\newline
+Initializing the MPU9250 consists of initializing two different devices, the accelerometer and gyroscope (device 1) and the magnetometer (device 2). Although these are integrated as 1 physical package, under the hood they remain distinct. Consequently, the accelerometer and gyroscope have a slave address of 0x68, and the magnetometer has a slave address of 0x0C. Now, there are two important points to make before continuing:
+
+\begin{itemize}
+	\item The magnetometer must be controlled \textit{by proxy} through the accelerometer and gyroscope. Essentially, the accelerometer and gyroscope have the ability to control \textit{slave devices}, and in the MPU9250, ``slave 0" is directly connected to the magnetometer.
+	
+	\item ST's HAL libraries for I\textsuperscript{2}C require the slave address to be shifted 1 bit to the left in calls to I2C functions. This only affects calls to the accelerometer and gyroscope, since as was just noted above, the magnetometer is ultimately controlled by these.
+\end{itemize} 
+
+This will become more clear shortly.
+\newline
+\newline
+The start-up routine is called prior to starting the scheduler. This way, more primitive I/O interfaces (i.e. polled I/O) can be used to avoid complexity. Also, it increases the probability that nothing will interrupt the start-up sequence since there is no context switching.
+\newline
+First, all the fields in the global MPU9250 handle, called \texttt{myMPU9250}, are initialized to $-1.0$. Next, the WHO\_AM\_I register is read from the accelerometer and gyroscope. This is a read-only register that should always return 0x71, so this check basically ensures that the correct device is connected to the bus. Next, the accelerometer and gyroscope are configured as follows:
+
+\begin{enumerate}
+	\item The best available clock source is selected
+	
+	\item The I\textsuperscript{2}C master interface module is enabled
+	
+	\item The I\textsuperscript{2}C module is set to $400 \ [kHz]$ bus speed
+	
+	\item The accelerometer and gyroscope are set to ON
+	
+	\item I\textsuperscript{2}C bypass is enabled. This is critically important for getting the magnetometer to work
+\end{enumerate}
+
+Next, the magnetometer is configured as follows:
+
+\begin{enumerate}
+	\item Check the ID of the magnetometer
+	
+	\item Reset the magnetometer and delay $10 \ [ms]$
+	
+	\item Enable continuous measurement
+\end{enumerate}
+
+If the startup routine makes it to the end, it returns $1$. Otherwise, a unique negative integer is returned whose value depends on the cause of failure.
+\newline
+\newline
+
+\textit{Data-gathering and processing routine}
+\newline
+This routine runs after the scheduler is started. It begins by calling \texttt{vTaskDelayUntil()} such that it runs every 2 milliseconds ($500 \ [Hz]$ refresh rate). Next, the accelerometer, gyroscope, and magnetometer are read. Then, the acceleration and angular rate are checked for the experiment event conditions as per Algorithm~\ref{alg:flightEvents}.
+\newline
+\newline
+The total number of bytes required for these transfers is as follows. Note that write transactions are 2 bytes, while read transactions are 2 bytes plus the number of bytes read back
+\begin{itemize}
+	\item Get accelerometer data for $a_z$: 1 write transaction (accelerometer data address) + 2 bytes returned for the data = 4 bytes
+	
+	\item Get angular rate data for $a_y$: 1 write transaction (angular rate data address) + 2 bytes returned for the data = 4 bytes
+	
+	\item Get magnetometer data: 1 call to \texttt{magnetometerRead()} = 3 write transactions (I2C\_SLV0\_ADDR, I2C\_SLV0\_REG, I2C\_SLV0\_CTRL) + 1 read transaction of 6 bytes for magnetometer data (starting from EXT\_SENS\_DATA\_00) = 3 * 2 + 2 + 6 = 14 bytes
+\end{itemize}
+
+The total number of bytes transferred to get all the data required for the experiment is thus:
+
+\begin{equation}
+4 + 4 + 14 = 22 \ bytes
+\end{equation}
+
+So the time required for the data transfer is:
+
+\begin{equation}
+22 * 8 / 400 \times 10^3 = 440 \ [\mu s]
+\end{equation}
 
 \clearpage
 
@@ -204,7 +279,7 @@ From the code side of things, the accelerometer and gyroscope have a slave addre
 %
 %
 
-\section{MC9701A (temperature sensor)} \label{tempsensor}
+\section{MC9701A} \label{tempsensor}
 The temperature sensor is used to monitor the temperature of the electromagnet.
 
 Can have up to 6 of these with the current board
@@ -216,7 +291,7 @@ TODO: Details
 %
 %
 
-\section{DRV8871 (H-bridge)} \label{hbridge}
+\section{DRV8871} \label{hbridge}
 The H-bridges are used to generate magnetic fields of various strengths in the coils surrounding the fluid cell, and to generate various heat gradients using the TECs. PWM is used in both cases.
 
 TODO: Different H-bridges are being used for the different parts
@@ -227,7 +302,7 @@ TODO: Different H-bridges are being used for the different parts
 %
 %
 
-\section{TEC (thermoelectric cooler)} \label{18B20}
+\section{TEC} \label{18B20}
 The TEC plates are used to supply heat and cooling to the fluid.
 
 Power data should be acquired at about 500 Hz
@@ -242,7 +317,7 @@ Power data should be acquired at about 500 Hz
 The aforementioned components were integrated using a STM32F446RE microcontroller on a Nucleo-F446RE development board.
 
 \subsection{Data Logging}
-Data from all sensors were logged and sent to the onboard PC over a 256 [kHz] UART channel. The packet format was as follows:
+Data from all sensors were logged and sent to the onboard PC over a 230400 [Hz] UART channel. The UART function used DMA and a semaphore to optimize CPU usage. The packet format was as follows:
 
 \begin{table}[!ht]
 	\centering
