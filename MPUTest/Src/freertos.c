@@ -84,6 +84,8 @@ uint32_t MPU9250TaskBuffer[ 256 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
+osSemaphoreId semDataLogHandle;
+osStaticSemaphoreDef_t semDataLogControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
@@ -153,6 +155,10 @@ void MX_FREERTOS_Init(void) {
   osSemaphoreStaticDef(semMPU9250, &semMPU9250ControlBlock);
   semMPU9250Handle = osSemaphoreCreate(osSemaphore(semMPU9250), 1);
 
+  /* definition and creation of semDataLog */
+  osSemaphoreStaticDef(semDataLog, &semDataLogControlBlock);
+  semDataLogHandle = osSemaphoreCreate(osSemaphore(semDataLog), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -171,7 +177,7 @@ void MX_FREERTOS_Init(void) {
   TECContrlTaskHandle = osThreadCreate(osThread(TECContrlTask), NULL);
 
   /* definition and creation of DataLogTask */
-  osThreadStaticDef(DataLogTask, StartDataLogTask, osPriorityNormal, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
+  osThreadStaticDef(DataLogTask, StartDataLogTask, osPriorityHigh, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
   DataLogTaskHandle = osThreadCreate(osThread(DataLogTask), NULL);
 
   /* definition and creation of MPU9250Task */
@@ -206,6 +212,7 @@ void StartTECContrlTask(void const * argument)
 {
   /* USER CODE BEGIN StartTECContrlTask */
   /* Infinite loop */
+	while(1){osDelay(10);}
 	static float ratio_tmp=0;
 	for(;;)
 	{
@@ -220,33 +227,37 @@ void StartTECContrlTask(void const * argument)
 void StartDataLogTask(void const * argument)
 {
   /* USER CODE BEGIN StartDataLogTask */
+  TickType_t xLastWakeTime;
+  xLastWakeTime = xTaskGetTickCount();
 
   /* Infinite loop */
   for(;;)
   {
+	  vTaskDelayUntil(&xLastWakeTime, 5); // Service this task every 5 milliseconds
+
+
 	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
-	  str_size=sprintf(print_buff,
+	  str_size = sprintf(print_buff,
 			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %6.3f, %6.3f, %7.2f, %7.2f, %7.2f, %d '\r' '\n\'",
 			  	  	  (int) xTaskGetTickCount(),
 					  uhADC_results[0],
 					  ADC1_Filtered(0),
 					  uhADC_results[1],
 					  ADC1_Filtered(1),
-					  myMPU9250 -> az,
-					  myMPU9250 -> vy,
-					  myMPU9250 -> hx,
-					  myMPU9250 -> hy,
-					  myMPU9250 -> hz,
-					  myMPU9250 -> theEvent
+					  myMPU9250.az,
+					  myMPU9250.vy,
+					  myMPU9250.hx,
+					  myMPU9250.hy,
+					  myMPU9250.hz,
+					  myMPU9250.theEvent
 					  );
 	  //uint16_t str_size=strlen(print_buff);
 	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);
 
 	  //TODO: Down a semaphore here, and up it in the DMA callback
-	  while(HAL_UART_Transmit_DMA(&huart2,print_buff, str_size)!= HAL_OK){
-		  osDelay(5);
-	  }
-	  osDelay(10);
+	  HAL_UART_Transmit_DMA(&huart2, print_buff, str_size);
+	  xSemaphoreTake(semDataLogHandle, portMAX_DELAY);
+
 	  //vTaskList(print_buff);
 	  //HAL_UART_Transmit_DMA(&huart2,print_buff, 150);
 	  //osDelay(30);
@@ -258,8 +269,6 @@ void StartDataLogTask(void const * argument)
 void StartMPU9250Task(void const * argument)
 {
   /* USER CODE BEGIN StartMPU9250Task */
-  int mpuInitStatus = MPU9250Init(myMPU9250); // Initialize MPU9250
-
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
@@ -287,61 +296,59 @@ void StartMPU9250Task(void const * argument)
     // interrupt-driven with DMA
 
     // Read az
-    while(HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2) != HAL_OK){
-    	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-    }
+    HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+    //xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
     temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
-    myMPU9250 -> az = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE); // Scale to physical units
+    float myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0)); // Scale to physical units
+    myMPU9250.az = myVar;
 
 
     // Read vy
-	while(HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2) != HAL_OK){
-		xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	}
+	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
 	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> vy = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE);
+	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
 
 
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
 	// due to the way the registers are mapped
-	while(HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_MAG_ADDR, MPU9250_MAG_X_ADDR_L, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6) != HAL_OK){
-		xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	}
+	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_MAG_ADDR, MPU9250_MAG_X_ADDR_L, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6, 100);
+	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
 	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hx = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+	myMPU9250.hx = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
 	temp = (mpu_buff[3] << 8 | mpu_buff[2]);
 	temp = (mpu_buff[3] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hy = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+	myMPU9250.hy = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
 	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
 	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hz = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+	myMPU9250.hz = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
 
 
 
 	/********** Use the data to update state **********/
 	//TODO
-	if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+	if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
 		// Transition from straight and level to pull-up
-		myMPU9250 -> theEvent = PULLUP;
+		myMPU9250.theEvent = PULLUP;
 	}
-	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
 		// Transition from pull-up to reduced gravity
-		myMPU9250 -> theEvent = REDUCEDGRAVITY;
+		myMPU9250.theEvent = REDUCEDGRAVITY;
 	}
-	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
 		// Transition from reduced gravity to pull-out
-		myMPU9250 -> theEvent = PULLOUT;
+		myMPU9250.theEvent = PULLOUT;
 	}
 	else{
 		// No state change
-		myMPU9250 -> theEvent = NONE;
+		myMPU9250.theEvent = NONE;
 	}
 
 	// TODO: Notify task to start experiment here

@@ -64,6 +64,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "MPU9250.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -125,7 +126,11 @@ int main(void)
   MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
-  ADC1_Scan_Satart();
+  //ADC1_Scan_Satart();
+  int mpuInitStatus = MPU9250Init(myMPU9250); // Initialize MPU9250
+  if(mpuInitStatus == -1){
+	  while(1);
+  }
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

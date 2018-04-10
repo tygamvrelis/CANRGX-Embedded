@@ -195,6 +195,10 @@ Due to the importance of the readings from the MPU9250, it was decided that the 
 
 \clearpage
 
+From the code side of things, the accelerometer and gyroscope have a slave address of 0x68. Note that ST's HAL libraries require the slave address to be shifted 1 bit to the left in the calls to the I2C functions. The magnetometer has a slave address of 0x0C.
+
+\clearpage
+
 %
 %
 %

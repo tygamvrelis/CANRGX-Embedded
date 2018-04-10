@@ -51,7 +51,6 @@
 #include "fmpi2c.h"
 
 #include "gpio.h"
-#include "dma.h"
 
 /* USER CODE BEGIN 0 */
 #include "cmsis_os.h"
@@ -59,7 +58,6 @@
 /* USER CODE END 0 */
 
 FMPI2C_HandleTypeDef hfmpi2c1;
-DMA_HandleTypeDef hdma_fmpi2c1_rx;
 
 /* FMPI2C1 init function */
 void MX_FMPI2C1_Init(void)
@@ -111,26 +109,6 @@ void HAL_FMPI2C_MspInit(FMPI2C_HandleTypeDef* fmpi2cHandle)
 
     /* FMPI2C1 clock enable */
     __HAL_RCC_FMPI2C1_CLK_ENABLE();
-  
-    /* FMPI2C1 DMA Init */
-    /* FMPI2C1_RX Init */
-    hdma_fmpi2c1_rx.Instance = DMA1_Stream2;
-    hdma_fmpi2c1_rx.Init.Channel = DMA_CHANNEL_2;
-    hdma_fmpi2c1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_fmpi2c1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_fmpi2c1_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_fmpi2c1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_fmpi2c1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_fmpi2c1_rx.Init.Mode = DMA_NORMAL;
-    hdma_fmpi2c1_rx.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_fmpi2c1_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    if (HAL_DMA_Init(&hdma_fmpi2c1_rx) != HAL_OK)
-    {
-      _Error_Handler(__FILE__, __LINE__);
-    }
-
-    __HAL_LINKDMA(fmpi2cHandle,hdmarx,hdma_fmpi2c1_rx);
-
   /* USER CODE BEGIN FMPI2C1_MspInit 1 */
 
   /* USER CODE END FMPI2C1_MspInit 1 */
@@ -154,8 +132,6 @@ void HAL_FMPI2C_MspDeInit(FMPI2C_HandleTypeDef* fmpi2cHandle)
     */
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_6|GPIO_PIN_7);
 
-    /* FMPI2C1 DMA DeInit */
-    HAL_DMA_DeInit(fmpi2cHandle->hdmarx);
   /* USER CODE BEGIN FMPI2C1_MspDeInit 1 */
 
   /* USER CODE END FMPI2C1_MspDeInit 1 */
@@ -163,12 +139,17 @@ void HAL_FMPI2C_MspDeInit(FMPI2C_HandleTypeDef* fmpi2cHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-extern osSemaphoreId semMPU9250Handle;
+//extern osSemaphoreId semMPU9250Handle;
+//
+//void HAL_FMPI2C_MemRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c){
+//	/* Returns the semaphore taken after non-blocking transmission begins. */
+//	if (hfmp2ic->Instance == FMPI2C1){
+//    	// Check I2C instance
+//    	xSemaphoreGiveFromISR(semMPU9250Handle, pdTRUE);
+//  }
+//
+//}
 
-void HAL_FMPI2C_MemRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c){
-	/* Returns the semaphore taken after non-blocking transmission begins. */
-	xSemaphoreGive(semMPU9250Handle);
-}
 /* USER CODE END 1 */
 
 /**

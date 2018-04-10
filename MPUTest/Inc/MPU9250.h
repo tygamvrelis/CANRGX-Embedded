@@ -14,6 +14,9 @@
 
 /********************************** Includes **********************************/
 #include "stm32f4xx_hal.h"
+#include "fmpi2c.h"
+//#include "i2c.h"
+#include "freertos.h"
 #include <math.h>
 
 
@@ -23,8 +26,20 @@
 // MPU9250_ACCEL_AND_GYRO_ADDR is the slave address that should be used when trying
 // to get the acceleration and gyroscope data. If the magnetometer data is to be
 // read, the slave address needs to be MPU9250_MAG_ADDR
-#define MPU9250_ACCEL_AND_GYRO_ADDR 0x68 // pg. 32 of datasheet (might also be 0x69 depending on the AD0 pin on the PCB)
-#define MPU9250_MAG_ADDR 0x0C // pg. 24 of datasheet
+#define MPU9250_ACCEL_AND_GYRO_ADDR 0x68 << 1 // pg. 32 of datasheet (might also be 0x69 depending on the AD0 pin on the PCB)
+#define MPU9250_MAG_ADDR 0x0C << 1 // pg. 24 of datasheet
+
+// Register addresses for configuration stuff
+#define SMPLRT_DIV 0x19
+#define CONFIG 0x1A
+#define GYRO_CONFIG 0x1B
+#define ACCEL_CONFIG 0x1C
+#define ACCEL_CONFIG_2 0x1D
+#define LP_ACCEL_ODR 0x1E
+#define I2C_MST_CTRL 0x24 // Used to set I2C clock speed
+#define USER_CTRL 0x6A // Used to enable I2C interface module
+#define PWR_MGMT_1 0x6B // Used to set the clock source for the accel & gyro
+#define PWR_MGMT_2 0x6C // Used to force accelerometer and gyroscope on
 
 // Register addresses for accelerometer data (pg. 8 register map)
 #define MPU9250_ACCEL_X_ADDR_H 0x3B // AXH
@@ -80,7 +95,7 @@ typedef struct{
 
 
 /*********************************** Globals *********************************/
-extern MPU9250_t* myMPU9250;
+extern MPU9250_t myMPU9250;
 extern const float g;
 
 

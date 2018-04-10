@@ -82,11 +82,13 @@ osStaticThreadDef_t DataLogTaskControlBlock;
 osThreadId MPU9250TaskHandle;
 uint32_t MPU9250TaskBuffer[ 256 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
+osSemaphoreId semMPU9250Handle;
+osStaticSemaphoreDef_t semMPU9250ControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
 //volatile uint16_t uhADC_results[ADC_DATA_N];
-static char print_buff[300];
+static char print_buff[400];
 uint16_t str_size;
 /* USER CODE END Variables */
 
@@ -146,6 +148,11 @@ void MX_FREERTOS_Init(void) {
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
+  /* Create the semaphores(s) */
+  /* definition and creation of semMPU9250 */
+  osSemaphoreStaticDef(semMPU9250, &semMPU9250ControlBlock);
+  semMPU9250Handle = osSemaphoreCreate(osSemaphore(semMPU9250), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -164,7 +171,7 @@ void MX_FREERTOS_Init(void) {
   TECContrlTaskHandle = osThreadCreate(osThread(TECContrlTask), NULL);
 
   /* definition and creation of DataLogTask */
-  osThreadStaticDef(DataLogTask, StartDataLogTask, osPriorityNormal, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
+  osThreadStaticDef(DataLogTask, StartDataLogTask, osPriorityHigh, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
   DataLogTaskHandle = osThreadCreate(osThread(DataLogTask), NULL);
 
   /* definition and creation of MPU9250Task */
@@ -199,6 +206,7 @@ void StartTECContrlTask(void const * argument)
 {
   /* USER CODE BEGIN StartTECContrlTask */
   /* Infinite loop */
+	while(1){osDelay(10);}
 	static float ratio_tmp=0;
 	for(;;)
 	{
@@ -213,20 +221,38 @@ void StartTECContrlTask(void const * argument)
 void StartDataLogTask(void const * argument)
 {
   /* USER CODE BEGIN StartDataLogTask */
+  TickType_t xLastWakeTime;
+  xLastWakeTime = xTaskGetTickCount();
 
   /* Infinite loop */
   for(;;)
   {
+	  vTaskDelayUntil(&xLastWakeTime, 10); // Service this task every 10 milliseconds
+
+
 	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
-	  str_size=sprintf(print_buff, "%5d, %d, %4.2f, %d, %4.2f \r\n",xTaskGetTickCount(),uhADC_results[0],ADC1_Filtered(0),uhADC_results[1],ADC1_Filtered(1));
+	  str_size = sprintf(print_buff,
+			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %6.3f, %6.3f, %7.2f, %7.2f, %7.2f, %d '\r' '\n\'",
+			  	  	  (int) xTaskGetTickCount(),
+					  uhADC_results[0],
+					  ADC1_Filtered(0),
+					  uhADC_results[1],
+					  ADC1_Filtered(1),
+					  myMPU9250 -> az,
+					  myMPU9250 -> vy,
+					  myMPU9250 -> hx,
+					  myMPU9250 -> hy,
+					  myMPU9250 -> hz,
+					  myMPU9250 -> theEvent
+					  );
 	  //uint16_t str_size=strlen(print_buff);
 	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);
 
 	  //TODO: Down a semaphore here, and up it in the DMA callback
-	  while(HAL_UART_Transmit_DMA(&huart2,print_buff, str_size)!= HAL_OK){
+	  while(HAL_UART_Transmit_DMA(&huart2, print_buff, str_size)!= HAL_OK){
 		  osDelay(5);
 	  }
-	  osDelay(10);
+
 	  //vTaskList(print_buff);
 	  //HAL_UART_Transmit_DMA(&huart2,print_buff, 150);
 	  //osDelay(30);
@@ -238,8 +264,6 @@ void StartDataLogTask(void const * argument)
 void StartMPU9250Task(void const * argument)
 {
   /* USER CODE BEGIN StartMPU9250Task */
-  MPU9250Init(myMPU9250); // Initialize MPU9250
-
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
@@ -252,22 +276,31 @@ void StartMPU9250Task(void const * argument)
     vTaskDelayUntil(&xLastWakeTime, MPU9250_CYCLE_MS); // Service this task every MPU9250_CYCLE_MS milliseconds
 
 
+
+
     /********** Acquire data **********/
     // Note: The following pattern is used below.
     //    1. Acquire data
     //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
-
+    //
+    // At 400 kHz bus speed, we are reading back 2 + 2 + 2 * 3 = 10 bytes, and also need to make the requests for the bytes.
+    // Each request is about 2 bytes (slave address, register address), and 3 requests are made.
+    // So total is about 16 bytes, so approximately 16 * 8 = 128 bits of data transferred in this section.
+    // 128 / 400,000 = 320 microseconds to acquire data. Also, during most of this time, other tasks can run since this is
+    // interrupt-driven with DMA
 
     // Read az
-    HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+    HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+    //xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
     temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
     myMPU9250 -> az = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE); // Scale to physical units
 
 
     // Read vy
-	HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
 	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
 	myMPU9250 -> vy = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE);
@@ -275,7 +308,8 @@ void StartMPU9250Task(void const * argument)
 
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
 	// due to the way the registers are mapped
-	HAL_FMPI2C_Mem_Read_DMA(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
+	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_MAG_ADDR, MPU9250_MAG_X_ADDR_L, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6, 100);
+	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
 	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
@@ -288,6 +322,37 @@ void StartMPU9250Task(void const * argument)
 	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
 	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
 	myMPU9250 -> hz = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+
+
+
+
+	/********** Use the data to update state **********/
+	//TODO
+	if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+		// Transition from straight and level to pull-up
+		myMPU9250 -> theEvent = PULLUP;
+	}
+	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+		// Transition from pull-up to reduced gravity
+		myMPU9250 -> theEvent = REDUCEDGRAVITY;
+	}
+	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+		// Transition from reduced gravity to pull-out
+		myMPU9250 -> theEvent = PULLOUT;
+	}
+	else{
+		// No state change
+		myMPU9250 -> theEvent = NONE;
+	}
+
+	// TODO: Notify task to start experiment here
+
+
+
+
+
+	/********* Log data **********/
+	//TODO
   }
   /* USER CODE END StartMPU9250Task */
 }
