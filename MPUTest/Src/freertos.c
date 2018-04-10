@@ -272,7 +272,8 @@ void StartMPU9250Task(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
-  uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
+  uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
+  uint8_t dataToWrite = MPU9250_MAG_ADDR | 0x80; // address of magnetometer | I2C read bit
   uint16_t temp;
 
   /* Infinite loop */
@@ -313,8 +314,9 @@ void StartMPU9250Task(void const * argument)
 
 
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
-	// due to the way the registers are mapped
-	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_MAG_ADDR, MPU9250_MAG_X_ADDR_L, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6, 100);
+	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
+	// the ST2 register to be read in addition to other data
+	magnetometerRead(MPU9250_MAG_X_ADDR_L, 7, mpu_buff);
 	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
@@ -352,13 +354,6 @@ void StartMPU9250Task(void const * argument)
 	}
 
 	// TODO: Notify task to start experiment here
-
-
-
-
-
-	/********* Log data **********/
-	//TODO
   }
   /* USER CODE END StartMPU9250Task */
 }
