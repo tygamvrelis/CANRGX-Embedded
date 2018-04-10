@@ -81,20 +81,20 @@ int MPU9250Init(MPU9250_t* myMPU){
 	// Enable I2C bypass
 	dataToWrite = 0x02;
 	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, INT_PIN_CFG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
-		return -6;
+		return -7;
 	}
 
 	// Note: Changing the filter bandwidth didn't have a noticeable effect as far as I could tell
 //	// Set accelerometer bandwidth 218 Hz
 //	dataToWrite = 0x01;
 //	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, ACCEL_CONFIG_2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
-//		return -7;
+//		return -8;
 //	}
 //
 //	// Set gyroscope bandwidth to 3600 Hz
 //	dataToWrite = 0x01;
 //	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, CONFIG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
-//		return -8;
+//		return -9;
 //	}
 
 
@@ -105,19 +105,19 @@ int MPU9250Init(MPU9250_t* myMPU){
 	magnetometerRead(WIA, 1, buff);
 	magnetometerRead(WIA, 1, buff); // For some read, reading didn't always work the very first time
 	if(buff[0] != 0x48){
-		return -9;
+		return -10;
 	}
 
 	// Reset
 	if(magnetometerWrite(CNTL2, 0x01) != 1){
-		return -10;
+		return -11;
 	}
 
 	HAL_Delay(10); // Resetting might take some time
 
 	// Enable continuous measurement
 	if(magnetometerWrite(CNTL1, 0x16) != 1){
-		return -11;
+		return -12;
 	}
 
 	/* Return success */
