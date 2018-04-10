@@ -106,7 +106,7 @@ The embedded subsystem is responsible for acquiring data from sensors, using thi
 
 \begin{enumerate}
 	\item MPU9250: 3-axis accelerometer, gyroscope, and magnetometer, 1 in quantity
-	\item 18B20: 1-wire digital temperature sensor, 10 in quantity
+	\item MC9701A: analog temperature sensor
 \end{enumerate}
 
 The systems to which control signals will be asserted are as follows:
@@ -200,8 +200,11 @@ Due to the importance of the readings from the MPU9250, it was decided that the 
 %
 %
 
-\section{18B20 (temperature sensor)} \label{tempsensor}
-The temperature sensor is used to monitor the temperature of the electromagnet. It provides digital signal to the microcontroller for reading, strictly following a 1-wire protocol. Byte-long codes are listed in pages 10 through 12 of the datasheet, which are transmitted LSb first. Each sensor has a unique ROM address which can be identified using the Search ROM cycle documented on page 10 of the datasheet.
+\section{MC9701A (temperature sensor)} \label{tempsensor}
+The temperature sensor is used to monitor the temperature of the electromagnet.
+
+Can have up to 6 of these with the current board
+TODO: Details
 \clearpage
 
 %
@@ -211,6 +214,8 @@ The temperature sensor is used to monitor the temperature of the electromagnet. 
 
 \section{DRV8871 (H-bridge)} \label{hbridge}
 The H-bridges are used to generate magnetic fields of various strengths in the coils surrounding the fluid cell, and to generate various heat gradients using the TECs. PWM is used in both cases.
+
+TODO: Different H-bridges are being used for the different parts
 \clearpage
 
 %
@@ -230,7 +235,7 @@ Power data should be acquired at about 500 Hz
 %
 
 \section{Integration} \label{integration}
-The aforementioned components were integrated using a STM32F411RE microcontroller on a Nucleo-F411 development board.
+The aforementioned components were integrated using a STM32F446RE microcontroller on a Nucleo-F446RE development board.
 
 \subsection{Data Logging}
 Data from all sensors were logged and sent to the onboard PC over a 256 [kHz] UART channel. The packet format was as follows:

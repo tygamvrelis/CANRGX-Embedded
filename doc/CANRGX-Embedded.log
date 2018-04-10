@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  8 APR 2018 12:56
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  9 APR 2018 22:10
 entering extended mode
 **./CANRGX-Embedded.tex
 (CANRGX-Embedded.tex
@@ -428,12 +428,18 @@ jpg>] [7
 ] [9
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 242--242
+Overfull \hbox (0.24475pt too wide) in paragraph at lines 238--239
+\OT1/cmr/m/n/10 The afore-men-tioned com-po-nents were in-te-grated us-ing a ST
+M32F446RE mi-cro-con-troller on a Nucleo-F446RE
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 247--247
 []|\OT1/cmr/m/n/10 Offset
  []
 
 
-Overfull \hbox (44.23624pt too wide) in paragraph at lines 240--253
+Overfull \hbox (44.23624pt too wide) in paragraph at lines 245--258
  [][] 
  []
 
@@ -462,7 +468,7 @@ cm/cmr8.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.
 pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D:/
 Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><D:/Program 
 Files/MiKTeX 2.9/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on CANRGX-Embedded.pdf (10 pages, 381251 bytes).
+Output written on CANRGX-Embedded.pdf (10 pages, 380727 bytes).
 PDF statistics:
  86 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
