@@ -124,6 +124,43 @@ int MPU9250Init(MPU9250_t* myMPU){
 	return 1;
 }
 
+int magnetometerReadDMA(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId* sem){
+	/* Reads from the magnetometer and stores the results in a buffer.
+	 *
+	 * Arguments: addr, the magnetometer register address to start reading from
+	 * 			  numBytes, the number of sequential bytes to read
+	 * 			  buff, the buffer to store the read data
+	 * 			  sem, the semaphore to down while transmitting
+	 *
+	 * Returns: 1 if successful, otherwise a negative error code
+	 */
+
+	uint8_t dataToWrite = MPU9250_MAG_ADDR | 0x80; // slave addr | read
+	if(HAL_I2C_Mem_Write_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
+		return -1;
+	}
+	xSemaphoreTake(*sem, portMAX_DELAY);
+
+	dataToWrite = addr;
+	if(HAL_I2C_Mem_Write_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
+		return -2;
+	}
+	xSemaphoreTake(*sem, portMAX_DELAY);
+
+	dataToWrite = 0x80 | numBytes; // Enable | transfer numBytes bytes
+	if(HAL_I2C_Mem_Write_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
+		return -3;
+	}
+	xSemaphoreTake(*sem, portMAX_DELAY);
+
+	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, buff, numBytes) != HAL_OK){
+		return -4;
+	}
+	xSemaphoreTake(*sem, portMAX_DELAY);
+
+	return 1;
+}
+
 int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff){
 	/* Reads from the magnetometer and stores the results in a buffer.
 	 *

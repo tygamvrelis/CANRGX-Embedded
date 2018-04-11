@@ -51,12 +51,14 @@
 #include "i2c.h"
 
 #include "gpio.h"
+#include "dma.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "cmsis_os.h"
 /* USER CODE END 0 */
 
 I2C_HandleTypeDef hi2c3;
+DMA_HandleTypeDef hdma_i2c3_rx;
 
 /* I2C3 init function */
 void MX_I2C3_Init(void)
@@ -108,6 +110,26 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
 
     /* I2C3 clock enable */
     __HAL_RCC_I2C3_CLK_ENABLE();
+  
+    /* I2C3 DMA Init */
+    /* I2C3_RX Init */
+    hdma_i2c3_rx.Instance = DMA1_Stream1;
+    hdma_i2c3_rx.Init.Channel = DMA_CHANNEL_1;
+    hdma_i2c3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_i2c3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_i2c3_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_i2c3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_i2c3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_i2c3_rx.Init.Mode = DMA_NORMAL;
+    hdma_i2c3_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_i2c3_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_i2c3_rx) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
+
+    __HAL_LINKDMA(i2cHandle,hdmarx,hdma_i2c3_rx);
+
   /* USER CODE BEGIN I2C3_MspInit 1 */
 
   /* USER CODE END I2C3_MspInit 1 */
@@ -133,6 +155,8 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_8);
 
+    /* I2C3 DMA DeInit */
+    HAL_DMA_DeInit(i2cHandle->hdmarx);
   /* USER CODE BEGIN I2C3_MspDeInit 1 */
 
   /* USER CODE END I2C3_MspDeInit 1 */
@@ -140,7 +164,25 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+extern osSemaphoreId semMPU9250Handle;
 
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
+	/* Returns the semaphore taken after non-blocking reception begins. */
+	if (hi2c->Instance == I2C3){
+    	// Check I2C instance
+    	xSemaphoreGiveFromISR(semMPU9250Handle, pdTRUE);
+  }
+
+}
+
+void HAL_I2C_MemTXCpltCallback(I2C_HandleTypeDef *hi2c){
+	/* Returns the semaphore taken after non-blocking transmission begins. */
+	if (hi2c->Instance == I2C3){
+    	// Check I2C instance
+    	xSemaphoreGiveFromISR(semMPU9250Handle, pdTRUE);
+  }
+
+}
 /* USER CODE END 1 */
 
 /**

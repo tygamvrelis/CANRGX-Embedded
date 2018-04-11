@@ -17,6 +17,7 @@
 //#include "fmpi2c.h"
 #include "i2c.h"
 #include "freertos.h"
+#include "cmsis_os.h"
 #include <math.h>
 
 
@@ -124,6 +125,7 @@ extern const float g;
 
 /********************************* Functions *********************************/
 int MPU9250Init(MPU9250_t* myMPU);
+int magnetometerReadDMA(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId* sem);
 int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 
 #endif /* MPU9250_H_ */

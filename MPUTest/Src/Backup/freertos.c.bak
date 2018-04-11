@@ -84,6 +84,8 @@ uint32_t MPU9250TaskBuffer[ 256 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
+osSemaphoreId semDataLogHandle;
+osStaticSemaphoreDef_t semDataLogControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
@@ -152,6 +154,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of semMPU9250 */
   osSemaphoreStaticDef(semMPU9250, &semMPU9250ControlBlock);
   semMPU9250Handle = osSemaphoreCreate(osSemaphore(semMPU9250), 1);
+
+  /* definition and creation of semDataLog */
+  osSemaphoreStaticDef(semDataLog, &semDataLogControlBlock);
+  semDataLogHandle = osSemaphoreCreate(osSemaphore(semDataLog), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -227,7 +233,7 @@ void StartDataLogTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	  vTaskDelayUntil(&xLastWakeTime, 10); // Service this task every 10 milliseconds
+	  vTaskDelayUntil(&xLastWakeTime, 5); // Service this task every 5 milliseconds
 
 
 	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
@@ -238,20 +244,19 @@ void StartDataLogTask(void const * argument)
 					  ADC1_Filtered(0),
 					  uhADC_results[1],
 					  ADC1_Filtered(1),
-					  myMPU9250 -> az,
-					  myMPU9250 -> vy,
-					  myMPU9250 -> hx,
-					  myMPU9250 -> hy,
-					  myMPU9250 -> hz,
-					  myMPU9250 -> theEvent
+					  myMPU9250.az,
+					  myMPU9250.vy,
+					  myMPU9250.hx,
+					  myMPU9250.hy,
+					  myMPU9250.hz,
+					  myMPU9250.theEvent
 					  );
 	  //uint16_t str_size=strlen(print_buff);
 	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);
 
 	  //TODO: Down a semaphore here, and up it in the DMA callback
-	  while(HAL_UART_Transmit_DMA(&huart2, print_buff, str_size)!= HAL_OK){
-		  osDelay(5);
-	  }
+	  HAL_UART_Transmit_DMA(&huart2, print_buff, str_size);
+	  xSemaphoreTake(semDataLogHandle, portMAX_DELAY);
 
 	  //vTaskList(print_buff);
 	  //HAL_UART_Transmit_DMA(&huart2,print_buff, 150);
@@ -267,7 +272,8 @@ void StartMPU9250Task(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
-  uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
+  uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
+  uint8_t dataToWrite = MPU9250_MAG_ADDR | 0x80; // address of magnetometer | I2C read bit
   uint16_t temp;
 
   /* Infinite loop */
@@ -283,76 +289,67 @@ void StartMPU9250Task(void const * argument)
     //    1. Acquire data
     //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
-    //
-    // At 400 kHz bus speed, we are reading back 2 + 2 + 2 * 3 = 10 bytes, and also need to make the requests for the bytes.
-    // Each request is about 2 bytes (slave address, register address), and 3 requests are made.
-    // So total is about 16 bytes, so approximately 16 * 8 = 128 bits of data transferred in this section.
-    // 128 / 400,000 = 320 microseconds to acquire data. Also, during most of this time, other tasks can run since this is
-    // interrupt-driven with DMA
 
     // Read az
-    HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
-    //xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+    HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+//    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+//    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
     temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
-    myMPU9250 -> az = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE); // Scale to physical units
+    float myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0)); // Scale to physical units
+    myMPU9250.az = myVar;
 
 
     // Read vy
-	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
-	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+//    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+//    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
 	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> vy = (float) (temp / (32767) * MPU9250_ACCEL_FULL_SCALE);
+	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
 
 
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
-	// due to the way the registers are mapped
-	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_MAG_ADDR, MPU9250_MAG_X_ADDR_L, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6, 100);
-	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
+	// the ST2 register to be read in addition to other data
+//	magnetometerReadDMA(MPU9250_MAG_X_ADDR_L, 7, mpu_buff, &semMPU9250Handle);
+	magnetometerRead(MPU9250_MAG_X_ADDR_L, 7, mpu_buff);
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
 	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hx = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+	myMPU9250.hx = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
 	temp = (mpu_buff[3] << 8 | mpu_buff[2]);
 	temp = (mpu_buff[3] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hy = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+	myMPU9250.hy = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
 	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
 	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250 -> hz = (float) (temp / (32760) * MPU9250_MAG_FULL_SCALE);
+	myMPU9250.hz = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
 
 
 
 	/********** Use the data to update state **********/
 	//TODO
-	if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+	if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
 		// Transition from straight and level to pull-up
-		myMPU9250 -> theEvent = PULLUP;
+		myMPU9250.theEvent = PULLUP;
 	}
-	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
 		// Transition from pull-up to reduced gravity
-		myMPU9250 -> theEvent = REDUCEDGRAVITY;
+		myMPU9250.theEvent = REDUCEDGRAVITY;
 	}
-	else if(myMPU9250 -> vy > 2.5 && myMPU9250 -> az < -14.715){
+	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
 		// Transition from reduced gravity to pull-out
-		myMPU9250 -> theEvent = PULLOUT;
+		myMPU9250.theEvent = PULLOUT;
 	}
 	else{
 		// No state change
-		myMPU9250 -> theEvent = NONE;
+		myMPU9250.theEvent = NONE;
 	}
 
 	// TODO: Notify task to start experiment here
-
-
-
-
-
-	/********* Log data **********/
-	//TODO
   }
   /* USER CODE END StartMPU9250Task */
 }

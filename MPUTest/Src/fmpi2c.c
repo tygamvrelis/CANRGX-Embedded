@@ -53,7 +53,6 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-#include "cmsis_os.h"
 
 /* USER CODE END 0 */
 
@@ -139,16 +138,6 @@ void HAL_FMPI2C_MspDeInit(FMPI2C_HandleTypeDef* fmpi2cHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-//extern osSemaphoreId semMPU9250Handle;
-//
-//void HAL_FMPI2C_MemRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c){
-//	/* Returns the semaphore taken after non-blocking transmission begins. */
-//	if (hfmp2ic->Instance == FMPI2C1){
-//    	// Check I2C instance
-//    	xSemaphoreGiveFromISR(semMPU9250Handle, pdTRUE);
-//  }
-//
-//}
 
 /* USER CODE END 1 */
 

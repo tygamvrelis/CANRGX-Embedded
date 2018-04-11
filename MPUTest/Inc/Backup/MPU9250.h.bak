@@ -14,9 +14,10 @@
 
 /********************************** Includes **********************************/
 #include "stm32f4xx_hal.h"
-#include "fmpi2c.h"
-//#include "i2c.h"
+//#include "fmpi2c.h"
+#include "i2c.h"
 #include "freertos.h"
+#include "cmsis_os.h"
 #include <math.h>
 
 
@@ -25,21 +26,39 @@
 /*********************************** Macros ***********************************/
 // MPU9250_ACCEL_AND_GYRO_ADDR is the slave address that should be used when trying
 // to get the acceleration and gyroscope data. If the magnetometer data is to be
-// read, the slave address needs to be MPU9250_MAG_ADDR
-#define MPU9250_ACCEL_AND_GYRO_ADDR 0x68 << 1 // pg. 32 of datasheet (might also be 0x69 depending on the AD0 pin on the PCB)
-#define MPU9250_MAG_ADDR 0x0C << 1 // pg. 24 of datasheet
+// read, you need to use the MPU9250 slave control registers as it is seen as a slave
+// device.
+#define MPU9250_ACCEL_AND_GYRO_ADDR 0x68 << 1 // pg. 32 of datasheet. Also, this is shifted
+											  // 1 bit to the left because that's what ST's
+											  // HAL libraries require...apparently...
+#define MPU9250_MAG_ADDR 0x0C // pg. 24 of datasheet
+
 
 // Register addresses for configuration stuff
+// Accel and gyro addresses
 #define SMPLRT_DIV 0x19
 #define CONFIG 0x1A
 #define GYRO_CONFIG 0x1B
 #define ACCEL_CONFIG 0x1C
 #define ACCEL_CONFIG_2 0x1D
-#define LP_ACCEL_ODR 0x1E
 #define I2C_MST_CTRL 0x24 // Used to set I2C clock speed
+#define I2C_SLV0_ADDR 0x25 // Physical address of I2C slave 0
+#define I2C_SLV0_REG 0x26 // Slave 0 register from where to begin data transfer
+#define I2C_SLV0_CTRL 0x27 // Control register for data transactions with slave 0
+#define INT_PIN_CFG 0x37 //
+#define EXT_SENS_DATA_00 0x49 // Holds data from external sensors (i.e. magnetometer)
+#define I2C_SLV0_DO 0x63 // Data out when writing to slave 0
 #define USER_CTRL 0x6A // Used to enable I2C interface module
 #define PWR_MGMT_1 0x6B // Used to set the clock source for the accel & gyro
 #define PWR_MGMT_2 0x6C // Used to force accelerometer and gyroscope on
+#define WHO_AM_I 0x75 // Should ALWAYS be 0x71 so this is a good test of communication
+
+// Magnetometer data
+#define WIA 0x00 // Device ID, should always read 0x48
+#define ST1 0x02 // Data ready
+#define ST2 0x09 // Read this to indicate "read end". Also indicates if sensor overflow occurs
+#define CNTL1 0x0A // Changes bit depth and operating mode
+#define CNTL2 0x0B // Set the lsb to reset the sensor
 
 // Register addresses for accelerometer data (pg. 8 register map)
 #define MPU9250_ACCEL_X_ADDR_H 0x3B // AXH
@@ -49,6 +68,7 @@
 #define MPU9250_ACCEL_Z_ADDR_H 0x3F // AZH
 #define MPU9250_ACCEL_Z_ADDR_L 0x40 // AZL
 
+
 // Register addresses for gyroscope data (pg. 8 register map)
 #define MPU9250_GYRO_X_ADDR_H 0x43 // VXH
 #define MPU9250_GYRO_X_ADDR_L 0x44 // VXL
@@ -56,6 +76,7 @@
 #define MPU9250_GYRO_Y_ADDR_L 0x46 // VYL
 #define MPU9250_GYRO_Z_ADDR_H 0x47 // VZH
 #define MPU9250_GYRO_Z_ADDR_L 0x48 // VZL
+
 
 // Register addresses for magnetometer data (pg. 47 register map)
 #define MPU9250_MAG_X_ADDR_L 0x03 // HXL
@@ -65,10 +86,11 @@
 #define MPU9250_MAG_Z_ADDR_L 0x07 // HZL
 #define MPU9250_MAG_Z_ADDR_H 0x08 // HZH
 
+
 // Scales for readings
 #define MPU9250_ACCEL_FULL_SCALE 2 * g // twice the gravitationa acceleration due to Earth
-#define MPU9250_GYRO_FULL_SCALE 250 // degree/s
-#define MPU9250_MAG_FULL_SCALE 4912 // microTeslas. See pg. 50 of the register map
+#define MPU9250_GYRO_FULL_SCALE 250.0 // degree/s
+#define MPU9250_MAG_FULL_SCALE 4912.0 // microTeslas. See pg. 50 of the register map
 
 
 
@@ -95,7 +117,7 @@ typedef struct{
 
 
 /*********************************** Globals *********************************/
-extern MPU9250_t* myMPU9250;
+extern MPU9250_t myMPU9250;
 extern const float g;
 
 
@@ -103,5 +125,7 @@ extern const float g;
 
 /********************************* Functions *********************************/
 int MPU9250Init(MPU9250_t* myMPU);
+int magnetometerReadDMA(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId* sem);
+int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 
 #endif /* MPU9250_H_ */

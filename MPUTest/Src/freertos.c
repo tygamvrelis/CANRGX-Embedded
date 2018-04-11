@@ -291,8 +291,9 @@ void StartMPU9250Task(void const * argument)
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
 
     // Read az
-    HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
-    //xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+//    HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
     temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
     float myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0)); // Scale to physical units
@@ -300,8 +301,9 @@ void StartMPU9250Task(void const * argument)
 
 
     // Read vy
-	HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
-	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+//	HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
 	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
 	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
@@ -310,8 +312,8 @@ void StartMPU9250Task(void const * argument)
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
 	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
 	// the ST2 register to be read in addition to other data
+//	magnetometerReadDMA(MPU9250_MAG_X_ADDR_L, 7, mpu_buff, &semMPU9250Handle);
 	magnetometerRead(MPU9250_MAG_X_ADDR_L, 7, mpu_buff);
-	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
 	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
