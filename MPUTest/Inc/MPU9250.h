@@ -14,8 +14,8 @@
 
 /********************************** Includes **********************************/
 #include "stm32f4xx_hal.h"
-#include "fmpi2c.h"
-//#include "i2c.h"
+//#include "fmpi2c.h"
+#include "i2c.h"
 #include "freertos.h"
 #include <math.h>
 

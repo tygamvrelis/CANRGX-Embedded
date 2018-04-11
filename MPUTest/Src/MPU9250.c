@@ -41,7 +41,7 @@ int MPU9250Init(MPU9250_t* myMPU){
 	uint8_t buff[1];
 	// Check for bus communication essentially. If any function should fail and issue an early return, it would most likely
 	// be this one.
-	if(HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, WHO_AM_I, I2C_MEMADD_SIZE_8BIT, buff, 1, 100) != HAL_OK){
+	if(HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, WHO_AM_I, I2C_MEMADD_SIZE_8BIT, buff, 1, 100) != HAL_OK){
 		return -1;
 	}
 
@@ -55,32 +55,32 @@ int MPU9250Init(MPU9250_t* myMPU){
 	/********** Configure accelerometer and gyroscope **********/
 	// Use the best available clock source
 	uint8_t dataToWrite = 0x01;
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
 		return -3;
 	}
 
 	// Enable I2C master interface module
 	dataToWrite = 0x20;
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, USER_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, USER_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
 		return -4;
 	}
 
 
 	// Set I2C module to use 400 kHz speed (pg. 19 of register map)
 	dataToWrite = 0x0D;
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_MST_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_MST_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
 		return -5;
 	}
 
 	// Force accelerometer and gyroscope to ON
 	dataToWrite = 0x00;
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
 		return -6;
 	}
 
 	// Enable I2C bypass
 	dataToWrite = 0x02;
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, INT_PIN_CFG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, INT_PIN_CFG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
 		return -7;
 	}
 
@@ -135,14 +135,25 @@ int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff){
 	 */
 
 	uint8_t dataToWrite = MPU9250_MAG_ADDR | 0x80; // slave addr | read
-	HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100);
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
+		return -1;
+	}
 
 	dataToWrite = addr;
-	HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100);
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
+		return -2;
+	}
 
 	dataToWrite = 0x80 | numBytes; // Enable | transfer numBytes bytes
-	HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100);
-	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, buff, numBytes, 100);
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
+		return -3;
+	}
+
+	if(HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, buff, numBytes, 100) != HAL_OK){
+		return -4;
+	}
+
+	return 1;
 }
 
 int magnetometerWrite(uint8_t addr, uint8_t data){
@@ -155,22 +166,22 @@ int magnetometerWrite(uint8_t addr, uint8_t data){
 	 */
 
 	uint8_t dataToWrite = MPU9250_MAG_ADDR;
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
 		return -1;
 	}
 
 	dataToWrite = addr;
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
 		return -2;
 	}
 
 	dataToWrite = data; // Continuous measurement mode with 16-bit output
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_DO, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_DO, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
 		return -3;
 	}
 
 	dataToWrite = 0x80 | 1; // Enable | transfer 1 byte
-	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
+	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
 		return -4;
 	}
 

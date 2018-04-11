@@ -291,7 +291,7 @@ void StartMPU9250Task(void const * argument)
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
 
     // Read az
-    HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+    HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
     //xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
     temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
@@ -300,7 +300,7 @@ void StartMPU9250Task(void const * argument)
 
 
     // Read vy
-	HAL_FMPI2C_Mem_Read(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
+	HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
 	//xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
 	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
 	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
