@@ -107,7 +107,12 @@ enum flightEvents {
 // Stores data from the sensor in a global struct
 typedef struct{
 	float az; // Acceleration along z-axis
-	float vy; // Pitch rate about y-axis
+	float ay; // Acceleration along y-axis
+	float ax; // Acceleration along x-axis
+	double A;
+	float vz; // Yaw rate (about z-axis)
+	float vy; // Pitch rate (about y-axis)
+	float vx; // Roll rate (about x-axis)
 	float hx; // Magnetic field along x
 	float hy; // Magnetic field along y
 	float hz; // Magnetic field along z

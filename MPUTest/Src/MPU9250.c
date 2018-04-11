@@ -29,7 +29,12 @@ int MPU9250Init(MPU9250_t* myMPU){
 	 */
 
 	myMPU -> az = -1.0;
+	myMPU -> ay = -1.0;
+	myMPU -> ax = -1.0;
+	myMPU -> A = -1.0;
+	myMPU -> vz = -1.0;
 	myMPU -> vy = -1.0;
+	myMPU -> vx = -1.0;
 	myMPU -> hx = -1.0;
 	myMPU -> hy = -1.0;
 	myMPU -> hz = -1.0;

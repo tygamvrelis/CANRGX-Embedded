@@ -238,18 +238,22 @@ void StartDataLogTask(void const * argument)
 
 	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
 	  str_size = sprintf(print_buff,
-			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %6.3f, %6.3f, %7.2f, %7.2f, %7.2f, %d '\r' '\n\'",
+			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f '\r' '\n\'",
 			  	  	  (int) xTaskGetTickCount(),
 					  uhADC_results[0],
 					  ADC1_Filtered(0),
 					  uhADC_results[1],
 					  ADC1_Filtered(1),
 					  myMPU9250.az,
+					  myMPU9250.ay,
+					  myMPU9250.ax,
+					  myMPU9250.A,
+					  myMPU9250.vz,
 					  myMPU9250.vy,
+					  myMPU9250.vx,
 					  myMPU9250.hx,
 					  myMPU9250.hy,
-					  myMPU9250.hz,
-					  myMPU9250.theEvent
+					  myMPU9250.hz
 					  );
 	  //uint16_t str_size=strlen(print_buff);
 	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);
@@ -289,6 +293,8 @@ void StartMPU9250Task(void const * argument)
     //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
 
+
+    /********** Acceleration **********/
     // Read az
 //    HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
     HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
@@ -298,6 +304,30 @@ void StartMPU9250Task(void const * argument)
     float myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0)); // Scale to physical units
     myMPU9250.az = myVar;
 
+    // Read ay
+    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
+	myMPU9250.ay = myVar;
+
+	// Read ax
+	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
+	myMPU9250.ax = myVar;
+
+
+	/********** Gyroscope **********/
+    // Read vz
+	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.vz = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
 
     // Read vy
 //	HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
@@ -307,7 +337,15 @@ void StartMPU9250Task(void const * argument)
 	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
 	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
 
+    // Read vx
+	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.vx = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
 
+
+	/********** Magnetometer **********/
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
 	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
 	// the ST2 register to be read in addition to other data
@@ -331,22 +369,30 @@ void StartMPU9250Task(void const * argument)
 
 	/********** Use the data to update state **********/
 	//TODO
-	if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-		// Transition from straight and level to pull-up
-		myMPU9250.theEvent = PULLUP;
-	}
-	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-		// Transition from pull-up to reduced gravity
+	float accelMag = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
+	myMPU9250.A = accelMag;
+	if(accelMag < 0.981){
 		myMPU9250.theEvent = REDUCEDGRAVITY;
 	}
-	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-		// Transition from reduced gravity to pull-out
-		myMPU9250.theEvent = PULLOUT;
-	}
 	else{
-		// No state change
 		myMPU9250.theEvent = NONE;
 	}
+//	if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
+//		// Transition from straight and level to pull-up
+//		myMPU9250.theEvent = PULLUP;
+//	}
+//	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
+//		// Transition from pull-up to reduced gravity
+//		myMPU9250.theEvent = REDUCEDGRAVITY;
+//	}
+//	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
+//		// Transition from reduced gravity to pull-out
+//		myMPU9250.theEvent = PULLOUT;
+//	}
+//	else{
+//		// No state change
+//		myMPU9250.theEvent = NONE;
+//	}
 
 	// TODO: Notify task to start experiment here
   }
