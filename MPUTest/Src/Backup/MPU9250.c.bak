@@ -124,13 +124,13 @@ int MPU9250Init(MPU9250_t* myMPU){
 	return 1;
 }
 
-int magnetometerReadDMA(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId* sem){
+int magnetometerReadDMA(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId sem){
 	/* Reads from the magnetometer and stores the results in a buffer.
 	 *
 	 * Arguments: addr, the magnetometer register address to start reading from
 	 * 			  numBytes, the number of sequential bytes to read
 	 * 			  buff, the buffer to store the read data
-	 * 			  sem, the semaphore to down while transmitting
+	 * 			  sem, handle for the semaphore to down while transmitting
 	 *
 	 * Returns: 1 if successful, otherwise a negative error code
 	 */

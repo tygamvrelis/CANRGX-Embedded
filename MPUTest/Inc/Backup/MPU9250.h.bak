@@ -125,7 +125,7 @@ extern const float g;
 
 /********************************* Functions *********************************/
 int MPU9250Init(MPU9250_t* myMPU);
-int magnetometerReadDMA(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId* sem);
+int magnetometerReadDMA(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId sem);
 int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 
 #endif /* MPU9250_H_ */

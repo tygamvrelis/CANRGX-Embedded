@@ -273,7 +273,6 @@ void StartMPU9250Task(void const * argument)
   xLastWakeTime = xTaskGetTickCount();
 
   uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
-  uint8_t dataToWrite = MPU9250_MAG_ADDR | 0x80; // address of magnetometer | I2C read bit
   uint16_t temp;
 
   /* Infinite loop */
@@ -312,8 +311,8 @@ void StartMPU9250Task(void const * argument)
 	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
 	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
 	// the ST2 register to be read in addition to other data
-//	magnetometerReadDMA(MPU9250_MAG_X_ADDR_L, 7, mpu_buff, &semMPU9250Handle);
-	magnetometerRead(MPU9250_MAG_X_ADDR_L, 7, mpu_buff);
+	magnetometerReadIT(MPU9250_MAG_X_ADDR_L, 7, mpu_buff, semMPU9250Handle);
+//	magnetometerRead(MPU9250_MAG_X_ADDR_L, 7, mpu_buff);
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
 	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
