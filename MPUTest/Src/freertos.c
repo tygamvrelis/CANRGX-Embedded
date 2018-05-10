@@ -230,15 +230,20 @@ void StartDataLogTask(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
+  RTC_TimeTypeDef theTime;
+  RTC_DateTypeDef theDate;
+
   /* Infinite loop */
   for(;;)
   {
-	  vTaskDelayUntil(&xLastWakeTime, 5); // Service this task every 5 milliseconds
+	  vTaskDelayUntil(&xLastWakeTime, 10); // Service this task every 5 milliseconds
 
+	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD); // Get time from RTC
+	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD); // Mandatory call after GetTime
 
 	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
 	  str_size = sprintf(print_buff,
-			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f '\r' '\n\'",
+			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, Time: %02d.%02d.%02d.%03d '\r' '\n\'",
 			  	  	  (int) xTaskGetTickCount(),
 					  uhADC_results[0],
 					  ADC1_Filtered(0),
@@ -253,7 +258,11 @@ void StartDataLogTask(void const * argument)
 					  myMPU9250.vx,
 					  myMPU9250.hx,
 					  myMPU9250.hy,
-					  myMPU9250.hz
+					  myMPU9250.hz,
+					  theTime.Hours,
+					  theTime.Minutes,
+					  theTime.Seconds,
+					  (theTime.SecondFraction - theTime.SubSeconds) * 1000 / (theTime.SecondFraction + 1)
 					  );
 	  //uint16_t str_size=strlen(print_buff);
 	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);

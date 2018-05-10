@@ -188,6 +188,138 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
     	xSemaphoreGiveFromISR(semDataLogHandle, pdTRUE);
     }
 }
+
+//#define IO_RX_BUFFER_SIZE 256
+//#define IO_TX_QUEUE_SIZE 20
+//
+//uint8_t IO_rx_buff[IO_RX_BUFFER_SIZE];
+//uint16_t IO_rx_buff_head;
+//uint16_t IO_rx_buff_tail;
+//uint16_t IO_rx_buff_fill;
+//
+//uint8_t *IO_tx_queue_message_content[IO_TX_QUEUE_SIZE];
+//uint16_t IO_tx_queue_message_length[IO_TX_QUEUE_SIZE];
+//uint16_t IO_tx_buff_head;
+//uint16_t IO_tx_buff_tail;
+//uint16_t IO_tx_buff_fill;
+//uint8_t IO_rx_receive_placeholder;
+////SemaphoreHandle_t xUSART_Rx_Available;
+//
+//
+//void USART2_IO_init(void) {
+//  IO_rx_buff_head = 0;
+//  IO_rx_buff_tail = 0;
+//  IO_rx_buff_fill = 0;
+//  IO_tx_buff_head = 0;
+//  IO_tx_buff_tail = 0;
+//  IO_tx_buff_fill = 0;
+//
+//  //Start asking for data
+//  //HAL_UART_Receive_DMA(&huart2, &IO_rx_receive_placeholder, 1);
+//
+//  //xUSART_Rx_Available=xSemaphoreCreateCounting(IO_RX_BUFFER_SIZE,0);
+//}
+//
+//
+///*void USART2_IO_IRQHandler(UART_HandleTypeDef *huart) {
+//
+//  IO_rx_buff[IO_rx_buff_tail] = (uint8_t)(huart->Instance->DR & (uint8_t)0x00FF);
+//  IO_rx_buff_tail++;
+//  if (IO_rx_buff_tail == IO_RX_BUFFER_SIZE) {
+//    IO_rx_buff_tail = 0;
+//  }
+//  IO_rx_buff_fill++;
+//  //xSemaphoreGiveFromISR();
+//  if (IO_rx_buff_fill > IO_RX_BUFFER_SIZE) {
+//    //Buffer Overflow
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
+//}*/
+//
+//void USART2_IO_RxCpltCallback(UART_HandleTypeDef *huart) {
+//  IO_rx_buff[IO_rx_buff_tail] = IO_rx_receive_placeholder;
+//  IO_rx_buff_tail++;
+//  if (IO_rx_buff_tail == IO_RX_BUFFER_SIZE) {
+//    IO_rx_buff_tail = 0;
+//  }
+//  IO_rx_buff_fill++;
+//  //xSemaphoreGiveFromISR();
+//  if (IO_rx_buff_fill > IO_RX_BUFFER_SIZE) {
+//    //Buffer Overflow
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
+//  HAL_UART_Receive_DMA(&huart2, &IO_rx_receive_placeholder, 1);
+//}
+//
+//
+//void USART2_IO_TxCpltCallback(UART_HandleTypeDef *huart) {
+//  IO_tx_buff_fill--;
+//  IO_tx_buff_head++;
+//  if (IO_tx_buff_head == IO_TX_QUEUE_SIZE) {
+//    IO_tx_buff_head = 0;
+//  }
+//  if (IO_tx_buff_fill > 0) {
+//    //There is still things to transmit. Need to send.
+//    if (HAL_UART_Transmit_DMA(huart,
+//                              IO_tx_queue_message_content[IO_tx_buff_head],
+//                              IO_tx_queue_message_length[IO_tx_buff_head]) != HAL_OK) {
+//      //Unexpected condition: The TX bus should not be busy immediately after TxCpltCallback.
+//      _Error_Handler(__FILE__, __LINE__);
+//    }
+//  }
+//}
+//
+//
+//
+//void USART2_IO_Transmit(uint8_t *pData, uint16_t size) {
+//
+//  IO_tx_queue_message_content[IO_tx_buff_tail] = pData;
+//  IO_tx_queue_message_length[IO_tx_buff_tail] = size;
+//  IO_tx_buff_tail++;
+//  IO_tx_buff_fill++;
+//  if (IO_tx_buff_tail == IO_TX_QUEUE_SIZE) {
+//    IO_tx_buff_tail = 0;
+//  }
+//  if (IO_tx_buff_fill == 1) {
+//    //It was 0 before we added 1, so the queue should be empty before. So we need to initiate a transmit.
+//    if (HAL_UART_Transmit_DMA(&huart2, pData, size) != HAL_OK) {
+//      //Unexpected Behavior. Should not be busy if it is empty.
+//      _Error_Handler(__FILE__, __LINE__);
+//    }
+//  }
+//}
+//
+//HAL_StatusTypeDef USART2_IO_Receive(uint8_t *pData, uint16_t size) {
+//  if (size > IO_rx_buff_fill)
+//  {
+//    return HAL_TIMEOUT;
+//  } else {
+//    for (int i = 0; i < size; ++i) {
+//      pData[i] = IO_rx_buff[IO_rx_buff_head];
+//      IO_rx_buff_fill--;
+//      IO_rx_buff_head++;
+//      if (IO_rx_buff_head == IO_RX_BUFFER_SIZE) {
+//        IO_rx_buff_head = 0;
+//      }
+//    }
+//    return HAL_OK;
+//  }
+//}
+//
+//void HAL_UART_TxCpltCallback(UART_HandleTypeDef * huart) {
+//  if (huart->Instance == USART2) {
+//    USART2_IO_TxCpltCallback(huart);
+//  }
+//
+//}
+//
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef * huart) {
+//  if (huart->Instance == USART2) {
+//    USART2_IO_RxCpltCallback(huart);
+//  }
+//
+//}
+
 /* USER CODE END 1 */
 
 /**
