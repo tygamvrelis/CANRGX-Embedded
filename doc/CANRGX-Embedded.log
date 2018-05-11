@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  11 APR 2018 11:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  11 MAY 2018 01:36
 entering extended mode
 **./CANRGX-Embedded.tex
 (CANRGX-Embedded.tex
@@ -389,19 +389,24 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 191.
 
-Underfull \hbox (badness 10000) in paragraph at lines 196--199
+Underfull \hbox (badness 10000) in paragraph at lines 195--201
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 196--199
+Underfull \hbox (badness 10000) in paragraph at lines 195--201
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 195--201
 
  []
 
 [5
 
 ]
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 200.
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 202.
 
  ("D:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1pcr.fd"
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
@@ -411,7 +416,7 @@ File: images/MPU9250_axisOrientation.jpg Graphic file (type jpg)
 
 <use images/MPU9250_axisOrientation.jpg>
 Package pdftex.def Info: images/MPU9250_axisOrientation.jpg used on input line 
-204.
+206.
 (pdftex.def)             Requested size: 352.31624pt x 242.57568pt.
 
 <images/MPU9250_magnetometerRegs.jpg, id=29, 973.6375pt x 890.32625pt>
@@ -419,40 +424,40 @@ File: images/MPU9250_magnetometerRegs.jpg Graphic file (type jpg)
 
 <use images/MPU9250_magnetometerRegs.jpg>
 Package pdftex.def Info: images/MPU9250_magnetometerRegs.jpg used on input line
- 212.
+ 214.
 (pdftex.def)             Requested size: 352.31624pt x 322.16103pt.
  [6 <./images/MPU9250_axisOrientation.jpg>] [7 <./images/MPU9250_magnetometerRe
 gs.jpg>]
-Underfull \hbox (badness 10000) in paragraph at lines 236--242
+Underfull \hbox (badness 10000) in paragraph at lines 238--244
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 265--268
+Underfull \hbox (badness 10000) in paragraph at lines 267--270
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 265--268
+Underfull \hbox (badness 10000) in paragraph at lines 267--270
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 269--275
+Underfull \hbox (badness 10000) in paragraph at lines 271--277
 
  []
 
 [8
 
 ]
-Overfull \hbox (32.14569pt too wide) in paragraph at lines 303--304
+Overfull \hbox (32.14569pt too wide) in paragraph at lines 299--300
 []\OT1/cmr/m/n/10 The ac-qui-si-tion of the ac-celerom-e-ter and gy-ro-scope da
 ta is ac-com-plished us-ing DMA. First, \OT1/pcr/m/n/10 HAL[]I2C[]Mem[]Read[]DM
 A
  []
 
 
-Overfull \hbox (11.12314pt too wide) in paragraph at lines 303--304
+Overfull \hbox (11.12314pt too wide) in paragraph at lines 299--300
 \OT1/cmr/m/n/10 is called to ini-ti-ate the data trans-fers, and then \OT1/pcr/
 m/n/10 xSemaphoreTake(semMPU9250Handle, portMAX[]DELAY)
  []
@@ -464,18 +469,18 @@ m/n/10 xSemaphoreTake(semMPU9250Handle, portMAX[]DELAY)
 ] [12
 
 ]
-Overfull \hbox (0.24475pt too wide) in paragraph at lines 345--346
+Overfull \hbox (0.24475pt too wide) in paragraph at lines 341--342
 \OT1/cmr/m/n/10 The afore-men-tioned com-po-nents were in-te-grated us-ing a ST
 M32F446RE mi-cro-con-troller on a Nucleo-F446RE
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 354--354
+Underfull \hbox (badness 10000) in paragraph at lines 352--352
 []|\OT1/cmr/m/n/10 Offset
  []
 
 
-Overfull \hbox (44.23624pt too wide) in paragraph at lines 352--365
+Overfull \hbox (44.23624pt too wide) in paragraph at lines 350--365
  [][] 
  []
 
@@ -491,7 +496,7 @@ Here is how much of TeX's memory you used:
  8567 multiletter control sequences out of 15000+200000
  12720 words of font info for 49 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,11n,43p,698b,378s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 42i,11n,43p,759b,378s stack positions out of 5000i,500n,10000p,200000b,50000s
 {D:/Program Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc
 }<D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><D:/Pro
 gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><D:/Program Fil
@@ -505,7 +510,7 @@ b><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><D:/Pr
 ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D:/Program Fi
 les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><D:/Program Files/MiKT
 eX 2.9/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on CANRGX-Embedded.pdf (13 pages, 411562 bytes).
+Output written on CANRGX-Embedded.pdf (13 pages, 411684 bytes).
 PDF statistics:
  100 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

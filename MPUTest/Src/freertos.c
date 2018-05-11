@@ -134,11 +134,14 @@ return 0;
 }
 
 // Stuff for data logging
-enum taskIDs { TECTask, MPUTask };
+typedef enum{
+	TECTask,
+	MPUTask
+}taskID_t;
 
 typedef struct{
 	uint8_t size; // Total number of useful bytes used in this message
-	uint8_t taskID; // Indicates which task is sending the message
+	taskID_t taskID; // Indicates which task is sending the message
 	union data{
 		double arrDouble[10];
 		uint8_t arrUint[40];
@@ -275,6 +278,17 @@ void StartTxTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+	  // TODO: Basically, the way this can work is as follows. First,
+	  // there have to be ring buffers within each task for the data
+	  // that is to be transmitted. Then, the pointers to the various
+	  // elements in the ring buffers are enqueued. The transmit task
+	  // can use the pointers to access each element and compose packets
+	  //
+	  // How to synchronize data between tasks? One way is that each task
+	  // could get the current tick count, and we could group them based
+	  // on that...
+
+
 	  /********** Wait for something to transmit **********/
 	  if(xQueueReceive(txQueueHandle, buffer, portMAX_DELAY)){
 
