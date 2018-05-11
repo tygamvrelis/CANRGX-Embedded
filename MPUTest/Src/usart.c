@@ -180,12 +180,20 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-extern osSemaphoreId semDataLogHandle;
+extern osSemaphoreId semTxHandle;
+extern osSemaphoreId semRxHandle;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
     if (huart->Instance == USART2){
     	// Check USART instance
-    	xSemaphoreGiveFromISR(semDataLogHandle, pdTRUE);
+    	xSemaphoreGiveFromISR(semTxHandle, pdTRUE);
+    }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+    if (huart->Instance == USART2){
+    	// Check USART instance
+    	xSemaphoreGiveFromISR(semRxHandle, pdTRUE);
     }
 }
 

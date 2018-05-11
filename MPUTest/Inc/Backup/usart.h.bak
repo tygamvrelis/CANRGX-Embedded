@@ -72,7 +72,11 @@ extern void _Error_Handler(char *, int);
 void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+//void USART2_IO_init(void);
+//
+//void USART2_IO_Transmit(uint8_t *pData, uint16_t size);
+//
+//HAL_StatusTypeDef USART2_IO_Receive(uint8_t *pData, uint16_t size);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

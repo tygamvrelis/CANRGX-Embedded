@@ -76,28 +76,36 @@ osStaticThreadDef_t defaultTaskControlBlock;
 osThreadId TECContrlTaskHandle;
 uint32_t TECContrlTaskBuffer[ 256 ];
 osStaticThreadDef_t TECContrlTaskControlBlock;
-osThreadId DataLogTaskHandle;
+osThreadId TxTaskHandle;
 uint32_t DataLogTaskBuffer[ 512 ];
 osStaticThreadDef_t DataLogTaskControlBlock;
 osThreadId MPU9250TaskHandle;
 uint32_t MPU9250TaskBuffer[ 256 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
+osThreadId RxTaskHandle;
+uint32_t rxTaskBuffer[ 512 ];
+osStaticThreadDef_t rxTaskControlBlock;
+osMessageQId txQueueHandle;
+uint8_t txQueueBuffer[ 64 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t txQueueControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
-osSemaphoreId semDataLogHandle;
-osStaticSemaphoreDef_t semDataLogControlBlock;
+osSemaphoreId semTxHandle;
+osStaticSemaphoreDef_t semTxControlBlock;
+osSemaphoreId semRxHandle;
+osStaticSemaphoreDef_t semRxControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
 //volatile uint16_t uhADC_results[ADC_DATA_N];
-static char print_buff[400];
-uint16_t str_size;
+
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
 void StartTECContrlTask(void const * argument);
-void StartDataLogTask(void const * argument);
+void StartTxTask(void const * argument);
+void StartRxTask(void const * argument);
 void StartMPU9250Task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -124,6 +132,20 @@ __weak unsigned long getRunTimeCounterValue(void)
 {
 return 0;
 }
+
+// Stuff for data logging
+enum taskIDs { TECTask, MPUTask };
+
+typedef struct{
+	uint8_t size; // Total number of useful bytes used in this message
+	uint8_t taskID; // Indicates which task is sending the message
+	union data{
+		double arrDouble[10];
+		uint8_t arrUint[40];
+		int arrInt[10];
+	};
+}Message_t;
+
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -155,9 +177,13 @@ void MX_FREERTOS_Init(void) {
   osSemaphoreStaticDef(semMPU9250, &semMPU9250ControlBlock);
   semMPU9250Handle = osSemaphoreCreate(osSemaphore(semMPU9250), 1);
 
-  /* definition and creation of semDataLog */
-  osSemaphoreStaticDef(semDataLog, &semDataLogControlBlock);
-  semDataLogHandle = osSemaphoreCreate(osSemaphore(semDataLog), 1);
+  /* definition and creation of semTx */
+  osSemaphoreStaticDef(semTx, &semTxControlBlock);
+  semTxHandle = osSemaphoreCreate(osSemaphore(semTx), 1);
+
+  /* definition and creation of semRx */
+  osSemaphoreStaticDef(semRx, &semRxControlBlock);
+  semRxHandle = osSemaphoreCreate(osSemaphore(semRx), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -176,17 +202,26 @@ void MX_FREERTOS_Init(void) {
   osThreadStaticDef(TECContrlTask, StartTECContrlTask, osPriorityAboveNormal, 0, 256, TECContrlTaskBuffer, &TECContrlTaskControlBlock);
   TECContrlTaskHandle = osThreadCreate(osThread(TECContrlTask), NULL);
 
-  /* definition and creation of DataLogTask */
-  osThreadStaticDef(DataLogTask, StartDataLogTask, osPriorityHigh, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
-  DataLogTaskHandle = osThreadCreate(osThread(DataLogTask), NULL);
+  /* definition and creation of TxTask */
+  osThreadStaticDef(TxTask, StartTxTask, osPriorityHigh, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
+  TxTaskHandle = osThreadCreate(osThread(TxTask), NULL);
 
   /* definition and creation of MPU9250Task */
   osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityRealtime, 0, 256, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
   MPU9250TaskHandle = osThreadCreate(osThread(MPU9250Task), NULL);
 
+  /* definition and creation of RxTask */
+  osThreadStaticDef(RxTask, StartRxTask, osPriorityHigh, 0, 512, rxTaskBuffer, &rxTaskControlBlock);
+  RxTaskHandle = osThreadCreate(osThread(RxTask), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
+  /* Create the queue(s) */
+  /* definition and creation of txQueue */
+  osMessageQStaticDef(txQueue, 64, uint32_t, txQueueBuffer, &txQueueControlBlock);
+  txQueueHandle = osMessageCreate(osMessageQ(txQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -199,10 +234,9 @@ void StartDefaultTask(void const * argument)
 
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-  osDelay(5);
   for(;;)
   {
-    osDelay(100);
+
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -212,7 +246,10 @@ void StartTECContrlTask(void const * argument)
 {
   /* USER CODE BEGIN StartTECContrlTask */
   /* Infinite loop */
+
+	// TODO: Delete this while loop preventing the task from running
 	while(1){osDelay(10);}
+
 	static float ratio_tmp=0;
 	for(;;)
 	{
@@ -223,59 +260,35 @@ void StartTECContrlTask(void const * argument)
   /* USER CODE END StartTECContrlTask */
 }
 
-/* StartDataLogTask function */
-void StartDataLogTask(void const * argument)
+/* StartTxTask function */
+void StartTxTask(void const * argument)
 {
-  /* USER CODE BEGIN StartDataLogTask */
+  /* USER CODE BEGIN StartTxTask */
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
-  RTC_TimeTypeDef theTime;
-  RTC_DateTypeDef theDate;
+  // Local vars that will be packed into tx packets
+  uint32_t tick = 0;
+  uint32_t id = 0;
+  uint32_t buffer[100];
 
   /* Infinite loop */
   for(;;)
   {
-	  vTaskDelayUntil(&xLastWakeTime, 10); // Service this task every 5 milliseconds
+	  /********** Wait for something to transmit **********/
+	  if(xQueueReceive(txQueueHandle, buffer, portMAX_DELAY)){
 
-	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD); // Get time from RTC
-	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD); // Mandatory call after GetTime
+		  /********** Obligatory packing **********/
+		  tick = xTaskGetTickCount(); // Current tick
+		  id = id++; // Message ID
 
-	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
-	  str_size = sprintf(print_buff,
-			  	  	  "%5d, %d, %4.2f, %d, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, %4.2f, Time: %02d.%02d.%02d.%03d '\r' '\n\'",
-			  	  	  (int) xTaskGetTickCount(),
-					  uhADC_results[0],
-					  ADC1_Filtered(0),
-					  uhADC_results[1],
-					  ADC1_Filtered(1),
-					  myMPU9250.az,
-					  myMPU9250.ay,
-					  myMPU9250.ax,
-					  myMPU9250.A,
-					  myMPU9250.vz,
-					  myMPU9250.vy,
-					  myMPU9250.vx,
-					  myMPU9250.hx,
-					  myMPU9250.hy,
-					  myMPU9250.hz,
-					  theTime.Hours,
-					  theTime.Minutes,
-					  theTime.Seconds,
-					  (theTime.SecondFraction - theTime.SubSeconds) * 1000 / (theTime.SecondFraction + 1)
-					  );
-	  //uint16_t str_size=strlen(print_buff);
-	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);
-
-	  //TODO: Down a semaphore here, and up it in the DMA callback
-	  HAL_UART_Transmit_DMA(&huart2, print_buff, str_size);
-	  xSemaphoreTake(semDataLogHandle, portMAX_DELAY);
-
-	  //vTaskList(print_buff);
-	  //HAL_UART_Transmit_DMA(&huart2,print_buff, 150);
-	  //osDelay(30);
+		  /********** Transmit **********/
+		  HAL_UART_Transmit_DMA(&huart2, buffer, buffer[0]);
+		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
+		  xSemaphoreTake(semTxHandle, portMAX_DELAY);
+	  }
   }
-  /* USER CODE END StartDataLogTask */
+  /* USER CODE END StartTxTask */
 }
 
 /* StartMPU9250Task function */
@@ -403,9 +416,29 @@ void StartMPU9250Task(void const * argument)
 //		myMPU9250.theEvent = NONE;
 //	}
 
+
 	// TODO: Notify task to start experiment here
   }
   /* USER CODE END StartMPU9250Task */
+}
+
+/* StartRxTask function */
+void StartRxTask(void const * argument)
+{
+  /* USER CODE BEGIN StartRxTask */
+  uint8_t buffer[1];
+
+  /* Infinite loop */
+  for(;;)
+  {
+	 HAL_UART_Receive_IT(&huart2, buffer, 1);
+	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY)){
+		 // TODO: Parse input and do something based on it
+		 // TODO: Remove DMA channel for UART in cube
+		 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
+	 }
+  }
+  /* USER CODE END StartRxTask */
 }
 
 /* USER CODE BEGIN Application */
