@@ -142,6 +142,8 @@ return 0;
 	#error *** HEY! Tyler here. Make configUSE_QUEUE_SETS in FreeRTOS.h equal to 1 ***
 #endif
 
+// LED blink for debugging (green LED, LD2)
+#define LED() HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5)
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -255,8 +257,6 @@ void StartTECContrlTask(void const * argument)
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
-	while(1){osDelay(10);}
-
 	static float ratio_tmp = 0;
 	for(;;)
 	{
@@ -281,13 +281,13 @@ void StartTxTask(void const * argument)
   /* USER CODE BEGIN StartTxTask */
   /********** For inter-task communication **********/
   QueueSetMemberHandle_t xActivatedMember; // Used to see which queue sent event data
-// TODO: uint32_t tick = 0; 		// Used as a timeout
-  uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
   uint32_t taskRxEventBuff; // Buffer to receive data from event queues
+  uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
+// TODO: uint32_t tick = 0; 		// Used as a timeout
 
 
-  /********** Local vars used for packet packing **********/
-  uint8_t buffer[46] = {0};
+  /********** Local vars used for packet **********/
+  uint8_t buffer[50] = {0};
 
   // Dummy bits to indicate packet start
   buffer[0] = 0xFF;
@@ -301,9 +301,16 @@ void StartTxTask(void const * argument)
   uint8_t* magX = &buffer[18];
   uint8_t* magY = &buffer[22];
   uint8_t* magZ = &buffer[26];
-  uint8_t* magPower = &buffer[30];
-  uint8_t* tecPower = &buffer[34];
-  uint8_t* temperature = &buffer[38];
+  uint8_t* mag1Power = &buffer[30];
+  uint8_t* mag2Power = &buffer[32];
+  uint8_t* tec1Power = &buffer[34];
+  uint8_t* tec2Power = &buffer[36];
+  uint8_t* thermocouple1 = &buffer[38];
+  uint8_t* thermocouple2 = &buffer[40];
+  uint8_t* thermocouple3 = &buffer[42];
+  uint8_t* thermocouple4 = &buffer[44];
+  uint8_t* thermocouple5 = &buffer[46];
+  uint8_t* thermocouple6 = &buffer[48];
 
 
   /* Infinite loop */
@@ -333,20 +340,22 @@ void StartTxTask(void const * argument)
 		  taskFlags = taskFlags | 0b00000010;
 
 		  /* Copy data to buffer */
-		  *tecPower = taskRxEventBuff; // TODO: idk if this is what we wanna send back for TEC
+		  uint16_t tec1data = taskRxEventBuff & 0xFF;
+		  uint16_t tec2data = (taskRxEventBuff >> 8) & 0xFF;
+		  memcpy(tec1Power, &tec1data, sizeof(uint16_t)); // TODO: idk if this is what we wanna send back for TEC 1
+		  memcpy(tec1Power, &tec2data, sizeof(uint16_t)); // TODO: idk if this is what we wanna send back for TEC 2
 	  }
 
-	  // This runs when all tasks have fresh data
-	  if(taskFlags == 0b00000001){
+
+	  /********** This runs when all tasks have fresh data **********/
+	  if(taskFlags == 0b00000011){
 		  /* Obligatory packing */
 		  TickType_t curTick = xTaskGetTickCount();
 		  memcpy(tickStart, &curTick, sizeof(TickType_t));
 
 		  /* Transmit */
 		  HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
-		  //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
 		  xSemaphoreTake(semTxHandle, portMAX_DELAY);
-
 
 		  /* Clear activation flags */
 		  taskFlags = 0x00;
@@ -374,21 +383,17 @@ void StartMPU9250Task(void const * argument)
     //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
 
-
     /* Acceleration */
-    // Read ax, ay, az
-    accelReadDMA(&myMPU9250, semMPU9250Handle);
+    accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
 	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
 
 
 	/* Gyroscope -- not used presently */
-	// Read vx, vy, vz
-//	gyroReadDMA(&myMPU9250, semMPU9250Handle);
+//	gyroReadDMA(&myMPU9250, semMPU9250Handle); // Read vx, vy, vz
 
 
 	/* Magnetometer */
-	// Read hx, hy, hz
-	magFluxReadDMA(&myMPU9250, semMPU9250Handle);
+	magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 
 
 	/********** Tell transmit task that new data is read **********/
@@ -423,7 +428,7 @@ void StartRxTask(void const * argument)
 	 HAL_UART_Receive_IT(&huart2, buffer, 1);
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
-		 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
+		 LED();
 	 }
 	 else{
 		 // Should never reach here

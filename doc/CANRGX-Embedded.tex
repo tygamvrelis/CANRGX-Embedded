@@ -349,13 +349,13 @@ $$B_t = 23.04 \ [bytes/s]$$
 This is seen in \ref{eq:byterate}. Note that there are 10 bits transmitted per byte since for each byte transferred (8 bits), there is also a start bit and a stop bit.
 
 \begin{equation}\label{eq:byterate}
-(230400 \text{ [symbols/s]})
+\frac{230400 \text{ [symbols]}}{\text{[s]}}
 \times 
-(1 \text{ [bit transmitted/symbol]})
+\frac{1 \text{ [bit \ transmitted]}}{\text{symbol}}
 \times
-\Big(\frac{1}{10} \text{ [byte/bit transmitted]}\Big)
+\frac{1 \text{ [bytes]}}{10 \text{ [bits transmitted]}}
 \times
-\Big(\frac{1 \text{ [s]}}{1000 \text{ [ms]}}\Big)
+\frac{1 \text{ [s]}}{1000 \text{ [ms]}}
 =
 23.04 \text{ [bytes/ms]}
 \end{equation}
@@ -385,15 +385,29 @@ The packet format was as follows:
 		\hline
 		Magnetic flux density Z & float & 4 & 26 & $\mu T$ & $\pm 4912$ & TODO \\ 
 		\hline
-		Magnet power & TODO & TODO & 30 & TODO & TODO & TODO \\ 
+		Magnet 1 power & uint16\_t & 2 & 30 & TODO & TODO & TODO \\ 
 		\hline
-	    TEC power & TODO & TODO & TODO & TODO & TODO & TODO \\ 
+		Magnet 1 power & uint16\_t & 2 & 32 & TODO & TODO & TODO \\ 
 		\hline
-		Temperature & TODO & TODO & TODO & TODO & TODO & TODO \\ 
+	    TEC 1 power & uint16\_t & 2 & 34 & TODO & TODO & TODO \\ 
+		\hline
+		TEC 1 power & uint16\_t & 2 & 36 & TODO & TODO & TODO \\ 
+		\hline
+		Thermocouple 1 & uint16\_t & 2 & 38 & TODO & TODO & TODO \\ 
+		\hline
+		Thermocouple 2 & uint16\_t & 2 & 40 & TODO & TODO & TODO \\ 
+		\hline
+		Thermocouple 3 & uint16\_t & 2 & 42 & TODO & TODO & TODO \\ 
+		\hline
+		Thermocouple 4 & uint16\_t & 2 & 44 & TODO & TODO & TODO \\ 
+		\hline
+		Thermocouple 5 & uint16\_t & 2 & 46 & TODO & TODO & TODO \\ 
+		\hline
+		Thermocouple 6 & uint16\_t & 2 & 48 & TODO & TODO & TODO \\ 
 		\hline
 		
 	\end{tabular}
-	\caption{Form of packet to PC}
+	\caption{Form of packet to PC. Total length: 50 bytes}
 	\label{tab:PCPacketFormat}
 \end{table}
 

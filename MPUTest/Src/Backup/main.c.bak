@@ -52,7 +52,6 @@
 #include "cmsis_os.h"
 #include "adc.h"
 #include "dma.h"
-#include "fmpi2c.h"
 #include "i2c.h"
 #include "rtc.h"
 #include "spi.h"
@@ -120,7 +119,6 @@ int main(void)
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_ADC3_Init();
-  MX_FMPI2C1_Init();
   MX_I2C3_Init();
   MX_RTC_Init();
   MX_SPI2_Init();
@@ -209,9 +207,8 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_FMPI2C1;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-  PeriphClkInitStruct.Fmpi2c1ClockSelection = RCC_FMPI2C1CLKSOURCE_APB;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
