@@ -146,7 +146,7 @@ int magnetometerReadIT(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphor
 	}
 	xSemaphoreTake(sem, portMAX_DELAY);
 
-	dataToWrite = addr;
+	dataToWrite = addr; // Address within magnetometer to read from
 	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
 		return -2;
 	}

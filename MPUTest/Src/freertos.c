@@ -85,9 +85,12 @@ osStaticThreadDef_t MPU9250TaskControlBlock;
 osThreadId RxTaskHandle;
 uint32_t rxTaskBuffer[ 512 ];
 osStaticThreadDef_t rxTaskControlBlock;
-osMessageQId txQueueHandle;
-uint8_t txQueueBuffer[ 64 * sizeof( uint32_t ) ];
-osStaticMessageQDef_t txQueueControlBlock;
+osMessageQId xMPUEventQueueHandle;
+uint8_t xMPUEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t xMPUEventQueueControlBlock;
+osMessageQId xTECEventQueueHandle;
+uint8_t xTECEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t xTECEventQueueControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
 osSemaphoreId semTxHandle;
@@ -99,14 +102,16 @@ osStaticSemaphoreDef_t semRxControlBlock;
 //#define ADC_DATA_N 12
 //volatile uint16_t uhADC_results[ADC_DATA_N];
 
+QueueSetHandle_t xTxQueueSet;
+
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
 void StartTECContrlTask(void const * argument);
 void StartTxTask(void const * argument);
-void StartRxTask(void const * argument);
 void StartMPU9250Task(void const * argument);
+void StartRxTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -133,42 +138,26 @@ __weak unsigned long getRunTimeCounterValue(void)
 return 0;
 }
 
-// Stuff for data logging
-typedef enum{
-	TECTask,
-	MPUTask
-}taskID_t;
-
-typedef struct{
-	uint8_t size; // Total number of useful bytes used in this message
-	taskID_t taskID; // Indicates which task is sending the message
-	union data{
-		double arrDouble[10];
-		uint8_t arrUint[40];
-		int arrInt[10];
-	};
-}Message_t;
-
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
 static StaticTask_t xIdleTaskTCBBuffer;
 static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
-  
+
 void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
 {
   *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
   *ppxIdleTaskStackBuffer = &xIdleStack[0];
   *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
   /* place for user code */
-}                   
+}
 /* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /* Init FreeRTOS */
 
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-       
+
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -198,19 +187,19 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadStaticDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 1024, defaultTaskBuffer, &defaultTaskControlBlock);
+  osThreadStaticDef(defaultTask, StartDefaultTask, osPriorityIdle, 0, 1024, defaultTaskBuffer, &defaultTaskControlBlock);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of TECContrlTask */
-  osThreadStaticDef(TECContrlTask, StartTECContrlTask, osPriorityAboveNormal, 0, 256, TECContrlTaskBuffer, &TECContrlTaskControlBlock);
+  osThreadStaticDef(TECContrlTask, StartTECContrlTask, osPriorityHigh, 0, 256, TECContrlTaskBuffer, &TECContrlTaskControlBlock);
   TECContrlTaskHandle = osThreadCreate(osThread(TECContrlTask), NULL);
 
   /* definition and creation of TxTask */
-  osThreadStaticDef(TxTask, StartTxTask, osPriorityHigh, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
+  osThreadStaticDef(TxTask, StartTxTask, osPriorityRealtime, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
   TxTaskHandle = osThreadCreate(osThread(TxTask), NULL);
 
   /* definition and creation of MPU9250Task */
-  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityRealtime, 0, 256, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
+  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityHigh, 0, 256, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
   MPU9250TaskHandle = osThreadCreate(osThread(MPU9250Task), NULL);
 
   /* definition and creation of RxTask */
@@ -222,12 +211,22 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_THREADS */
 
   /* Create the queue(s) */
-  /* definition and creation of txQueue */
-  osMessageQStaticDef(txQueue, 64, uint32_t, txQueueBuffer, &txQueueControlBlock);
-  txQueueHandle = osMessageCreate(osMessageQ(txQueue), NULL);
+  /* definition and creation of xMPUEventQueue */
+  osMessageQStaticDef(xMPUEventQueue, 1, uint32_t, xMPUEventQueueBuffer, &xMPUEventQueueControlBlock);
+  xMPUEventQueueHandle = osMessageCreate(osMessageQ(xMPUEventQueue), NULL);
+
+  /* definition and creation of xTECEventQueue */
+  osMessageQStaticDef(xTECEventQueue, 1, uint32_t, xTECEventQueueBuffer, &xTECEventQueueControlBlock);
+  xTECEventQueueHandle = osMessageCreate(osMessageQ(xTECEventQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+
+  /* Create the queue set(s) */
+  /* definition and creation of xTxQueueSet */
+  xTxQueueSet = xQueueCreateSet( 1 + 1 ); // Argument is the sum of the queue sizes for all event queues
+  xQueueAddToSet(xMPUEventQueueHandle, xTxQueueSet);
+  xQueueAddToSet(xTECEventQueueHandle, xTxQueueSet);
   /* USER CODE END RTOS_QUEUES */
 }
 
@@ -249,16 +248,27 @@ void StartTECContrlTask(void const * argument)
 {
   /* USER CODE BEGIN StartTECContrlTask */
   /* Infinite loop */
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
 
-	// TODO: Delete this while loop preventing the task from running
-	while(1){osDelay(10);}
-
-	static float ratio_tmp=0;
+	static float ratio_tmp = 0;
 	for(;;)
 	{
-		ratio_tmp=(1.0+sinf(0.02*xTaskGetTickCount()))/2.0;
-		TEC_set_valuef(ratio_tmp,ratio_tmp);
-	  	osDelay(2);
+		vTaskDelayUntil(&xLastWakeTime, TEC_CYCLE_MS); // Service this task every TEC_CYCLE_MS milliseconds
+
+
+
+
+		/********** Update PWM duty cycle **********/
+		ratio_tmp = (1.0 + sinf(0.02 * xTaskGetTickCount())) / 2.0;
+		TEC_set_valuef(ratio_tmp, ratio_tmp);
+
+
+
+
+		/********** Tell transmit task that new data is ready **********/
+//		xQueueSend(xTECEventQueueHandle, &ratio_tmp, 0);
+		xQueueOverwrite(xTECEventQueueHandle, &ratio_tmp);
 	}
   /* USER CODE END StartTECContrlTask */
 }
@@ -267,39 +277,83 @@ void StartTECContrlTask(void const * argument)
 void StartTxTask(void const * argument)
 {
   /* USER CODE BEGIN StartTxTask */
-  TickType_t xLastWakeTime;
-  xLastWakeTime = xTaskGetTickCount();
+  /********** For inter-task communication **********/
+  QueueSetMemberHandle_t xActivatedMember; // Used to see which queue sent event data
+// TODO: uint32_t tick = 0; 		// Used as a timeout
+  uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
+  uint32_t taskRxEventBuff; // Buffer to receive data from event queues
 
-  // Local vars that will be packed into tx packets
-  uint32_t tick = 0;
-  uint32_t id = 0;
-  uint32_t buffer[100];
+
+
+
+  /********** Local vars used for packet packing **********/
+  uint8_t buffer[46] = {0};
+
+  // Dummy bits to indicate packet start
+  buffer[0] = 0xFF;
+  buffer[1] = 0xFF;
+
+  // Addresses in buffer for each datum
+  uint8_t* tickStart = &buffer[2];
+  uint8_t* accelX = &buffer[6];
+  uint8_t* accelY = &buffer[10];
+  uint8_t* accelZ = &buffer[14];
+  uint8_t* magX = &buffer[18];
+  uint8_t* magY = &buffer[22];
+  uint8_t* magZ = &buffer[26];
+  uint8_t* magPower = &buffer[30];
+  uint8_t* tecPower = &buffer[34];
+  uint8_t* temperature = &buffer[38];
+
+
+
 
   /* Infinite loop */
   for(;;)
   {
-	  // TODO: Basically, the way this can work is as follows. First,
-	  // there have to be ring buffers within each task for the data
-	  // that is to be transmitted. Then, the pointers to the various
-	  // elements in the ring buffers are enqueued. The transmit task
-	  // can use the pointers to access each element and compose packets
-	  //
-	  // How to synchronize data between tasks? One way is that each task
-	  // could get the current tick count, and we could group them based
-	  // on that...
-
-
 	  /********** Wait for something to transmit **********/
-	  if(xQueueReceive(txQueueHandle, buffer, portMAX_DELAY)){
+	  xActivatedMember = xQueueSelectFromSet(xTxQueueSet, portMAX_DELAY);
 
-		  /********** Obligatory packing **********/
-		  tick = xTaskGetTickCount(); // Current tick
-		  id = id++; // Message ID
+	  if(xActivatedMember == xMPUEventQueueHandle){
+		  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
 
-		  /********** Transmit **********/
-		  HAL_UART_Transmit_DMA(&huart2, buffer, buffer[0]);
-		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
+		  /* Update task flags to indicate MPU task has been received from */
+		  taskFlags = taskFlags | 0b00000001;
+
+		  /* Copy data to buffer */
+		  memcpy(accelX, &myMPU9250.ax, sizeof(float));
+		  memcpy(accelY, &myMPU9250.ay, sizeof(float));
+		  memcpy(accelZ, &myMPU9250.az, sizeof(float));
+		  memcpy(magX, &myMPU9250.hx, sizeof(float));
+		  memcpy(magY, &myMPU9250.hy, sizeof(float));
+		  memcpy(magZ, &myMPU9250.hz, sizeof(float));
+	  }
+	  else if(xActivatedMember == xTECEventQueueHandle){
+		  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
+
+		  /* Update task flags to indicate TEC task has been received from */
+		  taskFlags = taskFlags | 0b00000010;
+
+		  /* Copy data to buffer */
+		  *tecPower = taskRxEventBuff; // TODO: idk if this is what we wanna send back for TEC
+	  }
+
+
+
+	  // This runs when all tasks have fresh data
+	  if(taskFlags == 0b00000011){
+		  /* Obligatory packing */
+		  TickType_t curTick = xTaskGetTickCount();
+		  memcpy(tickStart, &curTick, sizeof(TickType_t));
+
+		  /* Transmit */
+		  HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
+		  //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
 		  xSemaphoreTake(semTxHandle, portMAX_DELAY);
+
+
+		  /* Clear activation flags */
+		  taskFlags = 0x00;
 	  }
   }
   /* USER CODE END StartTxTask */
@@ -332,7 +386,6 @@ void StartMPU9250Task(void const * argument)
 
     /********** Acceleration **********/
     // Read az
-//    HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
     HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
     xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
@@ -356,29 +409,31 @@ void StartMPU9250Task(void const * argument)
 	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
 	myMPU9250.ax = myVar;
 
+	// Compute acceleration magnitude
+	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
+
 
 	/********** Gyroscope **********/
     // Read vz
-	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.vz = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
-
-    // Read vy
-//	HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2, 100);
-    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
-
-    // Read vx
-	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.vx = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
+//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+//	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+//	myMPU9250.vz = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
+//
+//    // Read vy
+//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+//    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+//	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
+//
+//    // Read vx
+//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
+//	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
+//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+//	myMPU9250.vx = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
 
 
 	/********** Magnetometer **********/
@@ -386,7 +441,6 @@ void StartMPU9250Task(void const * argument)
 	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
 	// the ST2 register to be read in addition to other data
 	magnetometerReadIT(MPU9250_MAG_X_ADDR_L, 7, mpu_buff, semMPU9250Handle);
-//	magnetometerRead(MPU9250_MAG_X_ADDR_L, 7, mpu_buff);
 
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
 	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
@@ -403,32 +457,23 @@ void StartMPU9250Task(void const * argument)
 
 
 
+	/********** Tell transmit task that new data is read **********/
+	uint32_t dummyToSend = 1;
+//	xQueueSend(xMPUEventQueueHandle, &dummyToSend, 0);
+	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
+
+
+
 	/********** Use the data to update state **********/
 	//TODO
-	float accelMag = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
-	myMPU9250.A = accelMag;
-	if(accelMag < 0.981){
+	if(myMPU9250.A < 0.981){
 		myMPU9250.theEvent = REDUCEDGRAVITY;
 	}
 	else{
 		myMPU9250.theEvent = NONE;
 	}
-//	if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-//		// Transition from straight and level to pull-up
-//		myMPU9250.theEvent = PULLUP;
-//	}
-//	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-//		// Transition from pull-up to reduced gravity
-//		myMPU9250.theEvent = REDUCEDGRAVITY;
-//	}
-//	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-//		// Transition from reduced gravity to pull-out
-//		myMPU9250.theEvent = PULLOUT;
-//	}
-//	else{
-//		// No state change
-//		myMPU9250.theEvent = NONE;
-//	}
+
+
 
 
 	// TODO: Notify task to start experiment here
@@ -446,17 +491,19 @@ void StartRxTask(void const * argument)
   for(;;)
   {
 	 HAL_UART_Receive_IT(&huart2, buffer, 1);
-	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY)){
+	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
-		 // TODO: Remove DMA channel for UART in cube
 		 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
+	 }
+	 else{
+		 // Should never reach here
 	 }
   }
   /* USER CODE END StartRxTask */
 }
 
 /* USER CODE BEGIN Application */
-     
+
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

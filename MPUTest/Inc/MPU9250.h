@@ -109,7 +109,7 @@ typedef struct{
 	float az; // Acceleration along z-axis
 	float ay; // Acceleration along y-axis
 	float ax; // Acceleration along x-axis
-	double A;
+	float A;  // ||a||
 	float vz; // Yaw rate (about z-axis)
 	float vy; // Pitch rate (about y-axis)
 	float vx; // Roll rate (about x-axis)

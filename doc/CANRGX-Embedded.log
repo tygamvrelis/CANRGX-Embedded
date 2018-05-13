@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  11 MAY 2018 01:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2018.1.15)  13 MAY 2018 14:30
 entering extended mode
 **./CANRGX-Embedded.tex
 (CANRGX-Embedded.tex
@@ -475,12 +475,34 @@ M32F446RE mi-cro-con-troller on a Nucleo-F446RE
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 352--352
+Overfull \hbox (32.8238pt too wide) detected at line 361
+\OT1/cmr/m/n/10 (230400[]) \OMS/cmsy/m/n/10  \OT1/cmr/m/n/10 (1[]) \OMS/cmsy/m
+/n/10  [][][][]  [][][] \OT1/cmr/m/n/10 = 23\OML/cmm/m/it/10 :\OT1/cmr/m/n/10
+ 04[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 370--370
 []|\OT1/cmr/m/n/10 Offset
  []
 
 
-Overfull \hbox (44.23624pt too wide) in paragraph at lines 350--365
+Overfull \hbox (1.96399pt too wide) in paragraph at lines 388--388
+[]|\OT1/cmr/m/n/10 TODO| 
+ []
+
+
+Overfull \hbox (1.96399pt too wide) in paragraph at lines 390--390
+[]|\OT1/cmr/m/n/10 TODO| 
+ []
+
+
+Overfull \hbox (1.96399pt too wide) in paragraph at lines 392--392
+[]|\OT1/cmr/m/n/10 TODO| 
+ []
+
+
+Overfull \hbox (44.23624pt too wide) in paragraph at lines 368--396
  [][] 
  []
 
@@ -490,29 +512,30 @@ Overfull \hbox (44.23624pt too wide) in paragraph at lines 350--365
 AED: lastpage setting LastPage
 (CANRGX-Embedded.aux) ) 
 Here is how much of TeX's memory you used:
- 5154 strings out of 493323
- 75505 string characters out of 3139066
- 148953 words of memory out of 3000000
- 8567 multiletter control sequences out of 15000+200000
+ 5155 strings out of 493323
+ 75518 string characters out of 3139066
+ 154962 words of memory out of 3000000
+ 8568 multiletter control sequences out of 15000+200000
  12720 words of font info for 49 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,11n,43p,759b,378s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 42i,13n,43p,759b,378s stack positions out of 5000i,500n,10000p,200000b,50000s
 {D:/Program Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc
 }<D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><D:/Pro
 gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><D:/Program Fil
 es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><D:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><D:/Program Files/MiKTeX 2.9/f
-onts/type1/public/amsfonts/cm/cmmi7.pfb><D:/Program Files/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmr10.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/
-amsfonts/cm/cmr12.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmr7.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pf
-b><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><D:/Pr
-ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D:/Program Fi
-les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><D:/Program Files/MiKT
-eX 2.9/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on CANRGX-Embedded.pdf (13 pages, 411684 bytes).
+eX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><D:/Program Files/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmmi10.pfb><D:/Program Files/MiKTeX 2.9/fonts/typ
+e1/public/amsfonts/cm/cmmi7.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public
+/amsfonts/cm/cmr10.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts
+/cm/cmr12.pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.
+pfb><D:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><D:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><D:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D:/Program Files/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><D:/Program Files/MiKTeX 2.9/f
+onts/type1/urw/courier/ucrr8a.pfb>
+Output written on CANRGX-Embedded.pdf (13 pages, 421671 bytes).
 PDF statistics:
- 100 PDF objects out of 1000 (max. 8388607)
+ 104 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

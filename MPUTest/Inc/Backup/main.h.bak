@@ -61,6 +61,7 @@
 /* Private define ------------------------------------------------------------*/
 #define TEC_PWM_PERIOD 18000
 #define MPU9250_CYCLE_MS 2
+#define TEC_CYCLE_MS 2
 
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC

@@ -343,24 +343,55 @@ The aforementioned components were integrated using a STM32F446RE microcontrolle
 \subsection{Data Logging}
 Data from all sensors were logged and sent to the onboard PC over a 230400 [symbol/s] UART channel. The UART function used DMA and a semaphore to optimize CPU usage.
 
+
+Note that the symbol rate of 230400 [symbols/s] corresponded to an upper limit on the byte rate of 
+$$B_t = 23.04 \ [bytes/s]$$
+This is seen in \ref{eq:byterate}. Note that there are 10 bits transmitted per byte since for each byte transferred (8 bits), there is also a start bit and a stop bit.
+
+\begin{equation}\label{eq:byterate}
+(230400 \text{ [symbols/s]})
+\times 
+(1 \text{ [bit transmitted/symbol]})
+\times
+\Big(\frac{1}{10} \text{ [byte/bit transmitted]}\Big)
+\times
+\Big(\frac{1 \text{ [s]}}{1000 \text{ [ms]}}\Big)
+=
+23.04 \text{ [bytes/ms]}
+\end{equation}
+
+
 The packet format was as follows:
 
 \begin{table}[!ht]
 	\centering
-	\begin{tabular}{ | m{3cm} | m{2cm} | m{2cm} | m{2cm}| m{2cm}| m{2cm}| m{2cm}|  } 
+	\begin{tabular}{ | m{4cm} | m{2cm} | m{2cm} | m{2cm}| m{1cm}| m{2cm}| m{2cm}|  } 
 		\hline
 		Parameter & Data Type & Size (bytes) & Offset (bytes) & Units & Range & Positive Sign Convention \\
 		\hline
-		Magnet power & TODO & TODO & TODO & TODO & TODO & TODO \\ 
+		Dummy bytes & uint8\_t & 2 & 0 & na & na & na \\
+		\hline
+		Tick stamp & uint32\_t & 4 & 2 & $ms$ & [0, $2^{32}-1$] & na \\ 
+		\hline
+		Acceleration X & float & 4 & 6 & $m/s^2$ & $\pm 2g$ & TODO \\ 
+		\hline
+		Acceleration Y & float & 4 & 10 & $m/s^2$ & $\pm 2g$ & TODO \\ 
+		\hline
+		Acceleration Z & float & 4 & 14 & $m/s^2$ & $\pm 2g$ & TODO \\ 
+		\hline
+		Magnetic flux density X & float & 4 & 18 & $\mu T$ & $\pm 4912$ & TODO \\ 
+		\hline
+		Magnetic flux density Y & float & 4 & 22 & $\mu T$ & $\pm 4912$ & TODO \\ 
+		\hline
+		Magnetic flux density Z & float & 4 & 26 & $\mu T$ & $\pm 4912$ & TODO \\ 
+		\hline
+		Magnet power & TODO & TODO & 30 & TODO & TODO & TODO \\ 
 		\hline
 	    TEC power & TODO & TODO & TODO & TODO & TODO & TODO \\ 
 		\hline
 		Temperature & TODO & TODO & TODO & TODO & TODO & TODO \\ 
 		\hline
-		Acceleration & double & 12 & TODO & TODO & TODO & TODO \\ 
-		\hline
-		Magnetometer & double & 12 & TODO & TODO & TODO & TODO \\ 
-		\hline
+		
 	\end{tabular}
 	\caption{Form of packet to PC}
 	\label{tab:PCPacketFormat}
