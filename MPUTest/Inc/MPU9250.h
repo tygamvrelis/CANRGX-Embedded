@@ -88,7 +88,7 @@
 
 
 // Scales for readings
-#define MPU9250_ACCEL_FULL_SCALE 2 * g // twice the gravitationa acceleration due to Earth
+#define MPU9250_ACCEL_FULL_SCALE 2 * g // twice the gravitational acceleration due to Earth
 #define MPU9250_GYRO_FULL_SCALE 250.0 // degree/s
 #define MPU9250_MAG_FULL_SCALE 4912.0 // microTeslas. See pg. 50 of the register map
 
@@ -130,7 +130,9 @@ extern const float g;
 
 /********************************* Functions *********************************/
 int MPU9250Init(MPU9250_t* myMPU);
-int magnetometerReadIT(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId sem);
+int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
+int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
+int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 
 #endif /* MPU9250_H_ */

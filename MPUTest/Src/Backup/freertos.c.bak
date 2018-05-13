@@ -5,41 +5,41 @@
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether
+  * USER CODE END. Other portions of this file, whether 
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V.
+  * Copyright (c) 2018 STMicroelectronics International N.V. 
   * All rights reserved.
   *
-  * Redistribution and use in source and binary forms, with or without
+  * Redistribution and use in source and binary forms, with or without 
   * modification, are permitted, provided that the following conditions are met:
   *
-  * 1. Redistribution of source code must retain the above copyright notice,
+  * 1. Redistribution of source code must retain the above copyright notice, 
   *    this list of conditions and the following disclaimer.
   * 2. Redistributions in binary form must reproduce the above copyright notice,
   *    this list of conditions and the following disclaimer in the documentation
   *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other
-  *    contributors to this software may be used to endorse or promote products
+  * 3. Neither the name of STMicroelectronics nor the names of other 
+  *    contributors to this software may be used to endorse or promote products 
   *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this
+  * 4. This software, including modifications and/or derivative works of this 
   *    software, must execute solely and exclusively on microcontroller or
   *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under
-  *    this license is void and will automatically terminate your rights under
-  *    this license.
+  * 5. Redistribution and use of this software other than as permitted under 
+  *    this license is void and will automatically terminate your rights under 
+  *    this license. 
   *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
   * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
   * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
   * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
   * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
@@ -51,7 +51,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN Includes */     
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -137,6 +137,11 @@ __weak unsigned long getRunTimeCounterValue(void)
 {
 return 0;
 }
+
+// Make sure that queue sets are enabled (no way to do this via cube)
+#if (configUSE_QUEUE_SETS == 0)
+	#error *** HEY! Tyler here. Make configUSE_QUEUE_SETS in FreeRTOS.h equal to 1 ***
+#endif
 
 /* USER CODE END 1 */
 
@@ -251,12 +256,12 @@ void StartTECContrlTask(void const * argument)
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
+	while(1){osDelay(10);}
+
 	static float ratio_tmp = 0;
 	for(;;)
 	{
 		vTaskDelayUntil(&xLastWakeTime, TEC_CYCLE_MS); // Service this task every TEC_CYCLE_MS milliseconds
-
-
 
 
 		/********** Update PWM duty cycle **********/
@@ -264,10 +269,9 @@ void StartTECContrlTask(void const * argument)
 		TEC_set_valuef(ratio_tmp, ratio_tmp);
 
 
-
-
-		/********** Tell transmit task that new data is read **********/
-		xQueueSend(xTECEventQueueHandle, &ratio_tmp, 0);
+		/********** Tell transmit task that new data is ready **********/
+//		xQueueSend(xTECEventQueueHandle, &ratio_tmp, 0);
+		xQueueOverwrite(xTECEventQueueHandle, &ratio_tmp);
 	}
   /* USER CODE END StartTECContrlTask */
 }
@@ -281,8 +285,6 @@ void StartTxTask(void const * argument)
 // TODO: uint32_t tick = 0; 		// Used as a timeout
   uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
   uint32_t taskRxEventBuff; // Buffer to receive data from event queues
-
-
 
 
   /********** Local vars used for packet packing **********/
@@ -305,8 +307,6 @@ void StartTxTask(void const * argument)
   uint8_t* temperature = &buffer[38];
 
 
-
-
   /* Infinite loop */
   for(;;)
   {
@@ -320,12 +320,12 @@ void StartTxTask(void const * argument)
 		  taskFlags = taskFlags | 0b00000001;
 
 		  /* Copy data to buffer */
-		  *accelX = myMPU9250.ax;
-		  *accelY = myMPU9250.ay;
-		  *accelZ = myMPU9250.az;
-		  *magX = myMPU9250.hx;
-		  *magY = myMPU9250.hy;
-		  *magZ = myMPU9250.hz;
+		  memcpy(accelX, &myMPU9250.ax, sizeof(float));
+		  memcpy(accelY, &myMPU9250.ay, sizeof(float));
+		  memcpy(accelZ, &myMPU9250.az, sizeof(float));
+		  memcpy(magX, &myMPU9250.hx, sizeof(float));
+		  memcpy(magY, &myMPU9250.hy, sizeof(float));
+		  memcpy(magZ, &myMPU9250.hz, sizeof(float));
 	  }
 	  else if(xActivatedMember == xTECEventQueueHandle){
 		  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
@@ -337,17 +337,11 @@ void StartTxTask(void const * argument)
 		  *tecPower = taskRxEventBuff; // TODO: idk if this is what we wanna send back for TEC
 	  }
 
-
-
 	  // This runs when all tasks have fresh data
-	  if(taskFlags == 0b00000011){
+	  if(taskFlags == 0b00000001){
 		  /* Obligatory packing */
-		  TickType_t tick = xTaskGetTickCount(); // Current tick
-		  *tickStart       = tick         & 0xFF;
-		  *(tickStart + 1) = (tick >> 8)  & 0xFF;
-		  *(tickStart + 2) = (tick >> 16) & 0xFF;
-		  *(tickStart + 3) = (tick >> 24) & 0xFF;
-
+		  TickType_t curTick = xTaskGetTickCount();
+		  memcpy(tickStart, &curTick, sizeof(TickType_t));
 
 		  /* Transmit */
 		  HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
@@ -369,15 +363,10 @@ void StartMPU9250Task(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
-  uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
-  uint16_t temp;
-
   /* Infinite loop */
   for(;;)
   {
     vTaskDelayUntil(&xLastWakeTime, MPU9250_CYCLE_MS); // Service this task every MPU9250_CYCLE_MS milliseconds
-
-
 
 
     /********** Acquire data **********/
@@ -387,87 +376,28 @@ void StartMPU9250Task(void const * argument)
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
 
 
-    /********** Acceleration **********/
-    // Read az
-    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-    temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
-    temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
-    float myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0)); // Scale to physical units
-    myMPU9250.az = myVar;
-
-    // Read ay
-    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
-	myMPU9250.ay = myVar;
-
-	// Read ax
-	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
-	myMPU9250.ax = myVar;
-
-	// Compute acceleration magnitude
+    /* Acceleration */
+    // Read ax, ay, az
+    accelReadDMA(&myMPU9250, semMPU9250Handle);
 	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
 
 
-	/********** Gyroscope **********/
-    // Read vz
-//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-//	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-//	myMPU9250.vz = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
-//
-//    // Read vy
-//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-//    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-//	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
-//
-//    // Read vx
-//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-//	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-//	myMPU9250.vx = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
+	/* Gyroscope -- not used presently */
+	// Read vx, vy, vz
+//	gyroReadDMA(&myMPU9250, semMPU9250Handle);
 
 
-	/********** Magnetometer **********/
-	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
-	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
-	// the ST2 register to be read in addition to other data
-	magnetometerReadIT(MPU9250_MAG_X_ADDR_L, 7, mpu_buff, semMPU9250Handle);
-
-	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
-	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.hx = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
-
-	temp = (mpu_buff[3] << 8 | mpu_buff[2]);
-	temp = (mpu_buff[3] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.hy = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
-
-	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
-	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.hz = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
-
-
+	/* Magnetometer */
+	// Read hx, hy, hz
+	magFluxReadDMA(&myMPU9250, semMPU9250Handle);
 
 
 	/********** Tell transmit task that new data is read **********/
 	uint32_t dummyToSend = 1;
-	xQueueSend(xMPUEventQueueHandle, &dummyToSend, 0);
+	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
 
 
-
-
-	/********** Use the data to update state **********/
+	/********** Use the acceleration magnitude to update state **********/
 	//TODO
 	if(myMPU9250.A < 0.981){
 		myMPU9250.theEvent = REDUCEDGRAVITY;
@@ -475,22 +405,6 @@ void StartMPU9250Task(void const * argument)
 	else{
 		myMPU9250.theEvent = NONE;
 	}
-//	if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-//		// Transition from straight and level to pull-up
-//		myMPU9250.theEvent = PULLUP;
-//	}
-//	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-//		// Transition from pull-up to reduced gravity
-//		myMPU9250.theEvent = REDUCEDGRAVITY;
-//	}
-//	else if(myMPU9250.vy > 2.5 && myMPU9250.az < -14.715){
-//		// Transition from reduced gravity to pull-out
-//		myMPU9250.theEvent = PULLOUT;
-//	}
-//	else{
-//		// No state change
-//		myMPU9250.theEvent = NONE;
-//	}
 
 
 	// TODO: Notify task to start experiment here
@@ -510,7 +424,6 @@ void StartRxTask(void const * argument)
 	 HAL_UART_Receive_IT(&huart2, buffer, 1);
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
-		 // TODO: Remove DMA channel for UART rx in cube
 		 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // Toggle green LED
 	 }
 	 else{

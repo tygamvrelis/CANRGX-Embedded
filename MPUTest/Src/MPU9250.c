@@ -92,13 +92,13 @@ int MPU9250Init(MPU9250_t* myMPU){
 	// Note: Changing the filter bandwidth didn't have a noticeable effect as far as I could tell
 //	// Set accelerometer bandwidth 218 Hz
 //	dataToWrite = 0x01;
-//	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, ACCEL_CONFIG_2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+//	if(HAL_I2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, ACCEL_CONFIG_2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
 //		return -8;
 //	}
 //
 //	// Set gyroscope bandwidth to 3600 Hz
 //	dataToWrite = 0x01;
-//	if(HAL_FMPI2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, CONFIG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+//	if(HAL_I2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, CONFIG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
 //		return -9;
 //	}
 
@@ -129,39 +129,120 @@ int MPU9250Init(MPU9250_t* myMPU){
 	return 1;
 }
 
-int magnetometerReadIT(uint8_t addr, uint8_t numBytes, uint8_t* buff, osSemaphoreId sem){
+int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
+	/*
+	 * Read from the az, ay, ax register addresses and stores the results in the
+	 * myMPU object passed in.
+	 *
+	 * Arugments:
+	 * 	  myMPU, the object to store the acceleration values in
+	 * 	  sem, handle for the semaphore to take while transmitting
+	 */
+
+    uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
+    uint16_t temp;
+    float myVar;
+
+    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
+    xSemaphoreTake(sem, portMAX_DELAY);
+
+    /* Process data; scale to physical units */
+    temp = (mpu_buff[0] << 8 | mpu_buff[1]); 				// Shift bytes into appropriate positions
+    temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
+    myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0)); // Scale to physical units
+    myMPU9250.ax = myVar;
+
+	temp = (mpu_buff[2] << 8 | mpu_buff[3]);
+	temp = (mpu_buff[2] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
+	myMPU9250.ay = myVar;
+
+	temp = (mpu_buff[4] << 8 | mpu_buff[5]);
+	temp = (mpu_buff[4] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
+	myMPU9250.az = myVar;
+
+	return 1;
+}
+
+int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
+	/*
+	 * Read from the az, ay, ax register addresses and stores the results in the
+	 * myMPU object passed in.
+	 *
+	 * Arugments:
+	 * 	  myMPU, the object to store the acceleration values in
+	 * 	  sem, handle for the semaphore to take while transmitting
+	 */
+
+    uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
+    uint16_t temp;
+    float myVar;
+
+	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
+	xSemaphoreTake(sem, portMAX_DELAY);
+
+	/* Process data; scale to physical units */
+	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
+	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.vx = (temp / (32767.0) * MPU9250_GYRO_FULL_SCALE);
+
+	temp = (mpu_buff[2] << 8 | mpu_buff[3]);
+	temp = (mpu_buff[2] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.vy = (temp / (32767.0) * MPU9250_GYRO_FULL_SCALE);
+
+	temp = (mpu_buff[4] << 8 | mpu_buff[5]);
+	temp = (mpu_buff[4] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.vz = (temp / (32767.0) * MPU9250_GYRO_FULL_SCALE);
+
+	return 1;
+}
+
+int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	/* Reads from the magnetometer and stores the results in a buffer.
 	 *
-	 * Arguments: addr, the magnetometer register address to start reading from
-	 * 			  numBytes, the number of sequential bytes to read
-	 * 			  buff, the buffer to store the read data
-	 * 			  sem, handle for the semaphore to down while transmitting
+	 * Note that the high and low bytes switch places for the magnetic field readings
+	 * due to the way the registers are mapped. Note that 7 bytes are read because the
+	 * magnetometer requires the ST2 register to be read in addition to other data
+	 *
+	 * Arguments:
+	 *     myMPU, the object to store the acceleration values in
+	 *     sem, handle for the semaphore to take while transmitting
 	 *
 	 * Returns: 1 if successful, otherwise a negative error code
 	 */
 
-	uint8_t dataToWrite = MPU9250_MAG_ADDR | 0x80; // slave addr | read
-	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
+    uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
+	uint16_t temp;
+	float myVar;
+
+	uint8_t dataToWrite[3];
+	dataToWrite[0] = MPU9250_MAG_ADDR | 0x80; // slave addr | read
+	dataToWrite[1] = MPU9250_MAG_X_ADDR_L; // Address within magnetometer to read from
+	dataToWrite[2] = 0x80 | 7; // Enable | transfer numBytes bytes
+
+	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite)) != HAL_OK){
 		return -1;
 	}
 	xSemaphoreTake(sem, portMAX_DELAY);
 
-	dataToWrite = addr; // Address within magnetometer to read from
-	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
+	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, mpu_buff, 7) != HAL_OK){
 		return -2;
 	}
 	xSemaphoreTake(sem, portMAX_DELAY);
 
-	dataToWrite = 0x80 | numBytes; // Enable | transfer numBytes bytes
-	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
-		return -3;
-	}
-	xSemaphoreTake(sem, portMAX_DELAY);
+	/* Process data; scale to physical units */
+	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
+	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.hx = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
-	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, buff, numBytes) != HAL_OK){
-		return -4;
-	}
-	xSemaphoreTake(sem, portMAX_DELAY);
+	temp = (mpu_buff[3] << 8 | mpu_buff[2]);
+	temp = (mpu_buff[3] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.hy = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
+
+	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
+	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
+	myMPU9250.hz = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
 	return 1;
 }

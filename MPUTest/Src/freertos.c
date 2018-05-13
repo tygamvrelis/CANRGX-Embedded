@@ -57,7 +57,6 @@
 #include <math.h>
 #include "adc.h"
 #include "dma.h"
-#include "fmpi2c.h"
 #include "i2c.h"
 #include "rtc.h"
 #include "spi.h"
@@ -137,6 +136,11 @@ __weak unsigned long getRunTimeCounterValue(void)
 {
 return 0;
 }
+
+// Make sure that queue sets are enabled (no way to do this via cube)
+#if (configUSE_QUEUE_SETS == 0)
+	#error *** HEY! Tyler here. Make configUSE_QUEUE_SETS in FreeRTOS.h equal to 1 ***
+#endif
 
 /* USER CODE END 1 */
 
@@ -251,19 +255,17 @@ void StartTECContrlTask(void const * argument)
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
+	while(1){osDelay(10);}
+
 	static float ratio_tmp = 0;
 	for(;;)
 	{
 		vTaskDelayUntil(&xLastWakeTime, TEC_CYCLE_MS); // Service this task every TEC_CYCLE_MS milliseconds
 
 
-
-
 		/********** Update PWM duty cycle **********/
 		ratio_tmp = (1.0 + sinf(0.02 * xTaskGetTickCount())) / 2.0;
 		TEC_set_valuef(ratio_tmp, ratio_tmp);
-
-
 
 
 		/********** Tell transmit task that new data is ready **********/
@@ -284,8 +286,6 @@ void StartTxTask(void const * argument)
   uint32_t taskRxEventBuff; // Buffer to receive data from event queues
 
 
-
-
   /********** Local vars used for packet packing **********/
   uint8_t buffer[46] = {0};
 
@@ -304,8 +304,6 @@ void StartTxTask(void const * argument)
   uint8_t* magPower = &buffer[30];
   uint8_t* tecPower = &buffer[34];
   uint8_t* temperature = &buffer[38];
-
-
 
 
   /* Infinite loop */
@@ -338,10 +336,8 @@ void StartTxTask(void const * argument)
 		  *tecPower = taskRxEventBuff; // TODO: idk if this is what we wanna send back for TEC
 	  }
 
-
-
 	  // This runs when all tasks have fresh data
-	  if(taskFlags == 0b00000011){
+	  if(taskFlags == 0b00000001){
 		  /* Obligatory packing */
 		  TickType_t curTick = xTaskGetTickCount();
 		  memcpy(tickStart, &curTick, sizeof(TickType_t));
@@ -366,15 +362,10 @@ void StartMPU9250Task(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
-  uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
-  uint16_t temp;
-
   /* Infinite loop */
   for(;;)
   {
     vTaskDelayUntil(&xLastWakeTime, MPU9250_CYCLE_MS); // Service this task every MPU9250_CYCLE_MS milliseconds
-
-
 
 
     /********** Acquire data **********/
@@ -384,87 +375,28 @@ void StartMPU9250Task(void const * argument)
     //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
 
 
-    /********** Acceleration **********/
-    // Read az
-    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-    temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
-    temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp; // Check sign bit, perform two's complement transformation if necessary
-    float myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0)); // Scale to physical units
-    myMPU9250.az = myVar;
-
-    // Read ay
-    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
-	myMPU9250.ay = myVar;
-
-	// Read ax
-	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myVar = (temp * MPU9250_ACCEL_FULL_SCALE  / (32767.0));
-	myMPU9250.ax = myVar;
-
-	// Compute acceleration magnitude
+    /* Acceleration */
+    // Read ax, ay, az
+    accelReadDMA(&myMPU9250, semMPU9250Handle);
 	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
 
 
-	/********** Gyroscope **********/
-    // Read vz
-//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Z_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-//	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-//	myMPU9250.vz = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
-//
-//    // Read vy
-//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_Y_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-//    xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-//	myMPU9250.vy = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
-//
-//    // Read vx
-//	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 2);
-//	xSemaphoreTake(semMPU9250Handle, portMAX_DELAY);
-//	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
-//	temp = (mpu_buff[0] & 0x80) == 0x80 ? ~temp + 1 : temp;
-//	myMPU9250.vx = (temp / (32767.0) * MPU9250_ACCEL_FULL_SCALE);
+	/* Gyroscope -- not used presently */
+	// Read vx, vy, vz
+//	gyroReadDMA(&myMPU9250, semMPU9250Handle);
 
 
-	/********** Magnetometer **********/
-	// Read magnetic field. Note that the high and low bytes switch places for the magnetic field readings
-	// due to the way the registers are mapped. Note that 7 bytes are read because the magnetometer requires
-	// the ST2 register to be read in addition to other data
-	magnetometerReadIT(MPU9250_MAG_X_ADDR_L, 7, mpu_buff, semMPU9250Handle);
-
-	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
-	temp = (mpu_buff[1] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.hx = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
-
-	temp = (mpu_buff[3] << 8 | mpu_buff[2]);
-	temp = (mpu_buff[3] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.hy = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
-
-	temp =  (mpu_buff[5] << 8 | mpu_buff[4]);
-	temp = (mpu_buff[5] & 0x80) == 0x80 ? ~temp + 1 : temp;
-	myMPU9250.hz = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
-
-
+	/* Magnetometer */
+	// Read hx, hy, hz
+	magFluxReadDMA(&myMPU9250, semMPU9250Handle);
 
 
 	/********** Tell transmit task that new data is read **********/
 	uint32_t dummyToSend = 1;
-//	xQueueSend(xMPUEventQueueHandle, &dummyToSend, 0);
 	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
 
 
-
-	/********** Use the data to update state **********/
+	/********** Use the acceleration magnitude to update state **********/
 	//TODO
 	if(myMPU9250.A < 0.981){
 		myMPU9250.theEvent = REDUCEDGRAVITY;
@@ -472,8 +404,6 @@ void StartMPU9250Task(void const * argument)
 	else{
 		myMPU9250.theEvent = NONE;
 	}
-
-
 
 
 	// TODO: Notify task to start experiment here
