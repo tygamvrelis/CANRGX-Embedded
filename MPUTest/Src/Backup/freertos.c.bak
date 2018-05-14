@@ -257,8 +257,6 @@ void StartTECContrlTask(void const * argument)
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
-	while(1){osDelay(10);}
-
 	static float ratio_tmp = 0;
 	for(;;)
 	{

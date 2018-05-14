@@ -253,24 +253,32 @@ void StartDefaultTask(void const * argument)
 void StartTECContrlTask(void const * argument)
 {
   /* USER CODE BEGIN StartTECContrlTask */
-  /* Infinite loop */
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
-	static float ratio_tmp = 0;
+	float dutyCycleTEC1;
+	float dutyCycleTEC2;
+
+	TickType_t curTick;
+
+
+	/* Infinite loop */
 	for(;;)
 	{
 		vTaskDelayUntil(&xLastWakeTime, TEC_CYCLE_MS); // Service this task every TEC_CYCLE_MS milliseconds
 
 
 		/********** Update PWM duty cycle **********/
-		ratio_tmp = (1.0 + sinf(0.02 * xTaskGetTickCount())) / 2.0;
-		TEC_set_valuef(ratio_tmp, ratio_tmp);
+		curTick = xTaskGetTickCount();
+		dutyCycleTEC1 = (1.0 + sinf(0.02 * curTick)) / 2.0;
+		dutyCycleTEC2 = (1.0 + cosf(0.02 * curTick)) / 2.0;
+		TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
 
 
 		/********** Tell transmit task that new data is ready **********/
-//		xQueueSend(xTECEventQueueHandle, &ratio_tmp, 0);
-		xQueueOverwrite(xTECEventQueueHandle, &ratio_tmp);
+		uint32_t dutyCyclePercentTEC1and2 = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
+		xQueueSend(xTECEventQueueHandle, &dutyCyclePercentTEC1and2, 1);
+//		xQueueOverwrite(xTECEventQueueHandle, &dutyCyclePercentTEC1and2);
 	}
   /* USER CODE END StartTECContrlTask */
 }
@@ -312,6 +320,11 @@ void StartTxTask(void const * argument)
   uint8_t* thermocouple5 = &buffer[46];
   uint8_t* thermocouple6 = &buffer[48];
 
+  buffer[30] = 0xFE;
+  buffer[31] = 0xFE;
+  buffer[32] = 0xFE;
+  buffer[33] = 0xFE;
+
 
   /* Infinite loop */
   for(;;)
@@ -340,10 +353,10 @@ void StartTxTask(void const * argument)
 		  taskFlags = taskFlags | 0b00000010;
 
 		  /* Copy data to buffer */
-		  uint16_t tec1data = taskRxEventBuff & 0xFF;
-		  uint16_t tec2data = (taskRxEventBuff >> 8) & 0xFF;
+		  uint16_t tec1data = (taskRxEventBuff >> 16) & 0xFFFF;
+		  uint16_t tec2data = taskRxEventBuff & 0xFFFF;
 		  memcpy(tec1Power, &tec1data, sizeof(uint16_t)); // TODO: idk if this is what we wanna send back for TEC 1
-		  memcpy(tec1Power, &tec2data, sizeof(uint16_t)); // TODO: idk if this is what we wanna send back for TEC 2
+		  memcpy(tec2Power, &tec2data, sizeof(uint16_t)); // TODO: idk if this is what we wanna send back for TEC 2
 	  }
 
 
@@ -398,7 +411,8 @@ void StartMPU9250Task(void const * argument)
 
 	/********** Tell transmit task that new data is read **********/
 	uint32_t dummyToSend = 1;
-	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
+	xQueueSend(xMPUEventQueueHandle, &dummyToSend, 1);
+//	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
 
 
 	/********** Use the acceleration magnitude to update state **********/
