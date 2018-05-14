@@ -320,11 +320,6 @@ void StartTxTask(void const * argument)
   uint8_t* thermocouple5 = &buffer[46];
   uint8_t* thermocouple6 = &buffer[48];
 
-  buffer[30] = 0xFE;
-  buffer[31] = 0xFE;
-  buffer[32] = 0xFE;
-  buffer[33] = 0xFE;
-
 
   /* Infinite loop */
   for(;;)
