@@ -283,8 +283,7 @@ void StartTECContrlTask(void const * argument)
 
 		/********** Tell transmit task that new data is ready **********/
 		uint32_t dutyCyclePercentTEC1and2 = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
-		xQueueSend(xTECEventQueueHandle, &dutyCyclePercentTEC1and2, 1);
-//		xQueueOverwrite(xTECEventQueueHandle, &dutyCyclePercentTEC1and2);
+		xQueueOverwrite(xTECEventQueueHandle, &dutyCyclePercentTEC1and2);
 	}
   /* USER CODE END StartTECContrlTask */
 }
@@ -333,31 +332,33 @@ void StartTxTask(void const * argument)
 	  /********** Wait for something to transmit **********/
 	  xActivatedMember = xQueueSelectFromSet(xTxQueueSet, portMAX_DELAY);
 
-	  if(xActivatedMember == xMPUEventQueueHandle){
-		  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
+	  if(xActivatedMember != NULL){
+		  if(xActivatedMember == xMPUEventQueueHandle){
+			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
 
-		  /* Update task flags to indicate MPU task has been received from */
-		  taskFlags = taskFlags | 0b00000001;
+			  /* Update task flags to indicate MPU task has been received from */
+			  taskFlags = taskFlags | 0b00000001;
 
-		  /* Copy data to buffer */
-		  memcpy(accelX, &myMPU9250.ax, sizeof(float));
-		  memcpy(accelY, &myMPU9250.ay, sizeof(float));
-		  memcpy(accelZ, &myMPU9250.az, sizeof(float));
-		  memcpy(magX, &myMPU9250.hx, sizeof(float));
-		  memcpy(magY, &myMPU9250.hy, sizeof(float));
-		  memcpy(magZ, &myMPU9250.hz, sizeof(float));
-	  }
-	  else if(xActivatedMember == xTECEventQueueHandle){
-		  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
+			  /* Copy data to buffer */
+			  memcpy(accelX, &myMPU9250.ax, sizeof(float));
+			  memcpy(accelY, &myMPU9250.ay, sizeof(float));
+			  memcpy(accelZ, &myMPU9250.az, sizeof(float));
+			  memcpy(magX, &myMPU9250.hx, sizeof(float));
+			  memcpy(magY, &myMPU9250.hy, sizeof(float));
+			  memcpy(magZ, &myMPU9250.hz, sizeof(float));
+		  }
+		  else if(xActivatedMember == xTECEventQueueHandle){
+			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
 
-		  /* Update task flags to indicate TEC task has been received from */
-		  taskFlags = taskFlags | 0b00000010;
+			  /* Update task flags to indicate TEC task has been received from */
+			  taskFlags = taskFlags | 0b00000010;
 
-		  /* Copy data to buffer */
-		  uint16_t tec1data = (taskRxEventBuff >> 16) & 0xFFFF;
-		  uint16_t tec2data = taskRxEventBuff & 0xFFFF;
-		  memcpy(tec1Power, &tec1data, sizeof(uint16_t)); // TODO: idk if this is what we wanna send back for TEC 1
-		  memcpy(tec2Power, &tec2data, sizeof(uint16_t)); // TODO: idk if this is what we wanna send back for TEC 2
+			  /* Copy data to buffer */
+			  uint16_t tec1data = (taskRxEventBuff >> 16) & 0xFFFF;
+			  uint16_t tec2data = taskRxEventBuff & 0xFFFF;
+			  memcpy(tec1Power, &tec1data, sizeof(uint16_t));
+			  memcpy(tec2Power, &tec2data, sizeof(uint16_t));
+		  }
 	  }
 
 
@@ -396,18 +397,13 @@ void StartMPU9250Task(void const * argument)
     myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
 
 
-	/* Gyroscope -- not used presently */
-//	gyroReadDMA(&myMPU9250, semMPU9250Handle); // Read vx, vy, vz
-
-
 	/* Magnetometer */
 	magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 
 
 	/********** Tell transmit task that new data is read **********/
 	uint32_t dummyToSend = 1;
-	xQueueSend(xMPUEventQueueHandle, &dummyToSend, 1);
-//	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
+	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
 
 
 	/********** Use the acceleration magnitude to update state **********/

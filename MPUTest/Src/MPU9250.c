@@ -10,6 +10,7 @@
 
 
 
+
 /*********************************** Globals *********************************/
 MPU9250_t myMPU9250; // Global MPU9250 object
 const float g = 9.807; // Acceleration due to gravity on Earth
@@ -17,7 +18,15 @@ const float g = 9.807; // Acceleration due to gravity on Earth
 
 
 
+/********************************** Private *********************************/
+// Any data transfer will wait up to 1 ms on a semaphore before timing out
+const TickType_t MAX_SEM_WAIT = 1;
+
+
+
+
 /********************************* Functions *********************************/
+int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 int magnetometerWrite(uint8_t addr, uint8_t data);
 
 int MPU9250Init(MPU9250_t* myMPU){
@@ -134,16 +143,24 @@ int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	 * Read from the az, ay, ax register addresses and stores the results in the
 	 * myMPU object passed in.
 	 *
-	 * Arugments:
+	 * Arguments:
 	 * 	  myMPU, the object to store the acceleration values in
 	 * 	  sem, handle for the semaphore to take while transmitting
+	 *
+	 * Returns:
+	 *    1 if successful, -1 otherwise
 	 */
 
     uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
     int16_t temp;
 
     HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
-    xSemaphoreTake(sem, portMAX_DELAY);
+    if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
+    	myMPU9250.ax = NAN;
+    	myMPU9250.ay = NAN;
+    	myMPU9250.az = NAN;
+		return -1;
+	}
 
     /* Process data; scale to physical units */
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); 					   // Shift bytes into appropriate positions
@@ -163,16 +180,24 @@ int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	 * Read from the az, ay, ax register addresses and stores the results in the
 	 * myMPU object passed in.
 	 *
-	 * Arugments:
+	 * Arguments:
 	 * 	  myMPU, the object to store the acceleration values in
 	 * 	  sem, handle for the semaphore to take while transmitting
+	 *
+	 * Returns:
+	 *    1 if successful, -1 otherwise
 	 */
 
     uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
     int16_t temp;
 
 	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
-	xSemaphoreTake(sem, portMAX_DELAY);
+	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
+		myMPU9250.vx = NAN;
+		myMPU9250.vy = NAN;
+		myMPU9250.vz = NAN;
+		return -1;
+	}
 
 	/* Process data; scale to physical units */
 	temp = (mpu_buff[0] << 8 | mpu_buff[1]);
@@ -198,7 +223,8 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	 *     myMPU, the object to store the acceleration values in
 	 *     sem, handle for the semaphore to take while transmitting
 	 *
-	 * Returns: 1 if successful, otherwise a negative error code
+	 * Returns:
+	 *     1 if successful, otherwise a negative error code
 	 */
 
     uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
@@ -212,12 +238,22 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, dataToWrite, sizeof(dataToWrite)) != HAL_OK){
 		return -1;
 	}
-	xSemaphoreTake(sem, portMAX_DELAY);
-
-	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, mpu_buff, 7) != HAL_OK){
+	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
+		myMPU9250.hx = NAN;
+		myMPU9250.hy = NAN;
+		myMPU9250.hz = NAN;
 		return -2;
 	}
-	xSemaphoreTake(sem, portMAX_DELAY);
+
+	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, mpu_buff, 7) != HAL_OK){
+		return -3;
+	}
+	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
+		myMPU9250.hx = NAN;
+		myMPU9250.hy = NAN;
+		myMPU9250.hz = NAN;
+		return -4;
+	}
 
 	/* Process data; scale to physical units */
 	temp = (mpu_buff[1] << 8 | mpu_buff[0]);
@@ -232,6 +268,8 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	return 1;
 }
 
+
+// The following 2 may only rightfully be used before the scheduler has been started
 int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff){
 	/* Reads from the magnetometer and stores the results in a buffer.
 	 *
