@@ -64,6 +64,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "MPU9250.h"
+#include "pid_contrl.h"
 
 
 /* USER CODE END Includes */
@@ -261,6 +262,10 @@ void StartTECContrlTask(void const * argument)
 
 	TickType_t curTick;
 
+	static struct TEC_PID_Ctrl tec1;
+	tec1.target_temp = 38;
+	TEC_PID_init(&tec1);
+
 
 	/* Infinite loop */
 	for(;;)
@@ -269,8 +274,9 @@ void StartTECContrlTask(void const * argument)
 
 
 		/********** Update PWM duty cycle **********/
+		dutyCycleTEC1 = TEC_PID_update(&tec1, ADC1_Filtered(0));
+
 		curTick = xTaskGetTickCount();
-		dutyCycleTEC1 = (1.0 + sinf(0.02 * curTick)) / 2.0;
 		dutyCycleTEC2 = (1.0 + cosf(0.02 * curTick)) / 2.0;
 		TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
 
@@ -385,15 +391,9 @@ void StartMPU9250Task(void const * argument)
     vTaskDelayUntil(&xLastWakeTime, MPU9250_CYCLE_MS); // Service this task every MPU9250_CYCLE_MS milliseconds
 
 
-    /********** Acquire data **********/
-    // Note: The following pattern is used below.
-    //    1. Acquire data
-    //    2. Shift and OR bytes together to reconstruct 16-bit data, then scale it from its measured range to its physical range
-    //    3. Check sign bit and if set, the number is supposed to be negative, so change NOT all bits and add 1 (2's complement format)
-
     /* Acceleration */
     accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
-	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
+    myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
 
 
 	/* Gyroscope -- not used presently */

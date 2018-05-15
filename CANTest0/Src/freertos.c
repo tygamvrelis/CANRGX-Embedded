@@ -64,7 +64,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
+#include "pid_contrl.h"
 
 /* USER CODE END Includes */
 
@@ -191,11 +191,21 @@ void StartTECContrlTask(void const * argument)
   /* USER CODE BEGIN StartTECContrlTask */
   /* Infinite loop */
 	static float ratio_tmp=0;
+	static struct TEC_PID_Ctrl tec_a;
+	TEC_PID_init(&tec_a);
+	tec_a.target_temp=38;
+
 	for(;;)
 	{
-		ratio_tmp=(1.0+sinf(0.02*xTaskGetTickCount()))/2.0;
-		TEC_set_valuef(ratio_tmp,ratio_tmp);
-	  	osDelay(2);
+
+		float tec_pwr_a=TEC_PID_update(&tec_a,ADC1_Filtered(0));
+		//ratio_tmp=(1.0+sinf(0.02*xTaskGetTickCount()))/2.0;
+		TEC_set_valuef(tec_pwr_a,tec_pwr_a);
+
+		str_size=sprintf(print_buff, "%5d,  %2.3f, %1.3f \r\n",xTaskGetTickCount(),tec_a.current_temp,tec_pwr_a);
+		HAL_UART_Transmit_DMA(&huart2,print_buff, str_size);
+
+		osDelay(4);
 	}
   /* USER CODE END StartTECContrlTask */
 }
@@ -209,13 +219,13 @@ void StartDataLogTask(void const * argument)
   for(;;)
   {
 	  //str_size=sprintf(print_buff, "t %5d : %d %d \r\n",xTaskGetTickCount(),uhADC_results[0],uhADC_results[1]);
-	  str_size=sprintf(print_buff, "%5d, %d, %4.2f, %d, %4.2f \r\n",xTaskGetTickCount(),uhADC_results[0],ADC1_Filtered(0),uhADC_results[1],ADC1_Filtered(1));
+      //str_size=sprintf(print_buff, "%5d, %d, %4.2f, %d, %4.2f \r\n",xTaskGetTickCount(),uhADC_results[0],ADC1_Filtered(0),uhADC_results[1],ADC1_Filtered(1));
 	  //uint16_t str_size=strlen(print_buff);
 	  //HAL_UART_Transmit(&huart2,print_buff,strlen(print_buff),1000);
-	  while(HAL_UART_Transmit_DMA(&huart2,print_buff, str_size)!= HAL_OK){
-		  osDelay(5);
-	  }
-	  osDelay(10);
+	  //while(HAL_UART_Transmit_DMA(&huart2,print_buff, str_size)!= HAL_OK){
+		  //osDelay(5);
+	  //}
+	  osDelay(100);
 	  //vTaskList(print_buff);
 	  //HAL_UART_Transmit_DMA(&huart2,print_buff, 150);
 	  //osDelay(30);
