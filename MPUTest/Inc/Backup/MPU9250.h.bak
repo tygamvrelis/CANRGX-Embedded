@@ -93,8 +93,6 @@
 #define MPU9250_MAG_FULL_SCALE 4912.0 // microTeslas. See pg. 50 of the register map
 
 
-
-
 /*********************************** Types ************************************/
 // All flight events besides none are transitions
 enum flightEvents {
@@ -133,6 +131,5 @@ int MPU9250Init(MPU9250_t* myMPU);
 int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
-int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 
 #endif /* MPU9250_H_ */

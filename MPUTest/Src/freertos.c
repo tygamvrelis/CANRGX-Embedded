@@ -73,9 +73,9 @@
 osThreadId defaultTaskHandle;
 uint32_t defaultTaskBuffer[ 1024 ];
 osStaticThreadDef_t defaultTaskControlBlock;
-osThreadId TECContrlTaskHandle;
-uint32_t TECContrlTaskBuffer[ 256 ];
-osStaticThreadDef_t TECContrlTaskControlBlock;
+osThreadId ControlTaskHandle;
+uint32_t ControlTaskBuffer[ 256 ];
+osStaticThreadDef_t ControlTaskControlBlock;
 osThreadId TxTaskHandle;
 uint32_t DataLogTaskBuffer[ 512 ];
 osStaticThreadDef_t DataLogTaskControlBlock;
@@ -85,12 +85,15 @@ osStaticThreadDef_t MPU9250TaskControlBlock;
 osThreadId RxTaskHandle;
 uint32_t rxTaskBuffer[ 512 ];
 osStaticThreadDef_t rxTaskControlBlock;
+osThreadId TempTaskHandle;
+uint32_t TempTaskBuffer[ 256 ];
+osStaticThreadDef_t TempTaskControlBlock;
 osMessageQId xMPUEventQueueHandle;
 uint8_t xMPUEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t xMPUEventQueueControlBlock;
-osMessageQId xTECEventQueueHandle;
-uint8_t xTECEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
-osStaticMessageQDef_t xTECEventQueueControlBlock;
+osMessageQId xControlEventQueueHandle;
+uint8_t xControlEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t xControlEventQueueControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
 osSemaphoreId semTxHandle;
@@ -108,10 +111,11 @@ QueueSetHandle_t xTxQueueSet;
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
-void StartTECContrlTask(void const * argument);
+void StartControlTask(void const * argument);
 void StartTxTask(void const * argument);
 void StartMPU9250Task(void const * argument);
 void StartRxTask(void const * argument);
+void StartTempTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -197,21 +201,25 @@ void MX_FREERTOS_Init(void) {
   osThreadStaticDef(defaultTask, StartDefaultTask, osPriorityIdle, 0, 1024, defaultTaskBuffer, &defaultTaskControlBlock);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
-  /* definition and creation of TECContrlTask */
-  osThreadStaticDef(TECContrlTask, StartTECContrlTask, osPriorityHigh, 0, 256, TECContrlTaskBuffer, &TECContrlTaskControlBlock);
-  TECContrlTaskHandle = osThreadCreate(osThread(TECContrlTask), NULL);
+  /* definition and creation of ControlTask */
+  osThreadStaticDef(ControlTask, StartControlTask, osPriorityNormal, 0, 256, ControlTaskBuffer, &ControlTaskControlBlock);
+  ControlTaskHandle = osThreadCreate(osThread(ControlTask), NULL);
 
   /* definition and creation of TxTask */
-  osThreadStaticDef(TxTask, StartTxTask, osPriorityRealtime, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
+  osThreadStaticDef(TxTask, StartTxTask, osPriorityHigh, 0, 512, DataLogTaskBuffer, &DataLogTaskControlBlock);
   TxTaskHandle = osThreadCreate(osThread(TxTask), NULL);
 
   /* definition and creation of MPU9250Task */
-  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityHigh, 0, 256, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
+  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityNormal, 0, 256, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
   MPU9250TaskHandle = osThreadCreate(osThread(MPU9250Task), NULL);
 
   /* definition and creation of RxTask */
-  osThreadStaticDef(RxTask, StartRxTask, osPriorityHigh, 0, 512, rxTaskBuffer, &rxTaskControlBlock);
+  osThreadStaticDef(RxTask, StartRxTask, osPriorityRealtime, 0, 512, rxTaskBuffer, &rxTaskControlBlock);
   RxTaskHandle = osThreadCreate(osThread(RxTask), NULL);
+
+  /* definition and creation of TempTask */
+  osThreadStaticDef(TempTask, StartTempTask, osPriorityNormal, 0, 256, TempTaskBuffer, &TempTaskControlBlock);
+  TempTaskHandle = osThreadCreate(osThread(TempTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -222,9 +230,9 @@ void MX_FREERTOS_Init(void) {
   osMessageQStaticDef(xMPUEventQueue, 1, uint32_t, xMPUEventQueueBuffer, &xMPUEventQueueControlBlock);
   xMPUEventQueueHandle = osMessageCreate(osMessageQ(xMPUEventQueue), NULL);
 
-  /* definition and creation of xTECEventQueue */
-  osMessageQStaticDef(xTECEventQueue, 1, uint32_t, xTECEventQueueBuffer, &xTECEventQueueControlBlock);
-  xTECEventQueueHandle = osMessageCreate(osMessageQ(xTECEventQueue), NULL);
+  /* definition and creation of xControlEventQueue */
+  osMessageQStaticDef(xControlEventQueue, 1, uint32_t, xControlEventQueueBuffer, &xControlEventQueueControlBlock);
+  xControlEventQueueHandle = osMessageCreate(osMessageQ(xControlEventQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -233,7 +241,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of xTxQueueSet */
   xTxQueueSet = xQueueCreateSet( 1 + 1 ); // Argument is the sum of the queue sizes for all event queues
   xQueueAddToSet(xMPUEventQueueHandle, xTxQueueSet);
-  xQueueAddToSet(xTECEventQueueHandle, xTxQueueSet);
+  xQueueAddToSet(xControlEventQueueHandle, xTxQueueSet);
   /* USER CODE END RTOS_QUEUES */
 }
 
@@ -250,42 +258,37 @@ void StartDefaultTask(void const * argument)
   /* USER CODE END StartDefaultTask */
 }
 
-/* StartTECContrlTask function */
-void StartTECContrlTask(void const * argument)
+/* StartControlTask function */
+void StartControlTask(void const * argument)
 {
-  /* USER CODE BEGIN StartTECContrlTask */
-	TickType_t xLastWakeTime;
-	xLastWakeTime = xTaskGetTickCount();
-
+  /* USER CODE BEGIN StartControlTask */
 	float dutyCycleTEC1;
 	float dutyCycleTEC2;
 
 	TickType_t curTick;
 
-	static struct TEC_PID_Ctrl tec1;
-	tec1.target_temp = 38;
-	TEC_PID_init(&tec1);
-
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
 
 	/* Infinite loop */
 	for(;;)
 	{
-		vTaskDelayUntil(&xLastWakeTime, TEC_CYCLE_MS); // Service this task every TEC_CYCLE_MS milliseconds
+		vTaskDelayUntil(&xLastWakeTime, CONTROL_CYCLE_MS); // Service this task every CONTROL_CYCLE_MS milliseconds
 
 
-		/********** Update PWM duty cycle **********/
-		dutyCycleTEC1 = TEC_PID_update(&tec1, ADC1_Filtered(0));
-
+		/********** Update PWM duty cycle for TEC **********/
 		curTick = xTaskGetTickCount();
+
+		dutyCycleTEC1 = (1.0 + sinf(0.02 * curTick)) / 2.0;
 		dutyCycleTEC2 = (1.0 + cosf(0.02 * curTick)) / 2.0;
 		TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
 
 
 		/********** Tell transmit task that new data is ready **********/
 		uint32_t dutyCyclePercentTEC1and2 = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
-		xQueueOverwrite(xTECEventQueueHandle, &dutyCyclePercentTEC1and2);
+		xQueueOverwrite(xControlEventQueueHandle, &dutyCyclePercentTEC1and2);
 	}
-  /* USER CODE END StartTECContrlTask */
+	/* USER CODE END StartControlTask */
 }
 
 /* StartTxTask function */
@@ -347,7 +350,7 @@ void StartTxTask(void const * argument)
 			  memcpy(magY, &myMPU9250.hy, sizeof(float));
 			  memcpy(magZ, &myMPU9250.hz, sizeof(float));
 		  }
-		  else if(xActivatedMember == xTECEventQueueHandle){
+		  else if(xActivatedMember == xControlEventQueueHandle){
 			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
 
 			  /* Update task flags to indicate TEC task has been received from */
@@ -407,7 +410,6 @@ void StartMPU9250Task(void const * argument)
 
 
 	/********** Use the acceleration magnitude to update state **********/
-	//TODO
 	if(myMPU9250.A < 0.981){
 		myMPU9250.theEvent = REDUCEDGRAVITY;
 	}
@@ -440,6 +442,24 @@ void StartRxTask(void const * argument)
 	 }
   }
   /* USER CODE END StartRxTask */
+}
+
+/* StartTempTask function */
+void StartTempTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTempTask */
+  TickType_t xLastWakeTime;
+  xLastWakeTime = xTaskGetTickCount();
+
+  /* Infinite loop */
+  for(;;)
+  {
+	  vTaskDelayUntil(&xLastWakeTime, TEMP_CYCLE_MS); // Service this task every TEMP_CYCLE_MS milliseconds
+
+	  // TODO: Acquire analog data from temperature sensors here
+	  osDelay(1);
+  }
+  /* USER CODE END StartTempTask */
 }
 
 /* USER CODE BEGIN Application */
