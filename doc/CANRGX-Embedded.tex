@@ -365,45 +365,45 @@ The packet format was as follows:
 
 \begin{table}[!ht]
 	\centering
-	\begin{tabular}{ | m{4cm} | m{2cm} | m{2cm} | m{2cm}| m{1cm}| m{2cm}| m{2cm}|  } 
+	\begin{tabular}{ | m{4cm} | m{2cm} | m{2cm} | m{2cm}| m{1cm}| m{2cm}| } 
 		\hline
-		Parameter & Data Type & Size (bytes) & Offset (bytes) & Units & Range & Positive Sign Convention \\
+		Parameter & Data Type & Size (bytes) & Offset (bytes) & Units & Range \\
 		\hline
-		Dummy bytes & uint8\_t & 2 & 0 & na & na & na \\
+		Dummy bytes & uint8\_t & 2 & 0 & na & na \\
 		\hline
-		Tick stamp & uint32\_t & 4 & 2 & $ms$ & [0, $2^{32}-1$] & na \\ 
+		Tick stamp & uint32\_t & 4 & 2 & $ms$ & [0, $2^{32}-1$] \\ 
 		\hline
-		Acceleration X & float & 4 & 6 & $m/s^2$ & $\pm 2g$ & TODO \\ 
+		Acceleration X & float & 4 & 6 & $m/s^2$ & $\pm 2g$ \\ 
 		\hline
-		Acceleration Y & float & 4 & 10 & $m/s^2$ & $\pm 2g$ & TODO \\ 
+		Acceleration Y & float & 4 & 10 & $m/s^2$ & $\pm 2g$ \\ 
 		\hline
-		Acceleration Z & float & 4 & 14 & $m/s^2$ & $\pm 2g$ & TODO \\ 
+		Acceleration Z & float & 4 & 14 & $m/s^2$ & $\pm 2g$  \\ 
 		\hline
-		Magnetic flux density X & float & 4 & 18 & $\mu T$ & $\pm 4912$ & TODO \\ 
+		Magnetic flux density X & float & 4 & 18 & $\mu T$ & $\pm 4912$  \\ 
 		\hline
-		Magnetic flux density Y & float & 4 & 22 & $\mu T$ & $\pm 4912$ & TODO \\ 
+		Magnetic flux density Y & float & 4 & 22 & $\mu T$ & $\pm 4912$  \\ 
 		\hline
-		Magnetic flux density Z & float & 4 & 26 & $\mu T$ & $\pm 4912$ & TODO \\ 
+		Magnetic flux density Z & float & 4 & 26 & $\mu T$ & $\pm 4912$  \\ 
 		\hline
-		Magnet 1 power & uint16\_t & 2 & 30 & TODO & TODO & TODO \\ 
+		Magnet 1 duty cycle & uint16\_t & 2 & 30 & \% & $[0, 100]$  \\ 
 		\hline
-		Magnet 2 power & uint16\_t & 2 & 32 & TODO & TODO & TODO \\ 
+		Magnet 2 duty cycle & uint16\_t & 2 & 32 & \% & $[0, 100]$  \\ 
 		\hline
-	    TEC 1 duty cycle & uint16\_t & 2 & 34 & \% & $[0, 100]$ & TODO \\ 
+	    TEC 1 duty cycle & uint16\_t & 2 & 34 & \% & $[0, 100]$  \\ 
 		\hline
-		TEC 2 duty cycle & uint16\_t & 2 & 36 & \% & $[0, 100]$ & TODO \\ 
+		TEC 2 duty cycle & uint16\_t & 2 & 36 & \% & $[0, 100]$  \\ 
 		\hline
-		Thermocouple 1 & uint16\_t & 2 & 38 & TODO & TODO & TODO \\ 
+		Thermocouple 1 & uint16\_t & 2 & 38 & $^\circ$C & $[0, 100]$  \\ 
 		\hline
-		Thermocouple 2 & uint16\_t & 2 & 40 & TODO & TODO & TODO \\ 
+		Thermocouple 2 & uint16\_t & 2 & 40 & $^\circ$C & TODO  \\ 
 		\hline
-		Thermocouple 3 & uint16\_t & 2 & 42 & TODO & TODO & TODO \\ 
+		Thermocouple 3 & uint16\_t & 2 & 42 & $^\circ$C & TODO  \\ 
 		\hline
-		Thermocouple 4 & uint16\_t & 2 & 44 & TODO & TODO & TODO \\ 
+		Thermocouple 4 & uint16\_t & 2 & 44 & $^\circ$C & TODO  \\ 
 		\hline
-		Thermocouple 5 & uint16\_t & 2 & 46 & TODO & TODO & TODO \\ 
+		Thermocouple 5 & uint16\_t & 2 & 46 & $^\circ$C & TODO \\ 
 		\hline
-		Thermocouple 6 & uint16\_t & 2 & 48 & TODO & TODO & TODO \\ 
+		Thermocouple 6 & uint16\_t & 2 & 48 & $^\circ$C & TODO \\ 
 		\hline
 		
 	\end{tabular}

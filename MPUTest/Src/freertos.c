@@ -288,7 +288,7 @@ void StartControlTask(void const * argument)
 		uint32_t dutyCyclePercentTEC1and2 = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
 		xQueueOverwrite(xControlEventQueueHandle, &dutyCyclePercentTEC1and2);
 	}
-	/* USER CODE END StartControlTask */
+  /* USER CODE END StartControlTask */
 }
 
 /* StartTxTask function */
@@ -454,9 +454,14 @@ void StartTempTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+	  // TODO: vTaskDelayUntil may not be needed in this thread
 	  vTaskDelayUntil(&xLastWakeTime, TEMP_CYCLE_MS); // Service this task every TEMP_CYCLE_MS milliseconds
 
-	  // TODO: Acquire analog data from temperature sensors here
+	  // TODO: Process data acquired from temperature sensors here.
+	  // The DMA wakeup occurs roughly every 133 microseconds for total buffer size of 100
+	  // and wakeups every half-full cycle
+	  //
+	  // (1/((45*10^6)/8)) * 15 * 50 * 1000 = 0.133 ms per buffer half full
 	  osDelay(1);
   }
   /* USER CODE END StartTempTask */

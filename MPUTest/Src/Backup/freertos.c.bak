@@ -91,9 +91,9 @@ osStaticThreadDef_t TempTaskControlBlock;
 osMessageQId xMPUEventQueueHandle;
 uint8_t xMPUEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t xMPUEventQueueControlBlock;
-osMessageQId xTECEventQueueHandle;
-uint8_t xTECEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
-osStaticMessageQDef_t xTECEventQueueControlBlock;
+osMessageQId xControlEventQueueHandle;
+uint8_t xControlEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t xControlEventQueueControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
 osSemaphoreId semTxHandle;
@@ -230,9 +230,9 @@ void MX_FREERTOS_Init(void) {
   osMessageQStaticDef(xMPUEventQueue, 1, uint32_t, xMPUEventQueueBuffer, &xMPUEventQueueControlBlock);
   xMPUEventQueueHandle = osMessageCreate(osMessageQ(xMPUEventQueue), NULL);
 
-  /* definition and creation of xTECEventQueue */
-  osMessageQStaticDef(xTECEventQueue, 1, uint32_t, xTECEventQueueBuffer, &xTECEventQueueControlBlock);
-  xTECEventQueueHandle = osMessageCreate(osMessageQ(xTECEventQueue), NULL);
+  /* definition and creation of xControlEventQueue */
+  osMessageQStaticDef(xControlEventQueue, 1, uint32_t, xControlEventQueueBuffer, &xControlEventQueueControlBlock);
+  xControlEventQueueHandle = osMessageCreate(osMessageQ(xControlEventQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -241,7 +241,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of xTxQueueSet */
   xTxQueueSet = xQueueCreateSet( 1 + 1 ); // Argument is the sum of the queue sizes for all event queues
   xQueueAddToSet(xMPUEventQueueHandle, xTxQueueSet);
-  xQueueAddToSet(xTECEventQueueHandle, xTxQueueSet);
+  xQueueAddToSet(xControlEventQueueHandle, xTxQueueSet);
   /* USER CODE END RTOS_QUEUES */
 }
 
@@ -262,18 +262,13 @@ void StartDefaultTask(void const * argument)
 void StartControlTask(void const * argument)
 {
   /* USER CODE BEGIN StartControlTask */
-	TickType_t xLastWakeTime;
-	xLastWakeTime = xTaskGetTickCount();
-
 	float dutyCycleTEC1;
 	float dutyCycleTEC2;
 
 	TickType_t curTick;
 
-	static struct TEC_PID_Ctrl tec1;
-	tec1.target_temp = 38;
-	TEC_PID_init(&tec1);
-
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
 
 	/* Infinite loop */
 	for(;;)
@@ -281,10 +276,10 @@ void StartControlTask(void const * argument)
 		vTaskDelayUntil(&xLastWakeTime, CONTROL_CYCLE_MS); // Service this task every CONTROL_CYCLE_MS milliseconds
 
 
-		/********** Update PWM duty cycle **********/
-		dutyCycleTEC1 = TEC_PID_update(&tec1, ADC1_Filtered(0));
-
+		/********** Update PWM duty cycle for TEC **********/
 		curTick = xTaskGetTickCount();
+
+		dutyCycleTEC1 = (1.0 + sinf(0.02 * curTick)) / 2.0;
 		dutyCycleTEC2 = (1.0 + cosf(0.02 * curTick)) / 2.0;
 		TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
 
@@ -292,7 +287,8 @@ void StartControlTask(void const * argument)
 		/********** Tell transmit task that new data is ready **********/
 		uint32_t dutyCyclePercentTEC1and2 = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
 		xQueueOverwrite(xControlEventQueueHandle, &dutyCyclePercentTEC1and2);
-  /* USER CODE END StartControlTask */
+	}
+	/* USER CODE END StartControlTask */
 }
 
 /* StartTxTask function */
@@ -354,7 +350,7 @@ void StartTxTask(void const * argument)
 			  memcpy(magY, &myMPU9250.hy, sizeof(float));
 			  memcpy(magZ, &myMPU9250.hz, sizeof(float));
 		  }
-		  else if(xActivatedMember == xTECEventQueueHandle){
+		  else if(xActivatedMember == xControlEventQueueHandle){
 			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
 
 			  /* Update task flags to indicate TEC task has been received from */
@@ -414,7 +410,6 @@ void StartMPU9250Task(void const * argument)
 
 
 	/********** Use the acceleration magnitude to update state **********/
-	//TODO
 	if(myMPU9250.A < 0.981){
 		myMPU9250.theEvent = REDUCEDGRAVITY;
 	}
@@ -453,10 +448,16 @@ void StartRxTask(void const * argument)
 void StartTempTask(void const * argument)
 {
   /* USER CODE BEGIN StartTempTask */
+  TickType_t xLastWakeTime;
+  xLastWakeTime = xTaskGetTickCount();
+
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	  vTaskDelayUntil(&xLastWakeTime, TEMP_CYCLE_MS); // Service this task every TEMP_CYCLE_MS milliseconds
+
+	  // TODO: Acquire analog data from temperature sensors here
+	  osDelay(1);
   }
   /* USER CODE END StartTempTask */
 }

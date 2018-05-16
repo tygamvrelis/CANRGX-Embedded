@@ -462,7 +462,7 @@ volatile FilterTempType ADC_filter[ADC_DATA_N];
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	for (uint8_t i=0;i<ADC_DATA_N;i++){
+	for (uint8_t i=0; i<ADC_DATA_N;i++){
 		FilterTemp_writeInput(&(ADC_filter[i]),(uhADC_results[i]));
 	}
 }

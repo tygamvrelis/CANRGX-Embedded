@@ -66,8 +66,18 @@ extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
 
 /* USER CODE BEGIN Private defines */
-#define ADC_DATA_N 12
-extern volatile uint16_t uhADC_results[];
+#define ADC_DATA_N 6 * 100 // 6 channels, 100 array elements per channel
+extern volatile uint16_t ADC_buff[ADC_DATA_N]; // Large buffer
+extern volatile uint16_t ADC_results[6]; // Processed results
+
+enum tempSensors{
+	TEMP1,
+	TEMP2,
+	TEMP3,
+	TEMP4,
+	TEMP5,
+	TEMP6
+};
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);
@@ -77,9 +87,7 @@ void MX_ADC2_Init(void);
 void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void ADC1_Scan_Satart(void);
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
-float ADC1_Filtered(uint8_t i);
+int Temp_Scan_Start(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

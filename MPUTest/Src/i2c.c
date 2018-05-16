@@ -94,19 +94,19 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
     PC9     ------> I2C3_SDA
     PA8     ------> I2C3_SCL 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_9;
+    GPIO_InitStruct.Pin = MPU_SDA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(MPU_SDA_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_8;
+    GPIO_InitStruct.Pin = MPU_SCL_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(MPU_SCL_GPIO_Port, &GPIO_InitStruct);
 
     /* I2C3 clock enable */
     __HAL_RCC_I2C3_CLK_ENABLE();
@@ -154,9 +154,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
     PC9     ------> I2C3_SDA
     PA8     ------> I2C3_SCL 
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_9);
+    HAL_GPIO_DeInit(MPU_SDA_GPIO_Port, MPU_SDA_Pin);
 
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_8);
+    HAL_GPIO_DeInit(MPU_SCL_GPIO_Port, MPU_SCL_Pin);
 
     /* I2C3 DMA DeInit */
     HAL_DMA_DeInit(i2cHandle->hdmarx);
