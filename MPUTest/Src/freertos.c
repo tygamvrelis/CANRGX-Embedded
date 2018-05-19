@@ -59,7 +59,6 @@
 #include "dma.h"
 #include "i2c.h"
 #include "rtc.h"
-#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -88,12 +87,17 @@ osStaticThreadDef_t rxTaskControlBlock;
 osThreadId TempTaskHandle;
 uint32_t TempTaskBuffer[ 256 ];
 osStaticThreadDef_t TempTaskControlBlock;
-osMessageQId xMPUEventQueueHandle;
-uint8_t xMPUEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
-osStaticMessageQDef_t xMPUEventQueueControlBlock;
-osMessageQId xControlEventQueueHandle;
-uint8_t xControlEventQueueBuffer[ 1 * sizeof( uint32_t ) ];
-osStaticMessageQDef_t xControlEventQueueControlBlock;
+osMessageQId xMPUToTXQueueHandle;
+uint8_t xMPUToTXQueueBuffer[ 1 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t xMPUToTXQueueControlBlock;
+osMessageQId xControlToTXQueueHandle;
+uint8_t xControlToTXQueueBuffer[ 1 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t xControlToTXQueueControlBlock;
+osMessageQId xControlCommandQueueHandle;
+uint8_t xControlCommandQueueBuffer[ 2 * sizeof( uint32_t ) ];
+osStaticMessageQDef_t xControlCommandQueueControlBlock;
+osTimerId tmrLEDBlinkHandle;
+osStaticTimerDef_t tmrLEDBlinkControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
 osSemaphoreId semTxHandle;
@@ -116,6 +120,7 @@ void StartTxTask(void const * argument);
 void StartMPU9250Task(void const * argument);
 void StartRxTask(void const * argument);
 void StartTempTask(void const * argument);
+void tmrLEDCallback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -125,6 +130,9 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
 void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+
+/* GetTimerTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -149,6 +157,19 @@ return 0;
 
 // LED blink for debugging (green LED, LD2)
 #define LED() HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5)
+
+// All flight events besides none are transitions
+enum flightEvents_e{
+	NONE,
+	REDUCEDGRAVITY,
+	PULLUP,
+	PULLOUT
+};
+
+enum controllerStates_e{
+	IDLE,
+	EXPERIMENT
+};
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -163,6 +184,19 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   /* place for user code */
 }
 /* USER CODE END GET_IDLE_TASK_MEMORY */
+
+/* USER CODE BEGIN GET_TIMER_TASK_MEMORY */
+static StaticTask_t xTimerTaskTCBBuffer;
+static StackType_t xTimerStack[configTIMER_TASK_STACK_DEPTH];
+  
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )  
+{
+  *ppxTimerTaskTCBBuffer = &xTimerTaskTCBBuffer;
+  *ppxTimerTaskStackBuffer = &xTimerStack[0];
+  *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+  /* place for user code */
+}                   
+/* USER CODE END GET_TIMER_TASK_MEMORY */
 
 /* Init FreeRTOS */
 
@@ -192,8 +226,14 @@ void MX_FREERTOS_Init(void) {
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
+  /* Create the timer(s) */
+  /* definition and creation of tmrLEDBlink */
+  osTimerStaticDef(tmrLEDBlink, tmrLEDCallback, &tmrLEDBlinkControlBlock);
+  tmrLEDBlinkHandle = osTimerCreate(osTimer(tmrLEDBlink), osTimerPeriodic, NULL);
+
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
+  osTimerStart(tmrLEDBlinkHandle, 1000); // Start timer to blink status LED
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the thread(s) */
@@ -226,22 +266,26 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_THREADS */
 
   /* Create the queue(s) */
-  /* definition and creation of xMPUEventQueue */
-  osMessageQStaticDef(xMPUEventQueue, 1, uint32_t, xMPUEventQueueBuffer, &xMPUEventQueueControlBlock);
-  xMPUEventQueueHandle = osMessageCreate(osMessageQ(xMPUEventQueue), NULL);
+  /* definition and creation of xMPUToTXQueue */
+  osMessageQStaticDef(xMPUToTXQueue, 1, uint32_t, xMPUToTXQueueBuffer, &xMPUToTXQueueControlBlock);
+  xMPUToTXQueueHandle = osMessageCreate(osMessageQ(xMPUToTXQueue), NULL);
 
-  /* definition and creation of xControlEventQueue */
-  osMessageQStaticDef(xControlEventQueue, 1, uint32_t, xControlEventQueueBuffer, &xControlEventQueueControlBlock);
-  xControlEventQueueHandle = osMessageCreate(osMessageQ(xControlEventQueue), NULL);
+  /* definition and creation of xControlToTXQueue */
+  osMessageQStaticDef(xControlToTXQueue, 1, uint32_t, xControlToTXQueueBuffer, &xControlToTXQueueControlBlock);
+  xControlToTXQueueHandle = osMessageCreate(osMessageQ(xControlToTXQueue), NULL);
+
+  /* definition and creation of xControlCommandQueue */
+  osMessageQStaticDef(xControlCommandQueue, 2, uint32_t, xControlCommandQueueBuffer, &xControlCommandQueueControlBlock);
+  xControlCommandQueueHandle = osMessageCreate(osMessageQ(xControlCommandQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
 
   /* Create the queue set(s) */
   /* definition and creation of xTxQueueSet */
-  xTxQueueSet = xQueueCreateSet( 1 + 1 ); // Argument is the sum of the queue sizes for all event queues
-  xQueueAddToSet(xMPUEventQueueHandle, xTxQueueSet);
-  xQueueAddToSet(xControlEventQueueHandle, xTxQueueSet);
+  xTxQueueSet = xQueueCreateSet( 1 + 2 ); // Argument is the sum of the queue sizes for all event queues
+  xQueueAddToSet(xMPUToTXQueueHandle, xTxQueueSet);
+  xQueueAddToSet(xControlToTXQueueHandle, xTxQueueSet);
   /* USER CODE END RTOS_QUEUES */
 }
 
@@ -262,31 +306,83 @@ void StartDefaultTask(void const * argument)
 void StartControlTask(void const * argument)
 {
   /* USER CODE BEGIN StartControlTask */
-	float dutyCycleTEC1;
-	float dutyCycleTEC2;
+	float dutyCycleTEC1 = 0;
+	float dutyCycleTEC2 = 0;
+	float dutyCycleMag1 = 0;
+	float dutyCycleMag2 = 0;
 
 	TickType_t curTick;
 
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
+	uint32_t commandDataBuffer[2] = {0};
+
+	/* Startup procedure */
+	enum flightEvents_e receivedEvent = NONE;
+	enum controllerStates_e controllerState = IDLE;
+
+	TEC_stop();
+
 	/* Infinite loop */
 	for(;;)
 	{
-		vTaskDelayUntil(&xLastWakeTime, CONTROL_CYCLE_MS); // Service this task every CONTROL_CYCLE_MS milliseconds
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
 
+		/********** Check for flight events from command queue **********/
+		if(uxQueueMessagesWaiting(xControlCommandQueueHandle) != 0){
+			xQueueReceive(xControlCommandQueueHandle, &receivedEvent, 0);
 
-		/********** Update PWM duty cycle for TEC **********/
-		curTick = xTaskGetTickCount();
+			// One-time state update for the event
+			switch(receivedEvent){
+				case REDUCEDGRAVITY:
+					controllerState = EXPERIMENT;
 
-		dutyCycleTEC1 = (1.0 + sinf(0.02 * curTick)) / 2.0;
-		dutyCycleTEC2 = (1.0 + cosf(0.02 * curTick)) / 2.0;
-		TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
+					// TODO: one-time setting of duty cycle for TECs
+					dutyCycleTEC1 = 0.85;
+					dutyCycleTEC2 = 0.85;
+					TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
 
+					// Make status LED blink at 10 Hz
+					osTimerStop(tmrLEDBlinkHandle);
+					osTimerStart(tmrLEDBlinkHandle, 50);
+					break;
+				case NONE:
+					controllerState = IDLE;
+
+					dutyCycleTEC1 = 0;
+					dutyCycleTEC2 = 0;
+					TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
+
+					// Make status LED blink at 2 Hz
+					osTimerStop(tmrLEDBlinkHandle);
+					osTimerStart(tmrLEDBlinkHandle, 1000);
+					break;
+				default:
+					break; // Should never reach here
+			}
+
+		}
+
+		switch(controllerState){
+			case IDLE:
+				break;
+			case EXPERIMENT:
+				/* Update PWM duty cycle for magnets */
+				curTick = xTaskGetTickCount();
+
+				dutyCycleMag1 = (1.0 + sinf(0.02 * curTick)) / 2.0;
+				dutyCycleMag2 = (1.0 + cosf(0.02 * curTick)) / 2.0;
+				TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
+				break;
+			default:
+				break; // Should never reach here
+		}
 
 		/********** Tell transmit task that new data is ready **********/
-		uint32_t dutyCyclePercentTEC1and2 = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
-		xQueueOverwrite(xControlEventQueueHandle, &dutyCyclePercentTEC1and2);
+		commandDataBuffer[0] = ((uint16_t)(dutyCycleMag1 * 100) << 16) | ((uint16_t)(dutyCycleMag2 * 100));
+		commandDataBuffer[1] = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
+		xQueueSend(xControlToTXQueueHandle, commandDataBuffer, 1);
 	}
   /* USER CODE END StartControlTask */
 }
@@ -297,7 +393,7 @@ void StartTxTask(void const * argument)
   /* USER CODE BEGIN StartTxTask */
   /********** For inter-task communication **********/
   QueueSetMemberHandle_t xActivatedMember; // Used to see which queue sent event data
-  uint32_t taskRxEventBuff; // Buffer to receive data from event queues
+  uint32_t taskRxEventBuff[2]; // Buffer to receive data from event queues
   uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
 // TODO: uint32_t tick = 0; 		// Used as a timeout
 
@@ -321,12 +417,12 @@ void StartTxTask(void const * argument)
   uint8_t* mag2Power = &buffer[32];
   uint8_t* tec1Power = &buffer[34];
   uint8_t* tec2Power = &buffer[36];
-  uint8_t* thermocouple1 = &buffer[38];
-  uint8_t* thermocouple2 = &buffer[40];
-  uint8_t* thermocouple3 = &buffer[42];
-  uint8_t* thermocouple4 = &buffer[44];
-  uint8_t* thermocouple5 = &buffer[46];
-  uint8_t* thermocouple6 = &buffer[48];
+//  uint8_t* thermocouple1 = &buffer[38];
+//  uint8_t* thermocouple2 = &buffer[40];
+//  uint8_t* thermocouple3 = &buffer[42];
+//  uint8_t* thermocouple4 = &buffer[44];
+//  uint8_t* thermocouple5 = &buffer[46];
+//  uint8_t* thermocouple6 = &buffer[48];
 
 
   /* Infinite loop */
@@ -336,7 +432,7 @@ void StartTxTask(void const * argument)
 	  xActivatedMember = xQueueSelectFromSet(xTxQueueSet, portMAX_DELAY);
 
 	  if(xActivatedMember != NULL){
-		  if(xActivatedMember == xMPUEventQueueHandle){
+		  if(xActivatedMember == xMPUToTXQueueHandle){
 			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
 
 			  /* Update task flags to indicate MPU task has been received from */
@@ -350,22 +446,26 @@ void StartTxTask(void const * argument)
 			  memcpy(magY, &myMPU9250.hy, sizeof(float));
 			  memcpy(magZ, &myMPU9250.hz, sizeof(float));
 		  }
-		  else if(xActivatedMember == xControlEventQueueHandle){
+		  else if(xActivatedMember == xControlToTXQueueHandle){
 			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
 
 			  /* Update task flags to indicate TEC task has been received from */
 			  taskFlags = taskFlags | 0b00000010;
 
 			  /* Copy data to buffer */
-			  uint16_t tec1data = (taskRxEventBuff >> 16) & 0xFFFF;
-			  uint16_t tec2data = taskRxEventBuff & 0xFFFF;
+			  uint8_t mag1data = (taskRxEventBuff[0] >> 16) & 0xFFFF;
+			  uint8_t mag2data = taskRxEventBuff[0] & 0xFFFF;
+			  uint16_t tec1data = (taskRxEventBuff[1] >> 16) & 0xFFFF;
+			  uint16_t tec2data = taskRxEventBuff[1] & 0xFFFF;
+			  memcpy(mag1Power, &mag1data, sizeof(uint16_t));
+			  memcpy(mag2Power, &mag2data, sizeof(uint16_t));
 			  memcpy(tec1Power, &tec1data, sizeof(uint16_t));
 			  memcpy(tec2Power, &tec2data, sizeof(uint16_t));
 		  }
 	  }
 
 
-	  /********** This runs when all tasks have fresh data **********/
+	  /********** This runs when all data acquisition tasks have responded or timed out **********/
 	  if(taskFlags == 0b00000011){
 		  /* Obligatory packing */
 		  TickType_t curTick = xTaskGetTickCount();
@@ -389,36 +489,43 @@ void StartMPU9250Task(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
+  /* Initial state is sensing no event, and no command to transmit */
+  enum flightEvents_e sensedEvent = NONE;
+
   /* Infinite loop */
   for(;;)
   {
-    vTaskDelayUntil(&xLastWakeTime, MPU9250_CYCLE_MS); // Service this task every MPU9250_CYCLE_MS milliseconds
-
+    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS)); // Service this task every MPU9250_CYCLE_MS milliseconds
 
     /* Acceleration */
     accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
     myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
 
-
 	/* Magnetometer */
 	magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 
-
 	/********** Tell transmit task that new data is read **********/
 	uint32_t dummyToSend = 1;
-	xQueueOverwrite(xMPUEventQueueHandle, &dummyToSend);
-
+	xQueueSend(xMPUToTXQueueHandle, &dummyToSend, 1);
 
 	/********** Use the acceleration magnitude to update state **********/
+	// TODO: This myMPU9250.A reading should be filtered, with perhaps a
+	// moving average over the last 10 samples, since the sensor tends to
+	// be prone to some noise
+//	if(myMPU9250.az < 0.981){ // can use this line for testing communication with the other tasks
 	if(myMPU9250.A < 0.981){
-		myMPU9250.theEvent = REDUCEDGRAVITY;
+		if(sensedEvent != REDUCEDGRAVITY){
+			sensedEvent = REDUCEDGRAVITY;
+			xQueueSend(xControlCommandQueueHandle, (uint32_t*)&sensedEvent, 1); // Notify task to start experiment
+		}
 	}
 	else{
-		myMPU9250.theEvent = NONE;
+		if(sensedEvent != NONE){
+			sensedEvent = NONE;
+			xQueueSend(xControlCommandQueueHandle, (uint32_t*)&sensedEvent, 1); // Notify task to stop experiment
+		}
 	}
-
-
-	// TODO: Notify task to start experiment here
+	// TODO: Make it more difficult to come out of the experiment than going above 0.981...
   }
   /* USER CODE END StartMPU9250Task */
 }
@@ -428,6 +535,7 @@ void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
   uint8_t buffer[1];
+  enum flightEvents_e manualOverride = REDUCEDGRAVITY;
 
   /* Infinite loop */
   for(;;)
@@ -435,10 +543,25 @@ void StartRxTask(void const * argument)
 	 HAL_UART_Receive_IT(&huart2, buffer, 1);
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
-		 LED();
-	 }
-	 else{
-		 // Should never reach here
+		 if(buffer[0] == ' '){
+			 // Manual override for starting experiment
+			 // TODO: figure out how to make sure this message makes it no matter
+			 // what (had some issues with xQueueOverwrite); maybe use a specific
+			 // queue for manual override or something...
+			 xQueueSend(xControlCommandQueueHandle, (uint32_t*)&manualOverride, 1);
+
+			 // Spacebar alternates between starting and stopping experiment
+			 if(manualOverride == REDUCEDGRAVITY){
+				 manualOverride = NONE;
+			 }
+			 else{
+				 manualOverride = REDUCEDGRAVITY;
+			 }
+		 }
+		 else if(buffer[0] == 'F'){
+			 // Frame shift error handling
+		 }
+//		 LED();
 	 }
   }
   /* USER CODE END StartRxTask */
@@ -465,6 +588,14 @@ void StartTempTask(void const * argument)
 	  osDelay(1);
   }
   /* USER CODE END StartTempTask */
+}
+
+/* tmrLEDCallback function */
+void tmrLEDCallback(void const * argument)
+{
+  /* USER CODE BEGIN tmrLEDCallback */
+  LED();
+  /* USER CODE END tmrLEDCallback */
 }
 
 /* USER CODE BEGIN Application */

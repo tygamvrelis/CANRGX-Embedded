@@ -79,7 +79,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                                 
 
 /* USER CODE BEGIN Prototypes */
-void TEC_set_valuef(float valueA,float valueB);
+void TEC_set_valuef(float valueA, float valueB);
+void TEC_stop(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

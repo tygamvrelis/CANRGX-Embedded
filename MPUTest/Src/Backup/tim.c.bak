@@ -278,7 +278,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PB8     ------> TIM4_CH3
     PB9     ------> TIM4_CH4 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9;
+    GPIO_InitStruct.Pin = Magnet3A_Pin|Magnet3B_Pin|Magnet4A_Pin|Magnet4B_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -382,7 +382,7 @@ void TEC_set_value(uint16_t valueA,uint16_t valueB)
 	HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
 }
 
-void TEC_set_valuef(float valueA,float valueB)
+void TEC_set_valuef(float valueA, float valueB)
 {
     TIM_OC_InitTypeDef sConfigOC;
 
@@ -404,6 +404,11 @@ void TEC_set_valuef(float valueA,float valueB)
 		_Error_Handler(__FILE__, __LINE__);
 	}
 	HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+}
+
+void TEC_stop(void){
+	HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
 }
 /* USER CODE END 1 */
 

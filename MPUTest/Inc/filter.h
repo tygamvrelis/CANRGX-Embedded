@@ -19,7 +19,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #define FILTER_H_
 
 #define ARM_MATH_CM4	// Use ARM Cortex M4
-#define __FPU_PRESENT 1		// Does this device have a floating point unit?
 #include <arm_math.h>	// Include CMSIS header
 
 // Link with library: libarm_cortexM4_mathL.a (or equivalent)

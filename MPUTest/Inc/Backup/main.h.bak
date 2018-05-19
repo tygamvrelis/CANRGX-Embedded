@@ -66,6 +66,10 @@
 
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
+#define Temp3A_Pin GPIO_PIN_0
+#define Temp3A_GPIO_Port GPIOC
+#define Temp3B_Pin GPIO_PIN_3
+#define Temp3B_GPIO_Port GPIOC
 #define Temp1A_Pin GPIO_PIN_0
 #define Temp1A_GPIO_Port GPIOA
 #define Temp1B_Pin GPIO_PIN_1
@@ -80,6 +84,10 @@
 #define Magnet_1A_GPIO_Port GPIOA
 #define Magnet_1B_Pin GPIO_PIN_7
 #define Magnet_1B_GPIO_Port GPIOA
+#define Temp2A_Pin GPIO_PIN_4
+#define Temp2A_GPIO_Port GPIOC
+#define Temp2B_Pin GPIO_PIN_5
+#define Temp2B_GPIO_Port GPIOC
 #define Magnet_2A_Pin GPIO_PIN_0
 #define Magnet_2A_GPIO_Port GPIOB
 #define Magnet_2B_Pin GPIO_PIN_1
@@ -88,12 +96,24 @@
 #define TEC_Top_GPIO_Port GPIOB
 #define TEC_Bot_Pin GPIO_PIN_15
 #define TEC_Bot_GPIO_Port GPIOB
+#define MPU_SDA_Pin GPIO_PIN_9
+#define MPU_SDA_GPIO_Port GPIOC
+#define MPU_SCL_Pin GPIO_PIN_8
+#define MPU_SCL_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define Magnet3A_Pin GPIO_PIN_6
+#define Magnet3A_GPIO_Port GPIOB
+#define Magnet3B_Pin GPIO_PIN_7
+#define Magnet3B_GPIO_Port GPIOB
+#define Magnet4A_Pin GPIO_PIN_8
+#define Magnet4A_GPIO_Port GPIOB
+#define Magnet4B_Pin GPIO_PIN_9
+#define Magnet4B_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**
