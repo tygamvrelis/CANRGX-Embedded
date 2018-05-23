@@ -55,7 +55,6 @@
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim3;
-TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim12;
 
 /* TIM3 init function */
@@ -67,7 +66,7 @@ void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 0;
+  htim3.Init.Period = MAGNET_PWM_PERIOD-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
   {
@@ -106,56 +105,6 @@ void MX_TIM3_Init(void)
   }
 
   HAL_TIM_MspPostInit(&htim3);
-
-}
-/* TIM4 init function */
-void MX_TIM4_Init(void)
-{
-  TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
-
-  htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 0;
-  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 0;
-  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  if (HAL_TIM_OC_Init(&htim4) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sConfigOC.OCMode = TIM_OCMODE_ACTIVE;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_OC_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  if (HAL_TIM_OC_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  if (HAL_TIM_OC_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  if (HAL_TIM_OC_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  HAL_TIM_MspPostInit(&htim4);
 
 }
 /* TIM12 init function */
@@ -204,17 +153,6 @@ void HAL_TIM_OC_MspInit(TIM_HandleTypeDef* tim_ocHandle)
   /* USER CODE BEGIN TIM3_MspInit 1 */
 
   /* USER CODE END TIM3_MspInit 1 */
-  }
-  else if(tim_ocHandle->Instance==TIM4)
-  {
-  /* USER CODE BEGIN TIM4_MspInit 0 */
-
-  /* USER CODE END TIM4_MspInit 0 */
-    /* TIM4 clock enable */
-    __HAL_RCC_TIM4_CLK_ENABLE();
-  /* USER CODE BEGIN TIM4_MspInit 1 */
-
-  /* USER CODE END TIM4_MspInit 1 */
   }
 }
 
@@ -266,29 +204,6 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
 
   /* USER CODE END TIM3_MspPostInit 1 */
   }
-  else if(timHandle->Instance==TIM4)
-  {
-  /* USER CODE BEGIN TIM4_MspPostInit 0 */
-
-  /* USER CODE END TIM4_MspPostInit 0 */
-  
-    /**TIM4 GPIO Configuration    
-    PB6     ------> TIM4_CH1
-    PB7     ------> TIM4_CH2
-    PB8     ------> TIM4_CH3
-    PB9     ------> TIM4_CH4 
-    */
-    GPIO_InitStruct.Pin = Magnet3A_Pin|Magnet3B_Pin|Magnet4A_Pin|Magnet4B_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /* USER CODE BEGIN TIM4_MspPostInit 1 */
-
-  /* USER CODE END TIM4_MspPostInit 1 */
-  }
   else if(timHandle->Instance==TIM12)
   {
   /* USER CODE BEGIN TIM12_MspPostInit 0 */
@@ -327,17 +242,6 @@ void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef* tim_ocHandle)
 
   /* USER CODE END TIM3_MspDeInit 1 */
   }
-  else if(tim_ocHandle->Instance==TIM4)
-  {
-  /* USER CODE BEGIN TIM4_MspDeInit 0 */
-
-  /* USER CODE END TIM4_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_TIM4_CLK_DISABLE();
-  /* USER CODE BEGIN TIM4_MspDeInit 1 */
-
-  /* USER CODE END TIM4_MspDeInit 1 */
-  }
 }
 
 void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
@@ -357,56 +261,176 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+int8_t setMagnet(MagnetInfo_t* magnetInfo){
+	/* Sets the state of the specified magnet to coast, break, or PWM in the selected
+	 * direction.
+	 *
+	 * Arguments: magnetInfo, pointer to a struct that contains the configuration
+	 * 			  info for the magnet
+	 *
+	 * Returns: 1 if successful, otherwise a negative error code
+	 */
 
-void TEC_set_value(uint16_t valueA,uint16_t valueB)
-{
-    TIM_OC_InitTypeDef sConfigOC;
+	// Non-PWM modes of operation
+	if(magnetInfo -> magnetState == COAST || magnetInfo -> magnetState == BRAKE){
+		if(magnetInfo -> magnet == MAGNET1){
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
 
-    sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse = valueA;
-    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-    {
-      _Error_Handler(__FILE__, __LINE__);
-    }
-	HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_1);
+// TODO: The if-else statements below were supposed to allow you to enter COAST
+// or BRAKE state, but they don't seem to have any effect when these pins are used
+// as timer channel outputs. The default with the PWM_Stop lines above is equivalent
+// to COAST, but we should still figure out how to use these pins as GPIO
+//			if(magnetInfo -> magnetState == COAST){
+//				// low, low
+//				HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
+//				HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
+//			}
+//			else{
+//				// high, high
+//				HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_SET);
+//				HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_SET);
+//			}
+		}
+		else{ // if(magnetInfo -> magnet == MAGNET2)
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
 
-	//sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = valueB;
-	//sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-	//sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_2) != HAL_OK) {
-		_Error_Handler(__FILE__, __LINE__);
+//			if(magnetInfo -> magnetState == COAST){
+//				// low, low
+//				HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
+//				HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
+//			}
+//			else{
+//				// high, high
+//				HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_SET);
+//				HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_SET);
+//			}
+		}
+		return 1;
 	}
-	HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+
+
+	// PWM modes
+	if((magnetInfo -> dutyCycle) < 0 || (magnetInfo -> dutyCycle) > 1){
+		return -1;
+	}
+
+	TIM_OC_InitTypeDef sConfigOC;
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = (magnetInfo -> dutyCycle) * MAGNET_PWM_PERIOD;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+
+	if(magnetInfo -> magnet == MAGNET1){
+		if(magnetInfo -> magnetState == POSITIVECURRENT){
+			// Magnet 1A is GPIO here and Magnet 1B is PWM
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1); // Magnet 1A
+			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
+
+		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK){
+		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+		       * to it must be invalid. Handle the error here. */
+		    	return -2;
+		    }
+			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+		}
+		else{ // if(magnetInfo -> magnetState == NEGATIVECURRENT)
+			// Magnet 1B is GPIO here and Magnet 1A is PWM
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2); // Magnet 1B
+			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
+
+		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK){
+		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+		       * to it must be invalid. Handle the error here. */
+		    	return -3;
+		    }
+			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+		}
+	}
+	else{ // if(magnetInfo -> magnet == MAGNET2)
+		if(magnetInfo -> magnetState == POSITIVECURRENT){
+			// Magnet 2A is GPIO here and Magnet 2B is PWM
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3); // Magnet 2A
+			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
+
+		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK){
+		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+		       * to it must be invalid. Handle the error here. */
+		    	return -4;
+		    }
+			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+		}
+		else{ // if(magnetInfo -> magnetState == NEGATIVECURRENT)
+			// Magnet 2B is GPIO here and Magnet 2A is PWM
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4); // Magnet 2B
+			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
+
+		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK){
+		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+		       * to it must be invalid. Handle the error here. */
+		    	return -5;
+		    }
+			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+		}
+	}
+
+	return 1;
 }
 
-void TEC_set_valuef(float valueA, float valueB)
-{
+int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle){
+	/* Sets the PWM duty cycle used to drive the top and bottom TECs used for
+	 * heating the parafluid.
+	 *
+	 * Arguments: the duty cycle for the top and bottom tec, respectively,
+	 * 			  indicating what fraction of a period each one should be
+	 * 			  on for (arguments in range [0, 1] are valid)
+	 *
+	 * Returns: 1 if successful, otherwise a negative error code
+	 */
+
+	// Check argument validity
+	if(TEC_Top_duty_cycle < 0 || TEC_Top_duty_cycle > 1){
+		return -1;
+	}
+
+	if(TEC_Bot_duty_cycle < 0 || TEC_Bot_duty_cycle > 1){
+		return -2;
+	}
+
     TIM_OC_InitTypeDef sConfigOC;
 
     sConfigOC.OCMode = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse = valueA*TEC_PWM_PERIOD;
+    sConfigOC.Pulse = TEC_Top_duty_cycle * TEC_PWM_PERIOD;
     sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-    if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-    {
-      _Error_Handler(__FILE__, __LINE__);
+
+    if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_1) != HAL_OK){
+    	/* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+    	 * to it must be invalid. Handle the error here. */
+    	return -3;
     }
 	HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_1);
 
-	//sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = valueB*TEC_PWM_PERIOD;
-	//sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-	//sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_2) != HAL_OK) {
-		_Error_Handler(__FILE__, __LINE__);
+	sConfigOC.Pulse = TEC_Bot_duty_cycle * TEC_PWM_PERIOD;
+	if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_2) != HAL_OK){
+		/* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+		 * to it must be invalid. Handle the error here. */
+		return -4;
 	}
 	HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+
+	return 1;
 }
 
 void TEC_stop(void){
+	/* Turns off the timer channels used for TEC PWM.
+	 *
+	 * Arguments: none
+	 *
+	 * Returns: none
+	 */
+
 	HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
 }

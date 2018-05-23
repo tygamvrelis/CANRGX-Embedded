@@ -79,7 +79,26 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                                 
 
 /* USER CODE BEGIN Prototypes */
-void TEC_set_valuef(float valueA, float valueB);
+enum magnets_e{
+	MAGNET1,
+	MAGNET2,
+};
+
+enum magnetStates_e{
+	COAST, // Logical outputs: A=low, B=low
+	BREAK, // Logical outputs: A=high, B=high
+	POSITIVECURRENT, // Current in + direction (A=low, B=PWM)
+	NEGATIVECURRENT // Current in - direction (A=PWM, B=LOW)
+};
+
+typedef struct{
+	enum magnets_e magnet; // Magnet 1 or magnet 2
+	enum magnetStates_e magnetState; // What the magnet is suppose to do
+	float dutyCycle; // Only needed if magnetState is POSITIVECURRENT or NEGATIVECURRENT
+}MagnetInfo_t;
+
+int8_t setMagnet(MagnetInfo_t* magnetInfo);
+int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle);
 void TEC_stop(void);
 /* USER CODE END Prototypes */
 

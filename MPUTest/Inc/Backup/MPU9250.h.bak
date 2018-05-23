@@ -112,6 +112,7 @@ typedef struct{
 
 /*********************************** Globals *********************************/
 extern MPU9250_t myMPU9250;
+extern const MPU9250_t* myMPU9250Ptr;
 extern const float g;
 
 

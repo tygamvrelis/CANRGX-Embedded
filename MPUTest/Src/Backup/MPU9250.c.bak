@@ -13,6 +13,7 @@
 
 /*********************************** Globals *********************************/
 MPU9250_t myMPU9250; // Global MPU9250 object
+const MPU9250_t* myMPU9250Ptr; // Pointer to global object
 const float g = 9.807; // Acceleration due to gravity on Earth
 
 

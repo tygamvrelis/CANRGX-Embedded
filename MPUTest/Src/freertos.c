@@ -306,10 +306,10 @@ void StartDefaultTask(void const * argument)
 void StartControlTask(void const * argument)
 {
   /* USER CODE BEGIN StartControlTask */
-	float dutyCycleTEC1 = 0;
-	float dutyCycleTEC2 = 0;
-	float dutyCycleMag1 = 0;
-	float dutyCycleMag2 = 0;
+	const float TEC_1_DUTY_CYCLE = 0.85;
+	const float TEC_2_DUTY_CYCLE = 0.85;
+	MagnetInfo_t magnet1Info = {MAGNET1, COAST, 0.0};
+	MagnetInfo_t magnet2Info = {MAGNET2, COAST, 0.0};
 
 	TickType_t curTick;
 
@@ -338,10 +338,14 @@ void StartControlTask(void const * argument)
 				case REDUCEDGRAVITY:
 					controllerState = EXPERIMENT;
 
-					// TODO: one-time setting of duty cycle for TECs
-					dutyCycleTEC1 = 0.85;
-					dutyCycleTEC2 = 0.85;
-					TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
+					TEC_set_valuef(TEC_1_DUTY_CYCLE, TEC_2_DUTY_CYCLE);
+
+					// POSITIVECURRENT and NEGATIVECURRENT make the magnetic field
+					// be generated in opposite directions
+					magnet1Info.magnetState = POSITIVECURRENT;
+					magnet2Info.magnetState = POSITIVECURRENT;
+//					magnet1Info.magnetState = NEGATIVECURRENT;
+//					magnet2Info.magnetState = NEGATIVECURRENT;
 
 					// Make status LED blink at 10 Hz
 					osTimerStop(tmrLEDBlinkHandle);
@@ -350,9 +354,13 @@ void StartControlTask(void const * argument)
 				case NONE:
 					controllerState = IDLE;
 
-					dutyCycleTEC1 = 0;
-					dutyCycleTEC2 = 0;
-					TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
+					TEC_stop();
+
+					// TODO: coast or brake??
+					magnet1Info.magnetState = COAST;
+					magnet2Info.magnetState = COAST;
+					setMagnet(&magnet1Info);
+					setMagnet(&magnet2Info);
 
 					// Make status LED blink at 2 Hz
 					osTimerStop(tmrLEDBlinkHandle);
@@ -371,17 +379,18 @@ void StartControlTask(void const * argument)
 				/* Update PWM duty cycle for magnets */
 				curTick = xTaskGetTickCount();
 
-				dutyCycleMag1 = (1.0 + sinf(0.02 * curTick)) / 2.0;
-				dutyCycleMag2 = (1.0 + cosf(0.02 * curTick)) / 2.0;
-				TEC_set_valuef(dutyCycleTEC1, dutyCycleTEC2);
+				magnet1Info.dutyCycle = (1.0 + sinf(0.02 * curTick)) / 2.0;
+				magnet2Info.dutyCycle = (1.0 + cosf(0.02 * curTick)) / 2.0;
+				setMagnet(&magnet1Info);
+				setMagnet(&magnet2Info);
 				break;
 			default:
 				break; // Should never reach here
 		}
 
 		/********** Tell transmit task that new data is ready **********/
-		commandDataBuffer[0] = ((uint16_t)(dutyCycleMag1 * 100) << 16) | ((uint16_t)(dutyCycleMag2 * 100));
-		commandDataBuffer[1] = ((uint16_t)(dutyCycleTEC1 * 100) << 16) | ((uint16_t)(dutyCycleTEC2 * 100));
+		commandDataBuffer[0] = ((uint16_t)(magnet1Info.dutyCycle * 100) << 16) | ((uint16_t)(magnet2Info.dutyCycle * 100));
+		commandDataBuffer[1] = ((uint16_t)(TEC_1_DUTY_CYCLE * 100) << 16) | ((uint16_t)(TEC_2_DUTY_CYCLE * 100));
 		xQueueSend(xControlToTXQueueHandle, commandDataBuffer, 1);
 	}
   /* USER CODE END StartControlTask */
@@ -497,6 +506,8 @@ void StartMPU9250Task(void const * argument)
   {
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS)); // Service this task every MPU9250_CYCLE_MS milliseconds
 
+    // TODO: Can make accel and mag return -1 when they time out, in which case the sensor is re-initialized
+    // so that data acquisition can begin again!
     /* Acceleration */
     accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
     myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
@@ -512,8 +523,8 @@ void StartMPU9250Task(void const * argument)
 	// TODO: This myMPU9250.A reading should be filtered, with perhaps a
 	// moving average over the last 10 samples, since the sensor tends to
 	// be prone to some noise
-//	if(myMPU9250.az < 0.981){ // can use this line for testing communication with the other tasks
-	if(myMPU9250.A < 0.981){
+	if(myMPU9250.az < 0.981){ // can use this line for testing communication with the other tasks
+//	if(myMPU9250.A < 0.981){
 		if(sensedEvent != REDUCEDGRAVITY){
 			sensedEvent = REDUCEDGRAVITY;
 			xQueueSend(xControlCommandQueueHandle, (uint32_t*)&sensedEvent, 1); // Notify task to start experiment
@@ -548,7 +559,10 @@ void StartRxTask(void const * argument)
 			 // TODO: figure out how to make sure this message makes it no matter
 			 // what (had some issues with xQueueOverwrite); maybe use a specific
 			 // queue for manual override or something...
-			 xQueueSend(xControlCommandQueueHandle, (uint32_t*)&manualOverride, 1);
+			 // TODO: How to select experiment number?
+			 // Potential idea: pressing 1, 2, 3, or 4 will enqueue the respective
+			 // experiment numbers into a size 1 "manual override queue"
+			 xQueueSend(xControlCommandQueueHandle, (uint32_t*)&manualOverride, 1); // I don't know if timeout = 1 is good here
 
 			 // Spacebar alternates between starting and stopping experiment
 			 if(manualOverride == REDUCEDGRAVITY){
@@ -560,8 +574,15 @@ void StartRxTask(void const * argument)
 		 }
 		 else if(buffer[0] == 'F'){
 			 // Frame shift error handling
+			 // In this case, we need to create some sort of idle delay
+			 // before sending the next packet, greater than or equal to the
+			 // length of a byte or 2. This should give the receiver
+			 // sufficient time to prepare for the next bytes properly
+			 vTaskSuspend(StartTxTask);
+			 osDelay(4); // Delay 4 ms
+			 vTaskResume(StartTxTask);
 		 }
-//		 LED();
+//		 LED(); // Debugging for RX
 	 }
   }
   /* USER CODE END StartRxTask */

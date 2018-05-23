@@ -62,7 +62,6 @@
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim12;
 
 /* USER CODE BEGIN Private defines */
@@ -72,14 +71,32 @@ extern TIM_HandleTypeDef htim12;
 extern void _Error_Handler(char *, int);
 
 void MX_TIM3_Init(void);
-void MX_TIM4_Init(void);
 void MX_TIM12_Init(void);
                     
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                                
+                                
 
 /* USER CODE BEGIN Prototypes */
-void TEC_set_valuef(float valueA, float valueB);
+enum magnets_e{
+	MAGNET1,
+	MAGNET2,
+};
+
+enum magnetStates_e{
+	COAST, // Logical outputs: A=low, B=low
+	BRAKE, // Logical outputs: A=high, B=high
+	POSITIVECURRENT, // Current in + direction (A=low, B=PWM)
+	NEGATIVECURRENT // Current in - direction (A=PWM, B=LOW)
+};
+
+typedef struct{
+	enum magnets_e magnet; // Magnet 1 or magnet 2
+	enum magnetStates_e magnetState; // What the magnet is suppose to do
+	float dutyCycle; // Only needed if magnetState is POSITIVECURRENT or NEGATIVECURRENT
+}MagnetInfo_t;
+
+int8_t setMagnet(MagnetInfo_t* magnetInfo);
+int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle);
 void TEC_stop(void);
 /* USER CODE END Prototypes */
 
