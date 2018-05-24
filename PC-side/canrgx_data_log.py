@@ -93,4 +93,3 @@ with serial.Serial('COM3',230400,timeout=10) as ser:
         # Once MCU is unplugged, we write out all remaining data and close the file
         f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
         f.close()
-            

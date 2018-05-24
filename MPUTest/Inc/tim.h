@@ -84,7 +84,6 @@ enum magnets_e{
 
 enum magnetStates_e{
 	COAST, // Logical outputs: A=low, B=low
-	BRAKE, // Logical outputs: A=high, B=high
 	POSITIVECURRENT, // Current in + direction (A=low, B=PWM)
 	NEGATIVECURRENT // Current in - direction (A=PWM, B=LOW)
 };

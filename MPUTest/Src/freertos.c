@@ -64,6 +64,7 @@
 #include "gpio.h"
 #include "MPU9250.h"
 #include "pid_contrl.h"
+#include "userTypes.h"
 
 
 /* USER CODE END Includes */
@@ -91,11 +92,14 @@ osMessageQId xMPUToTXQueueHandle;
 uint8_t xMPUToTXQueueBuffer[ 1 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t xMPUToTXQueueControlBlock;
 osMessageQId xControlToTXQueueHandle;
-uint8_t xControlToTXQueueBuffer[ 1 * sizeof( uint32_t ) ];
+uint8_t xControlToTXQueueBuffer[ 1 * sizeof( controlData_t ) ];
 osStaticMessageQDef_t xControlToTXQueueControlBlock;
 osMessageQId xControlCommandQueueHandle;
-uint8_t xControlCommandQueueBuffer[ 2 * sizeof( uint32_t ) ];
+uint8_t xControlCommandQueueBuffer[ 1 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t xControlCommandQueueControlBlock;
+osMessageQId xTemperatureToTXQueueHandle;
+uint8_t xTemperatureToTXQueueBuffer[ 1 * sizeof( temperatureData_t ) ];
+osStaticMessageQDef_t xTemperatureToTXQueueControlBlock;
 osTimerId tmrLEDBlinkHandle;
 osStaticTimerDef_t tmrLEDBlinkControlBlock;
 osSemaphoreId semMPU9250Handle;
@@ -104,6 +108,8 @@ osSemaphoreId semTxHandle;
 osStaticSemaphoreDef_t semTxControlBlock;
 osSemaphoreId semRxHandle;
 osStaticSemaphoreDef_t semRxControlBlock;
+osSemaphoreId semTemperatureHandle;
+osStaticSemaphoreDef_t semTemperatureControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
@@ -222,6 +228,10 @@ void MX_FREERTOS_Init(void) {
   osSemaphoreStaticDef(semRx, &semRxControlBlock);
   semRxHandle = osSemaphoreCreate(osSemaphore(semRx), 1);
 
+  /* definition and creation of semTemperature */
+  osSemaphoreStaticDef(semTemperature, &semTemperatureControlBlock);
+  semTemperatureHandle = osSemaphoreCreate(osSemaphore(semTemperature), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -271,21 +281,26 @@ void MX_FREERTOS_Init(void) {
   xMPUToTXQueueHandle = osMessageCreate(osMessageQ(xMPUToTXQueue), NULL);
 
   /* definition and creation of xControlToTXQueue */
-  osMessageQStaticDef(xControlToTXQueue, 1, uint32_t, xControlToTXQueueBuffer, &xControlToTXQueueControlBlock);
+  osMessageQStaticDef(xControlToTXQueue, 1, controlData_t, xControlToTXQueueBuffer, &xControlToTXQueueControlBlock);
   xControlToTXQueueHandle = osMessageCreate(osMessageQ(xControlToTXQueue), NULL);
 
   /* definition and creation of xControlCommandQueue */
-  osMessageQStaticDef(xControlCommandQueue, 2, uint32_t, xControlCommandQueueBuffer, &xControlCommandQueueControlBlock);
+  osMessageQStaticDef(xControlCommandQueue, 1, uint32_t, xControlCommandQueueBuffer, &xControlCommandQueueControlBlock);
   xControlCommandQueueHandle = osMessageCreate(osMessageQ(xControlCommandQueue), NULL);
+
+  /* definition and creation of xTemperatureToTXQueue */
+  osMessageQStaticDef(xTemperatureToTXQueue, 1, temperatureData_t, xTemperatureToTXQueueBuffer, &xTemperatureToTXQueueControlBlock);
+  xTemperatureToTXQueueHandle = osMessageCreate(osMessageQ(xTemperatureToTXQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
 
   /* Create the queue set(s) */
   /* definition and creation of xTxQueueSet */
-  xTxQueueSet = xQueueCreateSet( 1 + 2 ); // Argument is the sum of the queue sizes for all event queues
+  xTxQueueSet = xQueueCreateSet( 1 + 1 + 1 ); // Argument is the sum of the queue sizes for all event queues
   xQueueAddToSet(xMPUToTXQueueHandle, xTxQueueSet);
   xQueueAddToSet(xControlToTXQueueHandle, xTxQueueSet);
+  xQueueAddToSet(xTemperatureToTXQueueHandle, xTxQueueSet);
   /* USER CODE END RTOS_QUEUES */
 }
 
@@ -306,8 +321,10 @@ void StartDefaultTask(void const * argument)
 void StartControlTask(void const * argument)
 {
   /* USER CODE BEGIN StartControlTask */
-	const float TEC_1_DUTY_CYCLE = 0.85;
-	const float TEC_2_DUTY_CYCLE = 0.85;
+	const float TEC_ON_DUTY_CYCLE = 0.85;
+
+	float TEC1DutyCycle = 0;
+	float TEC2DutyCycle = 0;
 	MagnetInfo_t magnet1Info = {MAGNET1, COAST, 0.0};
 	MagnetInfo_t magnet2Info = {MAGNET2, COAST, 0.0};
 
@@ -316,7 +333,7 @@ void StartControlTask(void const * argument)
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
-	uint32_t commandDataBuffer[2] = {0};
+	controlData_t controlData = {0};
 
 	/* Startup procedure */
 	enum flightEvents_e receivedEvent = NONE;
@@ -330,7 +347,7 @@ void StartControlTask(void const * argument)
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
 
 		/********** Check for flight events from command queue **********/
-		if(uxQueueMessagesWaiting(xControlCommandQueueHandle) != 0){
+		while(uxQueueMessagesWaiting(xControlCommandQueueHandle) != 0){
 			xQueueReceive(xControlCommandQueueHandle, &receivedEvent, 0);
 
 			// One-time state update for the event
@@ -338,7 +355,9 @@ void StartControlTask(void const * argument)
 				case REDUCEDGRAVITY:
 					controllerState = EXPERIMENT;
 
-					TEC_set_valuef(TEC_1_DUTY_CYCLE, TEC_2_DUTY_CYCLE);
+					TEC1DutyCycle = TEC_ON_DUTY_CYCLE;
+					TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
+					TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
 
 					// POSITIVECURRENT and NEGATIVECURRENT make the magnetic field
 					// be generated in opposite directions
@@ -354,13 +373,17 @@ void StartControlTask(void const * argument)
 				case NONE:
 					controllerState = IDLE;
 
+					TEC1DutyCycle = 0;
+					TEC2DutyCycle = 0;
 					TEC_stop();
 
-					// TODO: coast or brake??
 					magnet1Info.magnetState = COAST;
 					magnet2Info.magnetState = COAST;
+					magnet1Info.dutyCycle = 0;
+					magnet2Info.dutyCycle = 0;
 					setMagnet(&magnet1Info);
 					setMagnet(&magnet2Info);
+
 
 					// Make status LED blink at 2 Hz
 					osTimerStop(tmrLEDBlinkHandle);
@@ -369,14 +392,13 @@ void StartControlTask(void const * argument)
 				default:
 					break; // Should never reach here
 			}
-
 		}
 
 		switch(controllerState){
 			case IDLE:
 				break;
 			case EXPERIMENT:
-				/* Update PWM duty cycle for magnets */
+				// Update PWM duty cycle for magnets
 				curTick = xTaskGetTickCount();
 
 				magnet1Info.dutyCycle = (1.0 + sinf(0.02 * curTick)) / 2.0;
@@ -389,9 +411,11 @@ void StartControlTask(void const * argument)
 		}
 
 		/********** Tell transmit task that new data is ready **********/
-		commandDataBuffer[0] = ((uint16_t)(magnet1Info.dutyCycle * 100) << 16) | ((uint16_t)(magnet2Info.dutyCycle * 100));
-		commandDataBuffer[1] = ((uint16_t)(TEC_1_DUTY_CYCLE * 100) << 16) | ((uint16_t)(TEC_2_DUTY_CYCLE * 100));
-		xQueueSend(xControlToTXQueueHandle, commandDataBuffer, 1);
+		controlData.mag1Power = (uint16_t)(magnet1Info.dutyCycle * 100);
+		controlData.mag2Power = (uint16_t)(magnet2Info.dutyCycle * 100);
+		controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 100);
+		controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 100);
+		xQueueSend(xControlToTXQueueHandle, &controlData, 1);
 	}
   /* USER CODE END StartControlTask */
 }
@@ -400,12 +424,13 @@ void StartControlTask(void const * argument)
 void StartTxTask(void const * argument)
 {
   /* USER CODE BEGIN StartTxTask */
-  /********** For inter-task communication **********/
+  /********** For intertask communication **********/
   QueueSetMemberHandle_t xActivatedMember; // Used to see which queue sent event data
-  uint32_t taskRxEventBuff[2]; // Buffer to receive data from event queues
   uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
-// TODO: uint32_t tick = 0; 		// Used as a timeout
 
+  uint32_t eventBuffuint32_t;
+  controlData_t controlDataBuff;
+  temperatureData_t temperatureDataBuff;
 
   /********** Local vars used for packet **********/
   uint8_t buffer[50] = {0};
@@ -426,12 +451,12 @@ void StartTxTask(void const * argument)
   uint8_t* mag2Power = &buffer[32];
   uint8_t* tec1Power = &buffer[34];
   uint8_t* tec2Power = &buffer[36];
-//  uint8_t* thermocouple1 = &buffer[38];
-//  uint8_t* thermocouple2 = &buffer[40];
-//  uint8_t* thermocouple3 = &buffer[42];
-//  uint8_t* thermocouple4 = &buffer[44];
-//  uint8_t* thermocouple5 = &buffer[46];
-//  uint8_t* thermocouple6 = &buffer[48];
+  uint8_t* thermocouple1 = &buffer[38];
+  uint8_t* thermocouple2 = &buffer[40];
+  uint8_t* thermocouple3 = &buffer[42];
+  uint8_t* thermocouple4 = &buffer[44];
+  uint8_t* thermocouple5 = &buffer[46];
+  uint8_t* thermocouple6 = &buffer[48];
 
 
   /* Infinite loop */
@@ -442,7 +467,7 @@ void StartTxTask(void const * argument)
 
 	  if(xActivatedMember != NULL){
 		  if(xActivatedMember == xMPUToTXQueueHandle){
-			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
+			  xQueueReceive(xActivatedMember, &eventBuffuint32_t, 0);
 
 			  /* Update task flags to indicate MPU task has been received from */
 			  taskFlags = taskFlags | 0b00000001;
@@ -456,26 +481,46 @@ void StartTxTask(void const * argument)
 			  memcpy(magZ, &myMPU9250.hz, sizeof(float));
 		  }
 		  else if(xActivatedMember == xControlToTXQueueHandle){
-			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
+			  xQueueReceive(xActivatedMember, &controlDataBuff, 0);
 
-			  /* Update task flags to indicate TEC task has been received from */
+			  /* Update task flags to indicate control task has been received from */
 			  taskFlags = taskFlags | 0b00000010;
 
 			  /* Copy data to buffer */
-			  uint8_t mag1data = (taskRxEventBuff[0] >> 16) & 0xFFFF;
-			  uint8_t mag2data = taskRxEventBuff[0] & 0xFFFF;
-			  uint16_t tec1data = (taskRxEventBuff[1] >> 16) & 0xFFFF;
-			  uint16_t tec2data = taskRxEventBuff[1] & 0xFFFF;
+			  uint16_t mag1data = controlDataBuff.mag1Power;
+			  uint16_t mag2data = controlDataBuff.mag2Power;
+			  uint16_t tec1data = controlDataBuff.tec1Power;
+			  uint16_t tec2data = controlDataBuff.tec2Power;
 			  memcpy(mag1Power, &mag1data, sizeof(uint16_t));
 			  memcpy(mag2Power, &mag2data, sizeof(uint16_t));
 			  memcpy(tec1Power, &tec1data, sizeof(uint16_t));
 			  memcpy(tec2Power, &tec2data, sizeof(uint16_t));
 		  }
+		  else if(xActivatedMember == xTemperatureToTXQueueHandle){
+			  xQueueReceive(xActivatedMember, &temperatureDataBuff, 0);
+
+			  /* Update task flags to indicate temperature task has been received from */
+			  taskFlags = taskFlags | 0b00000100;
+
+			  /* Copy data to buffer */
+			  uint16_t thermocouple1data = temperatureDataBuff.thermocouple1;
+			  uint16_t thermocouple2data = temperatureDataBuff.thermocouple2;
+			  uint16_t thermocouple3data = temperatureDataBuff.thermocouple3;
+			  uint16_t thermocouple4data = temperatureDataBuff.thermocouple4;
+			  uint16_t thermocouple5data = temperatureDataBuff.thermocouple5;
+			  uint16_t thermocouple6data = temperatureDataBuff.thermocouple6;
+			  memcpy(thermocouple1, &thermocouple1data, sizeof(uint16_t));
+			  memcpy(thermocouple2, &thermocouple2data, sizeof(uint16_t));
+			  memcpy(thermocouple3, &thermocouple3data, sizeof(uint16_t));
+			  memcpy(thermocouple4, &thermocouple4data, sizeof(uint16_t));
+			  memcpy(thermocouple5, &thermocouple5data, sizeof(uint16_t));
+			  memcpy(thermocouple6, &thermocouple6data, sizeof(uint16_t));
+		  }
 	  }
 
 
 	  /********** This runs when all data acquisition tasks have responded or timed out **********/
-	  if(taskFlags == 0b00000011){
+	  if((taskFlags & 0b00000011) == 0b00000011){
 		  /* Obligatory packing */
 		  TickType_t curTick = xTaskGetTickCount();
 		  memcpy(tickStart, &curTick, sizeof(TickType_t));
@@ -515,28 +560,25 @@ void StartMPU9250Task(void const * argument)
 	/* Magnetometer */
 	magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 
-	/********** Tell transmit task that new data is read **********/
+	/********** Tell transmit task that new data is ready **********/
 	uint32_t dummyToSend = 1;
 	xQueueSend(xMPUToTXQueueHandle, &dummyToSend, 1);
 
 	/********** Use the acceleration magnitude to update state **********/
-	// TODO: This myMPU9250.A reading should be filtered, with perhaps a
-	// moving average over the last 10 samples, since the sensor tends to
-	// be prone to some noise
-	if(myMPU9250.az < 0.981){ // can use this line for testing communication with the other tasks
-//	if(myMPU9250.A < 0.981){
-		if(sensedEvent != REDUCEDGRAVITY){
-			sensedEvent = REDUCEDGRAVITY;
-			xQueueSend(xControlCommandQueueHandle, (uint32_t*)&sensedEvent, 1); // Notify task to start experiment
-		}
+	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing communication with the other tasks
+//	if(myMPU9250.A < 0.981 && sensedEvent == NONE){
+		sensedEvent = REDUCEDGRAVITY;
+		xQueueSend(xControlCommandQueueHandle, (uint32_t*)&sensedEvent, 1); // Notify task to start experiment
+	}
+	else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing communication with the other tasks
+//	else if(myMPU9250.A > 3.13 && sensedEvent == REDUCEDGRAVITY){
+		sensedEvent = NONE;
+		xQueueSend(xControlCommandQueueHandle, (uint32_t*)&sensedEvent, 1); // Notify task to stop experiment
 	}
 	else{
-		if(sensedEvent != NONE){
-			sensedEvent = NONE;
-			xQueueSend(xControlCommandQueueHandle, (uint32_t*)&sensedEvent, 1); // Notify task to stop experiment
-		}
+		/* Will reach here when no transition between events is detected; i.e., when the same state
+		 * (either NONE or REDUCEDGRAVITY) is detected in consecutive cycles */
 	}
-	// TODO: Make it more difficult to come out of the experiment than going above 0.981...
   }
   /* USER CODE END StartMPU9250Task */
 }
@@ -574,11 +616,11 @@ void StartRxTask(void const * argument)
 		 }
 		 else if(buffer[0] == 'F'){
 			 // Frame shift error handling
-			 // In this case, we need to create some sort of idle delay
+			 // TODO: In this case, we need to create some sort of idle delay
 			 // before sending the next packet, greater than or equal to the
 			 // length of a byte or 2. This should give the receiver
 			 // sufficient time to prepare for the next bytes properly
-			 vTaskSuspend(StartTxTask);
+			 vTaskSuspend(StartTxTask); // This calls breaks the OS..???
 			 osDelay(4); // Delay 4 ms
 			 vTaskResume(StartTxTask);
 		 }
@@ -595,6 +637,8 @@ void StartTempTask(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
+  temperatureData_t temperatureData = {0};
+
   /* Infinite loop */
   for(;;)
   {
@@ -604,9 +648,20 @@ void StartTempTask(void const * argument)
 	  // TODO: Process data acquired from temperature sensors here.
 	  // The DMA wakeup occurs roughly every 133 microseconds for total buffer size of 100
 	  // and wakeups every half-full cycle
-	  //
 	  // (1/((45*10^6)/8)) * 15 * 50 * 1000 = 0.133 ms per buffer half full
-	  osDelay(1);
+
+	  Temp_Scan_Start();
+	  xSemaphoreTake(semTemperatureHandle, 1);
+	  Temp_Scan_Stop();
+
+	  temperatureData.thermocouple1 = ADC_processed[TEMP1];
+	  temperatureData.thermocouple2 = ADC_processed[TEMP2];
+	  temperatureData.thermocouple3 = ADC_processed[TEMP3];
+	  temperatureData.thermocouple4 = ADC_processed[TEMP4];
+	  temperatureData.thermocouple5 = ADC_processed[TEMP5];
+	  temperatureData.thermocouple6 = ADC_processed[TEMP6];
+
+    xQueueSend(xTemperatureToTXQueueHandle, &temperatureData, 1);
   }
   /* USER CODE END StartTempTask */
 }

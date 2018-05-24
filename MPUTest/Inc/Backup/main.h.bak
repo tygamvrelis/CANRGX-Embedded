@@ -63,6 +63,7 @@
 #define MPU9250_CYCLE_MS 2
 #define CONTROL_CYCLE_MS 2
 #define TEMP_CYCLE_MS 10
+#define MAGNET_PWM_PERIOD 18000
 
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
@@ -106,14 +107,6 @@
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-#define Magnet3A_Pin GPIO_PIN_6
-#define Magnet3A_GPIO_Port GPIOB
-#define Magnet3B_Pin GPIO_PIN_7
-#define Magnet3B_GPIO_Port GPIOB
-#define Magnet4A_Pin GPIO_PIN_8
-#define Magnet4A_GPIO_Port GPIOB
-#define Magnet4B_Pin GPIO_PIN_9
-#define Magnet4B_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**

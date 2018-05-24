@@ -58,7 +58,7 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
 /* USER CODE END Includes */
 
 extern ADC_HandleTypeDef hadc1;
@@ -68,7 +68,8 @@ extern ADC_HandleTypeDef hadc3;
 /* USER CODE BEGIN Private defines */
 #define ADC_DATA_N 6 * 100 // 6 channels, 100 array elements per channel
 extern volatile uint16_t ADC_buff[ADC_DATA_N]; // Large buffer
-extern volatile uint16_t ADC_results[6]; // Processed results
+extern volatile uint16_t ADC_processed[6]; // Processed results
+extern volatile uint16_t ADCBuffTest[12];
 
 enum tempSensors{
 	TEMP1,
@@ -88,6 +89,7 @@ void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 int Temp_Scan_Start(void);
+int Temp_Scan_Stop(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

@@ -401,10 +401,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-
+extern osSemaphoreId semTemperatureHandle;
 
 volatile uint16_t ADC_buff[ADC_DATA_N];
 volatile uint16_t ADC_processed[6];
+
+volatile uint16_t ADCBuffTest[12];
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
@@ -418,6 +420,22 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	// TODO: Find median point for each channel (perhaps wake a processing thread to do this).
 	// Since this is called when the buffer is full, we just process the second half in
 	// this callback
+	for(uint8_t j = 0; j < 6; j++){
+		ADC_processed[j] = 0;
+	}
+
+	for(uint16_t i = 0; i < 2; i++){
+		for(uint8_t j = 0; j < 6; j++){
+			ADC_processed[j] += ADCBuffTest[i * 6 + j];
+		}
+	}
+
+	for(uint8_t j = 0; j < 6; j++){
+		ADC_processed[j] >>= 2;
+	}
+
+	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+	xSemaphoreGiveFromISR(semTemperatureHandle, &xHigherPriorityTaskWoken);
 }
 
 int Temp_Scan_Start(void){
@@ -425,15 +443,31 @@ int Temp_Scan_Start(void){
 	 * to sweep all 6 temperature sensor channels). Uses DMA to write to a large
 	 * buffer.
 	 *
-	 * Arguments:
-	 *     None
+	 * Arguments: None
 	 *
-	 * Returns:
-	 *     1 if successful, -1 otherwise
+	 * Returns: 1 if successful, -1 otherwise
 	 */
 
-	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&ADC_buff, ADC_DATA_N) != HAL_OK)
-	{
+//	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff, ADC_DATA_N) != HAL_OK){
+//	    return -1;
+//	}
+
+	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADCBuffTest, 12) != HAL_OK){
+	    return -1;
+	}
+
+	return 1;
+}
+
+int Temp_Scan_Stop(void){
+	/* Stops ADC peripheral used for sensing temperature.
+	 *
+	 * Arguments: none
+	 *
+	 * Returns: 1 if successful, -1 otherwise
+	 */
+
+	if(HAL_ADC_Stop_DMA(&hadc1) != HAL_OK){
 	    return -1;
 	}
 

@@ -271,41 +271,15 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 	 * Returns: 1 if successful, otherwise a negative error code
 	 */
 
-	// Non-PWM modes of operation
-	if(magnetInfo -> magnetState == COAST || magnetInfo -> magnetState == BRAKE){
+	// Non-PWM mode of operation
+	if(magnetInfo -> magnetState == COAST){
 		if(magnetInfo -> magnet == MAGNET1){
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
-
-// TODO: The if-else statements below were supposed to allow you to enter COAST
-// or BRAKE state, but they don't seem to have any effect when these pins are used
-// as timer channel outputs. The default with the PWM_Stop lines above is equivalent
-// to COAST, but we should still figure out how to use these pins as GPIO
-//			if(magnetInfo -> magnetState == COAST){
-//				// low, low
-//				HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
-//				HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
-//			}
-//			else{
-//				// high, high
-//				HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_SET);
-//				HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_SET);
-//			}
 		}
 		else{ // if(magnetInfo -> magnet == MAGNET2)
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
-
-//			if(magnetInfo -> magnetState == COAST){
-//				// low, low
-//				HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
-//				HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
-//			}
-//			else{
-//				// high, high
-//				HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_SET);
-//				HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_SET);
-//			}
 		}
 		return 1;
 	}
