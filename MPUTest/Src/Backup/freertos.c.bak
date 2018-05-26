@@ -64,6 +64,7 @@
 #include "gpio.h"
 #include "MPU9250.h"
 #include "pid_contrl.h"
+#include "userTypes.h"
 
 
 /* USER CODE END Includes */
@@ -91,13 +92,13 @@ osMessageQId xMPUToTXQueueHandle;
 uint8_t xMPUToTXQueueBuffer[ 1 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t xMPUToTXQueueControlBlock;
 osMessageQId xControlToTXQueueHandle;
-uint8_t xControlToTXQueueBuffer[ 1 * sizeof( controlData ) ];
+uint8_t xControlToTXQueueBuffer[ 1 * sizeof( controlData_t ) ];
 osStaticMessageQDef_t xControlToTXQueueControlBlock;
 osMessageQId xControlCommandQueueHandle;
-uint8_t xControlCommandQueueBuffer[ 1 * sizeof( cmdData ) ];
+uint8_t xControlCommandQueueBuffer[ 1 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t xControlCommandQueueControlBlock;
 osMessageQId xTemperatureToTXQueueHandle;
-uint8_t xTemperatureToTXQueueBuffer[ 1 * sizeof( temperatureData ) ];
+uint8_t xTemperatureToTXQueueBuffer[ 1 * sizeof( temperatureData_t ) ];
 osStaticMessageQDef_t xTemperatureToTXQueueControlBlock;
 osTimerId tmrLEDBlinkHandle;
 osStaticTimerDef_t tmrLEDBlinkControlBlock;
@@ -175,22 +176,6 @@ enum controllerStates_e{
 	IDLE,
 	EXPERIMENT
 };
-
-typedef struct{
-	uint8_t mag1Power;
-	uint8_t mag2Power;
-	uint8_t tec1Power;
-	uint8_t tec2Power;
-}controlData;
-
-typedef struct{
-	uint8_t thermocouple1;
-	uint8_t thermocouple2;
-	uint8_t thermocouple3;
-	uint8_t thermocouple4;
-	uint8_t thermocouple5;
-	uint8_t thermocouple6;
-}temperatureData;
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -296,15 +281,15 @@ void MX_FREERTOS_Init(void) {
   xMPUToTXQueueHandle = osMessageCreate(osMessageQ(xMPUToTXQueue), NULL);
 
   /* definition and creation of xControlToTXQueue */
-  osMessageQStaticDef(xControlToTXQueue, 1, controlData, xControlToTXQueueBuffer, &xControlToTXQueueControlBlock);
+  osMessageQStaticDef(xControlToTXQueue, 1, controlData_t, xControlToTXQueueBuffer, &xControlToTXQueueControlBlock);
   xControlToTXQueueHandle = osMessageCreate(osMessageQ(xControlToTXQueue), NULL);
 
   /* definition and creation of xControlCommandQueue */
-  osMessageQStaticDef(xControlCommandQueue, 1, cmdData, xControlCommandQueueBuffer, &xControlCommandQueueControlBlock);
+  osMessageQStaticDef(xControlCommandQueue, 1, uint32_t, xControlCommandQueueBuffer, &xControlCommandQueueControlBlock);
   xControlCommandQueueHandle = osMessageCreate(osMessageQ(xControlCommandQueue), NULL);
 
   /* definition and creation of xTemperatureToTXQueue */
-  osMessageQStaticDef(xTemperatureToTXQueue, 1, temperatureData, xTemperatureToTXQueueBuffer, &xTemperatureToTXQueueControlBlock);
+  osMessageQStaticDef(xTemperatureToTXQueue, 1, temperatureData_t, xTemperatureToTXQueueBuffer, &xTemperatureToTXQueueControlBlock);
   xTemperatureToTXQueueHandle = osMessageCreate(osMessageQ(xTemperatureToTXQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -348,7 +333,7 @@ void StartControlTask(void const * argument)
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
 
-	uint32_t commandDataBuffer[2] = {0};
+	controlData_t controlData = {0};
 
 	/* Startup procedure */
 	enum flightEvents_e receivedEvent = NONE;
@@ -426,9 +411,11 @@ void StartControlTask(void const * argument)
 		}
 
 		/********** Tell transmit task that new data is ready **********/
-		commandDataBuffer[0] = ((uint16_t)(magnet1Info.dutyCycle * 100) << 16) | ((uint16_t)(magnet2Info.dutyCycle * 100));
-		commandDataBuffer[1] = ((uint16_t)(TEC1DutyCycle * 100) << 16) | ((uint16_t)(TEC2DutyCycle * 100));
-		xQueueSend(xControlToTXQueueHandle, &commandDataBuffer, 1);
+		controlData.mag1Power = (uint16_t)(magnet1Info.dutyCycle * 100);
+		controlData.mag2Power = (uint16_t)(magnet2Info.dutyCycle * 100);
+		controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 100);
+		controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 100);
+		xQueueSend(xControlToTXQueueHandle, &controlData, 1);
 	}
   /* USER CODE END StartControlTask */
 }
@@ -439,8 +426,11 @@ void StartTxTask(void const * argument)
   /* USER CODE BEGIN StartTxTask */
   /********** For intertask communication **********/
   QueueSetMemberHandle_t xActivatedMember; // Used to see which queue sent event data
-  uint32_t taskRxEventBuff[3]; // Buffer to receive data from event queues
   uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
+
+  uint32_t eventBuffuint32_t;
+  controlData_t controlDataBuff;
+  temperatureData_t temperatureDataBuff;
 
   /********** Local vars used for packet **********/
   uint8_t buffer[50] = {0};
@@ -477,7 +467,7 @@ void StartTxTask(void const * argument)
 
 	  if(xActivatedMember != NULL){
 		  if(xActivatedMember == xMPUToTXQueueHandle){
-			  xQueueReceive(xActivatedMember, &taskRxEventBuff, 0);
+			  xQueueReceive(xActivatedMember, &eventBuffuint32_t, 0);
 
 			  /* Update task flags to indicate MPU task has been received from */
 			  taskFlags = taskFlags | 0b00000001;
@@ -491,36 +481,34 @@ void StartTxTask(void const * argument)
 			  memcpy(magZ, &myMPU9250.hz, sizeof(float));
 		  }
 		  else if(xActivatedMember == xControlToTXQueueHandle){
-			  xQueueReceive(xActivatedMember, &taskRxEventBuff[0], 0);
+			  xQueueReceive(xActivatedMember, &controlDataBuff, 0);
 
 			  /* Update task flags to indicate control task has been received from */
 			  taskFlags = taskFlags | 0b00000010;
 
 			  /* Copy data to buffer */
-			  uint16_t mag1data = (taskRxEventBuff[0] >> 16) & 0xFFFF;
-			  uint16_t mag2data = taskRxEventBuff[0] & 0xFFFF;
-			  uint16_t tec1data = (taskRxEventBuff[1] >> 16) & 0xFFFF;
-			  uint16_t tec2data = taskRxEventBuff[1] & 0xFFFF;
+			  uint16_t mag1data = controlDataBuff.mag1Power;
+			  uint16_t mag2data = controlDataBuff.mag2Power;
+			  uint16_t tec1data = controlDataBuff.tec1Power;
+			  uint16_t tec2data = controlDataBuff.tec2Power;
 			  memcpy(mag1Power, &mag1data, sizeof(uint16_t));
 			  memcpy(mag2Power, &mag2data, sizeof(uint16_t));
 			  memcpy(tec1Power, &tec1data, sizeof(uint16_t));
 			  memcpy(tec2Power, &tec2data, sizeof(uint16_t));
 		  }
 		  else if(xActivatedMember == xTemperatureToTXQueueHandle){
-			  xQueueReceive(xActivatedMember, &taskRxEventBuff[0], 0);
-			  xQueueReceive(xActivatedMember, &taskRxEventBuff[1], 0);
-			  xQueueReceive(xActivatedMember, &taskRxEventBuff[2], 0);
+			  xQueueReceive(xActivatedMember, &temperatureDataBuff, 0);
 
 			  /* Update task flags to indicate temperature task has been received from */
 			  taskFlags = taskFlags | 0b00000100;
 
 			  /* Copy data to buffer */
-			  uint16_t thermocouple1data = (taskRxEventBuff[0] >> 16) & 0xFFFF;
-			  uint16_t thermocouple2data = taskRxEventBuff[0] & 0xFFFF;
-			  uint16_t thermocouple3data = (taskRxEventBuff[1] >> 16) & 0xFFFF;
-			  uint16_t thermocouple4data = taskRxEventBuff[1] & 0xFFFF;
-			  uint16_t thermocouple5data = (taskRxEventBuff[2] >> 16) & 0xFFFF;
-			  uint16_t thermocouple6data = taskRxEventBuff[2] & 0xFFFF;
+			  uint16_t thermocouple1data = temperatureDataBuff.thermocouple1;
+			  uint16_t thermocouple2data = temperatureDataBuff.thermocouple2;
+			  uint16_t thermocouple3data = temperatureDataBuff.thermocouple3;
+			  uint16_t thermocouple4data = temperatureDataBuff.thermocouple4;
+			  uint16_t thermocouple5data = temperatureDataBuff.thermocouple5;
+			  uint16_t thermocouple6data = temperatureDataBuff.thermocouple6;
 			  memcpy(thermocouple1, &thermocouple1data, sizeof(uint16_t));
 			  memcpy(thermocouple2, &thermocouple2data, sizeof(uint16_t));
 			  memcpy(thermocouple3, &thermocouple3data, sizeof(uint16_t));
@@ -649,27 +637,31 @@ void StartTempTask(void const * argument)
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
-  uint8_t txDataBuffer[3];
+  temperatureData_t temperatureData = {0};
 
   /* Infinite loop */
   for(;;)
   {
 	  // TODO: vTaskDelayUntil may not be needed in this thread
-	  vTaskDelayUntil(&xLastWakeTime, TEMP_CYCLE_MS); // Service this task every TEMP_CYCLE_MS milliseconds
+	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS)); // Service this task every TEMP_CYCLE_MS milliseconds
 
 	  // TODO: Process data acquired from temperature sensors here.
 	  // The DMA wakeup occurs roughly every 133 microseconds for total buffer size of 100
 	  // and wakeups every half-full cycle
 	  // (1/((45*10^6)/8)) * 15 * 50 * 1000 = 0.133 ms per buffer half full
 
-//	  Temp_Scan_Start();
-//	  xSemaphoreTake(semTemperatureHandle, 1);
-//	  Temp_Scan_Stop();
-//
-//	  txDataBuffer[0] = (ADC_processed[TEMP1] << 16) | ADC_processed[TEMP2];
-//	  txDataBuffer[1] = (ADC_processed[TEMP3] << 16) | ADC_processed[TEMP4];
-//	  txDataBuffer[2] = (ADC_processed[TEMP5] << 16) | ADC_processed[TEMP6];
-//      xQueueSend(xControlToTXQueueHandle, txDataBuffer, 1);
+	  Temp_Scan_Start();
+	  xSemaphoreTake(semTemperatureHandle, TEMP_CYCLE_MS);
+	  Temp_Scan_Stop();
+
+	  temperatureData.thermocouple1 = ADC_processed[TEMP1];
+	  temperatureData.thermocouple2 = ADC_processed[TEMP2];
+	  temperatureData.thermocouple3 = ADC_processed[TEMP3];
+	  temperatureData.thermocouple4 = ADC_processed[TEMP4];
+	  temperatureData.thermocouple5 = ADC_processed[TEMP5];
+	  temperatureData.thermocouple6 = ADC_processed[TEMP6];
+
+    xQueueSend(xTemperatureToTXQueueHandle, &temperatureData, 1);
   }
   /* USER CODE END StartTempTask */
 }

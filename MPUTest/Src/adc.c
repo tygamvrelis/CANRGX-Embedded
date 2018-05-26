@@ -91,7 +91,7 @@ void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -404,34 +404,32 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 extern osSemaphoreId semTemperatureHandle;
 
 volatile uint16_t ADC_buff[ADC_DATA_N];
-volatile uint16_t ADC_processed[6];
-
-volatile uint16_t ADCBuffTest[12];
+volatile uint32_t ADC_processed[6];
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	// TODO: Find median point for each channel (perhaps wake a processing thread to do this).
+	// TODO: (maybe??) Find median point for each channel (perhaps wake a processing thread to do this).
 	// Since this is called when the buffer is half full, we just process the first half in
 	// this callback
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	// TODO: Find median point for each channel (perhaps wake a processing thread to do this).
+	// TODO: (maybe??) Find median point for each channel (perhaps wake a processing thread to do this).
 	// Since this is called when the buffer is full, we just process the second half in
 	// this callback
 	for(uint8_t j = 0; j < 6; j++){
 		ADC_processed[j] = 0;
 	}
 
-	for(uint16_t i = 0; i < 2; i++){
+	for(uint16_t i = 0; i < 64; i++){
 		for(uint8_t j = 0; j < 6; j++){
-			ADC_processed[j] += ADCBuffTest[i * 6 + j];
+			ADC_processed[j] += ADC_buff[i * 6 + j];
 		}
 	}
 
 	for(uint8_t j = 0; j < 6; j++){
-		ADC_processed[j] >>= 2;
+		ADC_processed[j] >>= 6;
 	}
 
 	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
@@ -448,11 +446,7 @@ int Temp_Scan_Start(void){
 	 * Returns: 1 if successful, -1 otherwise
 	 */
 
-//	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff, ADC_DATA_N) != HAL_OK){
-//	    return -1;
-//	}
-
-	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADCBuffTest, 6) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff, ADC_DATA_N) != HAL_OK){
 	    return -1;
 	}
 
@@ -473,48 +467,6 @@ int Temp_Scan_Stop(void){
 
 	return 1;
 }
-
-
-//// https://www.geeksforgeeks.org/quick-sort/
-//int partition (int arr[], int low, int high)
-//{
-//    int pivot = arr[high];    // pivot
-//    int i = (low - 1);  // Index of smaller element
-//
-//    for (int j = low; j <= high- 1; j++)
-//    {
-//        // If current element is smaller than or
-//        // equal to pivot
-//        if (arr[j] <= pivot)
-//        {
-//            i++;    // increment index of smaller element
-//
-//            swap(&arr[i], &arr[j]);
-//        }
-//    }
-//    swap(&arr[i + 1], &arr[high]);
-//    return (i + 1);
-//}
-//
-///* The main function that implements QuickSort
-// arr[] --> Array to be sorted,
-//  low  --> Starting index,
-//  high  --> Ending index */
-//void quickSort(int arr[], int low, int high)
-//{
-//    if (low < high)
-//    {
-//        /* pi is partitioning index, arr[p] is now
-//           at right place */
-//        int pi = partition(arr, low, high);
-//
-//        // Separately sort elements before
-//        // partition and after partition
-//        quickSort(arr, low, pi - 1);
-//        quickSort(arr, pi + 1, high);
-//    }
-//}
-
 /* USER CODE END 1 */
 
 /**

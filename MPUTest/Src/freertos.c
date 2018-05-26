@@ -643,7 +643,7 @@ void StartTempTask(void const * argument)
   for(;;)
   {
 	  // TODO: vTaskDelayUntil may not be needed in this thread
-	  vTaskDelayUntil(&xLastWakeTime, TEMP_CYCLE_MS); // Service this task every TEMP_CYCLE_MS milliseconds
+	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS)); // Service this task every TEMP_CYCLE_MS milliseconds
 
 	  // TODO: Process data acquired from temperature sensors here.
 	  // The DMA wakeup occurs roughly every 133 microseconds for total buffer size of 100
@@ -651,7 +651,7 @@ void StartTempTask(void const * argument)
 	  // (1/((45*10^6)/8)) * 15 * 50 * 1000 = 0.133 ms per buffer half full
 
 	  Temp_Scan_Start();
-	  xSemaphoreTake(semTemperatureHandle, 1);
+	  xSemaphoreTake(semTemperatureHandle, TEMP_CYCLE_MS - 2);
 	  Temp_Scan_Stop();
 
 	  temperatureData.thermocouple1 = ADC_processed[TEMP1];

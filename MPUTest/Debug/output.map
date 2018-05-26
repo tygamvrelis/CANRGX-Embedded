@@ -133,7 +133,7 @@ xControlCommandQueueBuffer
                     0x4               Src/freertos.o
 errno               0x4               d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-reent.o)
 myMPU9250Ptr        0x4               Src/MPU9250.o
-ADC_processed       0xc               Src/adc.o
+ADC_processed       0x18              Src/adc.o
 hadc2               0x48              Src/adc.o
 semMPU9250Handle    0x4               Src/freertos.o
 semTxControlBlock   0x54              Src/freertos.o
@@ -194,12 +194,11 @@ DataLogTaskBuffer   0x800             Src/freertos.o
 ControlTaskHandle   0x4               Src/freertos.o
 xControlToTXQueueControlBlock
                     0x54              Src/freertos.o
-ADCBuffTest         0x18              Src/adc.o
 semTemperatureControlBlock
                     0x54              Src/freertos.o
 MPU9250TaskControlBlock
                     0x60              Src/freertos.o
-ADC_buff            0x4b0             Src/adc.o
+ADC_buff            0x300             Src/adc.o
 ControlTaskBuffer   0x400             Src/freertos.o
 
 Discarded input sections
@@ -8869,27 +8868,27 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
                 0x08007c08      0x15c Src/MPU9250.o
                 0x08007c08                MPU9250Init
  .text.MX_ADC1_Init
-                0x08007d64      0x148 Src/adc.o
+                0x08007d64      0x14c Src/adc.o
                 0x08007d64                MX_ADC1_Init
  .text.MX_ADC2_Init
-                0x08007eac       0x70 Src/adc.o
-                0x08007eac                MX_ADC2_Init
+                0x08007eb0       0x70 Src/adc.o
+                0x08007eb0                MX_ADC2_Init
  .text.MX_ADC3_Init
-                0x08007f1c       0x70 Src/adc.o
-                0x08007f1c                MX_ADC3_Init
+                0x08007f20       0x70 Src/adc.o
+                0x08007f20                MX_ADC3_Init
  .text.HAL_ADC_MspInit
-                0x08007f8c      0x118 Src/adc.o
-                0x08007f8c                HAL_ADC_MspInit
+                0x08007f90      0x118 Src/adc.o
+                0x08007f90                HAL_ADC_MspInit
  .text.HAL_ADC_ConvHalfCpltCallback
-                0x080080a4        0x2 Src/adc.o
-                0x080080a4                HAL_ADC_ConvHalfCpltCallback
- *fill*         0x080080a6        0x2 
+                0x080080a8        0x2 Src/adc.o
+                0x080080a8                HAL_ADC_ConvHalfCpltCallback
+ *fill*         0x080080aa        0x2 
  .text.HAL_ADC_ConvCpltCallback
-                0x080080a8       0x8c Src/adc.o
-                0x080080a8                HAL_ADC_ConvCpltCallback
+                0x080080ac       0x84 Src/adc.o
+                0x080080ac                HAL_ADC_ConvCpltCallback
  .text.Temp_Scan_Start
-                0x08008134       0x20 Src/adc.o
-                0x08008134                Temp_Scan_Start
+                0x08008130       0x24 Src/adc.o
+                0x08008130                Temp_Scan_Start
  .text.Temp_Scan_Stop
                 0x08008154       0x18 Src/adc.o
                 0x08008154                Temp_Scan_Stop
@@ -9403,7 +9402,7 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
  .igot.plt      0x200001e4        0x0 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
                 0x200001e4                . = ALIGN (0x4)
 
-.bss            0x200001e4     0x5950 load address 0x0800c964
+.bss            0x200001e4     0x5794 load address 0x0800c964
                 0x200001e4                _sbss = .
                 0x200001e4                __bss_start__ = _sbss
  *(.bss)
@@ -9431,86 +9430,84 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
  COMMON         0x20002164       0x2c Src/MPU9250.o
                 0x20002164                myMPU9250Ptr
                 0x20002168                myMPU9250
- COMMON         0x20002190      0x60c Src/adc.o
+ COMMON         0x20002190      0x450 Src/adc.o
                 0x20002190                ADC_processed
-                0x2000219c                hadc2
-                0x200021e4                hadc1
-                0x2000222c                hadc3
-                0x20002274                hdma_adc1
-                0x200022d4                ADCBuffTest
-                0x200022ec                ADC_buff
- COMMON         0x2000279c     0x316c Src/freertos.o
-                0x2000279c                tmrLEDBlinkControlBlock
-                0x200027cc                semMPU9250ControlBlock
-                0x20002820                xTemperatureToTXQueueControlBlock
-                0x20002874                TempTaskBuffer
-                0x20002c74                defaultTaskHandle
-                0x20002c78                rxTaskControlBlock
-                0x20002cd8                xControlCommandQueueBuffer
-                0x20002cdc                semMPU9250Handle
-                0x20002ce0                semTxControlBlock
-                0x20002d34                xMPUToTXQueueHandle
-                0x20002d38                MPU9250TaskBuffer
-                0x20003138                TxTaskHandle
-                0x2000313c                MPU9250TaskHandle
-                0x20003140                xControlToTXQueueHandle
-                0x20003144                xControlCommandQueueHandle
-                0x20003148                rxTaskBuffer
-                0x20003948                semTxHandle
-                0x2000394c                xMPUToTXQueueBuffer
-                0x20003950                xControlToTXQueueBuffer
-                0x20003958                semRxControlBlock
-                0x200039ac                xControlCommandQueueControlBlock
-                0x20003a00                xTemperatureToTXQueueHandle
-                0x20003a04                xMPUToTXQueueControlBlock
-                0x20003a58                xTxQueueSet
-                0x20003a5c                semTemperatureHandle
-                0x20003a60                xTemperatureToTXQueueBuffer
-                0x20003a6c                defaultTaskBuffer
-                0x20004a6c                RxTaskHandle
-                0x20004a70                semRxHandle
-                0x20004a74                TempTaskControlBlock
-                0x20004ad4                ControlTaskControlBlock
-                0x20004b34                TempTaskHandle
-                0x20004b38                DataLogTaskControlBlock
-                0x20004b98                defaultTaskControlBlock
-                0x20004bf8                tmrLEDBlinkHandle
-                0x20004bfc                DataLogTaskBuffer
-                0x200053fc                ControlTaskHandle
-                0x20005400                xControlToTXQueueControlBlock
-                0x20005454                semTemperatureControlBlock
-                0x200054a8                MPU9250TaskControlBlock
-                0x20005508                ControlTaskBuffer
- COMMON         0x20005908       0xb4 Src/i2c.o
-                0x20005908                hi2c3
-                0x2000595c                hdma_i2c3_rx
- COMMON         0x200059bc       0x20 Src/rtc.o
-                0x200059bc                hrtc
- COMMON         0x200059dc       0x3c Src/stm32f4xx_hal_timebase_TIM.o
-                0x200059dc                htim6
- COMMON         0x20005a18       0x78 Src/tim.o
-                0x20005a18                htim3
-                0x20005a54                htim12
- COMMON         0x20005a90       0xa0 Src/usart.o
-                0x20005a90                hdma_usart2_tx
-                0x20005af0                huart2
- COMMON         0x20005b30        0x4 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-reent.o)
-                0x20005b30                errno
-                0x20005b34                . = ALIGN (0x4)
-                0x20005b34                _ebss = .
-                0x20005b34                __bss_end__ = _ebss
+                0x200021a8                hadc2
+                0x200021f0                hadc1
+                0x20002238                hadc3
+                0x20002280                hdma_adc1
+                0x200022e0                ADC_buff
+ COMMON         0x200025e0     0x316c Src/freertos.o
+                0x200025e0                tmrLEDBlinkControlBlock
+                0x20002610                semMPU9250ControlBlock
+                0x20002664                xTemperatureToTXQueueControlBlock
+                0x200026b8                TempTaskBuffer
+                0x20002ab8                defaultTaskHandle
+                0x20002abc                rxTaskControlBlock
+                0x20002b1c                xControlCommandQueueBuffer
+                0x20002b20                semMPU9250Handle
+                0x20002b24                semTxControlBlock
+                0x20002b78                xMPUToTXQueueHandle
+                0x20002b7c                MPU9250TaskBuffer
+                0x20002f7c                TxTaskHandle
+                0x20002f80                MPU9250TaskHandle
+                0x20002f84                xControlToTXQueueHandle
+                0x20002f88                xControlCommandQueueHandle
+                0x20002f8c                rxTaskBuffer
+                0x2000378c                semTxHandle
+                0x20003790                xMPUToTXQueueBuffer
+                0x20003794                xControlToTXQueueBuffer
+                0x2000379c                semRxControlBlock
+                0x200037f0                xControlCommandQueueControlBlock
+                0x20003844                xTemperatureToTXQueueHandle
+                0x20003848                xMPUToTXQueueControlBlock
+                0x2000389c                xTxQueueSet
+                0x200038a0                semTemperatureHandle
+                0x200038a4                xTemperatureToTXQueueBuffer
+                0x200038b0                defaultTaskBuffer
+                0x200048b0                RxTaskHandle
+                0x200048b4                semRxHandle
+                0x200048b8                TempTaskControlBlock
+                0x20004918                ControlTaskControlBlock
+                0x20004978                TempTaskHandle
+                0x2000497c                DataLogTaskControlBlock
+                0x200049dc                defaultTaskControlBlock
+                0x20004a3c                tmrLEDBlinkHandle
+                0x20004a40                DataLogTaskBuffer
+                0x20005240                ControlTaskHandle
+                0x20005244                xControlToTXQueueControlBlock
+                0x20005298                semTemperatureControlBlock
+                0x200052ec                MPU9250TaskControlBlock
+                0x2000534c                ControlTaskBuffer
+ COMMON         0x2000574c       0xb4 Src/i2c.o
+                0x2000574c                hi2c3
+                0x200057a0                hdma_i2c3_rx
+ COMMON         0x20005800       0x20 Src/rtc.o
+                0x20005800                hrtc
+ COMMON         0x20005820       0x3c Src/stm32f4xx_hal_timebase_TIM.o
+                0x20005820                htim6
+ COMMON         0x2000585c       0x78 Src/tim.o
+                0x2000585c                htim3
+                0x20005898                htim12
+ COMMON         0x200058d4       0xa0 Src/usart.o
+                0x200058d4                hdma_usart2_tx
+                0x20005934                huart2
+ COMMON         0x20005974        0x4 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libc_nano.a(lib_a-reent.o)
+                0x20005974                errno
+                0x20005978                . = ALIGN (0x4)
+                0x20005978                _ebss = .
+                0x20005978                __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x20005b34      0xc04 load address 0x0800c964
-                0x20005b38                . = ALIGN (0x8)
- *fill*         0x20005b34        0x4 
-                0x20005b38                PROVIDE (end, .)
+                0x20005978      0xc00 load address 0x0800c964
+                0x20005978                . = ALIGN (0x8)
+                0x20005978                PROVIDE (end, .)
                 [!provide]                PROVIDE (_end, .)
-                0x20005f38                . = (. + _Min_Heap_Size)
- *fill*         0x20005b38      0x400 
-                0x20006738                . = (. + _Min_Stack_Size)
- *fill*         0x20005f38      0x800 
-                0x20006738                . = ALIGN (0x8)
+                0x20005d78                . = (. + _Min_Heap_Size)
+ *fill*         0x20005978      0x400 
+                0x20006578                . = (. + _Min_Stack_Size)
+ *fill*         0x20005d78      0x800 
+                0x20006578                . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
@@ -9692,7 +9689,7 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
                 0x000010f6       0x22 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
 OUTPUT(MPUTest.elf elf32-littlearm)
 
-.debug_info     0x00000000    0x38d88
+.debug_info     0x00000000    0x38d1c
  .debug_info    0x00000000     0x122e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
  .debug_info    0x0000122e     0x15da Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
  .debug_info    0x00002808     0x13f6 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.o
@@ -9716,20 +9713,20 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_info    0x00023682      0xdb4 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
  .debug_info    0x00024436      0xce4 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
  .debug_info    0x0002511a     0x16d8 Src/MPU9250.o
- .debug_info    0x000267f2     0x19da Src/adc.o
- .debug_info    0x000281cc      0xe5f Src/dma.o
- .debug_info    0x0002902b     0x33e0 Src/freertos.o
- .debug_info    0x0002c40b      0xd43 Src/gpio.o
- .debug_info    0x0002d14e     0x166d Src/i2c.o
- .debug_info    0x0002e7bb     0x240c Src/main.o
- .debug_info    0x00030bc7      0xf28 Src/rtc.o
- .debug_info    0x00031aef      0xc93 Src/stm32f4xx_hal_msp.o
- .debug_info    0x00032782     0x1427 Src/stm32f4xx_hal_timebase_TIM.o
- .debug_info    0x00033ba9     0x13de Src/stm32f4xx_it.o
- .debug_info    0x00034f87      0xd64 Src/system_stm32f4xx.o
- .debug_info    0x00035ceb     0x1a33 Src/tim.o
- .debug_info    0x0003771e     0x15c3 Src/usart.o
- .debug_info    0x00038ce1       0xa7 startup/startup_stm32f446xx.o
+ .debug_info    0x000267f2     0x19ae Src/adc.o
+ .debug_info    0x000281a0      0xe5f Src/dma.o
+ .debug_info    0x00028fff     0x33c0 Src/freertos.o
+ .debug_info    0x0002c3bf      0xd43 Src/gpio.o
+ .debug_info    0x0002d102     0x166d Src/i2c.o
+ .debug_info    0x0002e76f     0x23ec Src/main.o
+ .debug_info    0x00030b5b      0xf28 Src/rtc.o
+ .debug_info    0x00031a83      0xc93 Src/stm32f4xx_hal_msp.o
+ .debug_info    0x00032716     0x1427 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_info    0x00033b3d     0x13de Src/stm32f4xx_it.o
+ .debug_info    0x00034f1b      0xd64 Src/system_stm32f4xx.o
+ .debug_info    0x00035c7f     0x1a33 Src/tim.o
+ .debug_info    0x000376b2     0x15c3 Src/usart.o
+ .debug_info    0x00038c75       0xa7 startup/startup_stm32f446xx.o
 
 .debug_abbrev   0x00000000     0x67f9
  .debug_abbrev  0x00000000      0x2e3 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
@@ -10095,7 +10092,7 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_line    0x0001de6c      0xc4e Src/usart.o
  .debug_line    0x0001eaba       0x82 startup/startup_stm32f446xx.o
 
-.debug_str      0x00000000    0xe0db1
+.debug_str      0x00000000    0xe0da4
  .debug_str     0x00000000    0xd1200 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
                               0xd1609 (size before relaxing)
  .debug_str     0x000d1200      0x65d Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
@@ -10142,31 +10139,31 @@ OUTPUT(MPUTest.elf elf32-littlearm)
                               0xd4233 (size before relaxing)
  .debug_str     0x000debad      0xd0b Src/MPU9250.o
                               0xd726d (size before relaxing)
- .debug_str     0x000df8b8      0x6f7 Src/adc.o
-                              0xd7724 (size before relaxing)
- .debug_str     0x000dffaf       0x19 Src/dma.o
+ .debug_str     0x000df8b8      0x6ea Src/adc.o
+                              0xd7717 (size before relaxing)
+ .debug_str     0x000dffa2       0x19 Src/dma.o
                               0xd0f1a (size before relaxing)
- .debug_str     0x000dffc8      0xaca Src/freertos.o
-                              0xd8f21 (size before relaxing)
- .debug_str     0x000e0a92       0x1b Src/gpio.o
+ .debug_str     0x000dffbb      0xaca Src/freertos.o
+                              0xd8f14 (size before relaxing)
+ .debug_str     0x000e0a85       0x1b Src/gpio.o
                               0xd0a83 (size before relaxing)
- .debug_str     0x000e0aad       0x31 Src/i2c.o
+ .debug_str     0x000e0aa0       0x31 Src/i2c.o
                               0xd6c8e (size before relaxing)
- .debug_str     0x000e0ade       0x83 Src/main.o
-                              0xd834c (size before relaxing)
- .debug_str     0x000e0b61       0x17 Src/rtc.o
+ .debug_str     0x000e0ad1       0x83 Src/main.o
+                              0xd833f (size before relaxing)
+ .debug_str     0x000e0b54       0x17 Src/rtc.o
                               0xd0c0d (size before relaxing)
- .debug_str     0x000e0b78       0x1b Src/stm32f4xx_hal_msp.o
+ .debug_str     0x000e0b6b       0x1b Src/stm32f4xx_hal_msp.o
                               0xd0e01 (size before relaxing)
- .debug_str     0x000e0b93       0x61 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_str     0x000e0b86       0x61 Src/stm32f4xx_hal_timebase_TIM.o
                               0xd148b (size before relaxing)
- .debug_str     0x000e0bf4       0xc8 Src/stm32f4xx_it.o
+ .debug_str     0x000e0be7       0xc8 Src/stm32f4xx_it.o
                               0xd68ae (size before relaxing)
- .debug_str     0x000e0cbc       0x5a Src/system_stm32f4xx.o
+ .debug_str     0x000e0caf       0x5a Src/system_stm32f4xx.o
                               0xd0a59 (size before relaxing)
- .debug_str     0x000e0d16       0x81 Src/tim.o
+ .debug_str     0x000e0d09       0x81 Src/tim.o
                               0xd1192 (size before relaxing)
- .debug_str     0x000e0d97       0x1a Src/usart.o
+ .debug_str     0x000e0d8a       0x1a Src/usart.o
                               0xd6bd4 (size before relaxing)
 
 .comment        0x00000000       0x7f
