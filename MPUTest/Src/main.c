@@ -123,6 +123,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM12_Init();
   MX_USART2_UART_Init();
+  MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
   // MPU9250

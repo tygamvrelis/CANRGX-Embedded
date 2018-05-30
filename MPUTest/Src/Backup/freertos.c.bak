@@ -519,7 +519,7 @@ void StartTxTask(void const * argument)
 	  }
 
 
-	  /********** This runs when all data acquisition tasks have responded or timed out **********/
+	  /********** This runs when the first 2 data acquisition tasks have responded or timed out **********/
 	  if((taskFlags & 0b00000011) == 0b00000011){
 		  /* Obligatory packing */
 		  TickType_t curTick = xTaskGetTickCount();
@@ -620,11 +620,11 @@ void StartRxTask(void const * argument)
 			 // before sending the next packet, greater than or equal to the
 			 // length of a byte or 2. This should give the receiver
 			 // sufficient time to prepare for the next bytes properly
-			 vTaskSuspend(StartTxTask); // This calls breaks the OS..???
-			 osDelay(4); // Delay 4 ms
-			 vTaskResume(StartTxTask);
+//			 vTaskSuspend(StartTxTask); // This calls breaks the OS..???
+//			 osDelay(4); // Delay 4 ms
+//			 vTaskResume(StartTxTask);
 		 }
-//		 LED(); // Debugging for RX
+		 LED(); // Debugging for RX
 	 }
   }
   /* USER CODE END StartRxTask */
@@ -651,7 +651,7 @@ void StartTempTask(void const * argument)
 	  // (1/((45*10^6)/8)) * 15 * 50 * 1000 = 0.133 ms per buffer half full
 
 	  Temp_Scan_Start();
-	  xSemaphoreTake(semTemperatureHandle, TEMP_CYCLE_MS);
+	  xSemaphoreTake(semTemperatureHandle, TEMP_CYCLE_MS - 2);
 	  Temp_Scan_Stop();
 
 	  temperatureData.thermocouple1 = ADC_processed[TEMP1];
@@ -670,7 +670,7 @@ void StartTempTask(void const * argument)
 void tmrLEDCallback(void const * argument)
 {
   /* USER CODE BEGIN tmrLEDCallback */
-  LED();
+//  LED();
   /* USER CODE END tmrLEDCallback */
 }
 

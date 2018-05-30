@@ -110,6 +110,8 @@ osSemaphoreId semRxHandle;
 osStaticSemaphoreDef_t semRxControlBlock;
 osSemaphoreId semTemperatureHandle;
 osStaticSemaphoreDef_t semTemperatureControlBlock;
+osSemaphoreId semTxTimerHandle;
+osStaticSemaphoreDef_t semTxTimerControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
@@ -231,6 +233,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of semTemperature */
   osSemaphoreStaticDef(semTemperature, &semTemperatureControlBlock);
   semTemperatureHandle = osSemaphoreCreate(osSemaphore(semTemperature), 1);
+
+  /* definition and creation of semTxTimer */
+  osSemaphoreStaticDef(semTxTimer, &semTxTimerControlBlock);
+  semTxTimerHandle = osSemaphoreCreate(osSemaphore(semTxTimer), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -519,11 +525,17 @@ void StartTxTask(void const * argument)
 	  }
 
 
-	  /********** This runs when all data acquisition tasks have responded or timed out **********/
+	  /********** This runs when the first 2 data acquisition tasks have responded or timed out **********/
 	  if((taskFlags & 0b00000011) == 0b00000011){
 		  /* Obligatory packing */
 		  TickType_t curTick = xTaskGetTickCount();
 		  memcpy(tickStart, &curTick, sizeof(TickType_t));
+
+		  /* Block for 87 microseconds, the time for 2 bytes to be transmitted via
+		   * UART. This idle time guarantees interpacket delay, thus reducing
+		   * the probability of a framing error. Time out after 1 ms. */
+		  HAL_TIM_Base_Start_IT(&htim10);
+		  xSemaphoreTake(semTxTimerHandle, pdMS_TO_TICKS(1));
 
 		  /* Transmit */
 		  HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
@@ -620,9 +632,9 @@ void StartRxTask(void const * argument)
 			 // before sending the next packet, greater than or equal to the
 			 // length of a byte or 2. This should give the receiver
 			 // sufficient time to prepare for the next bytes properly
-			 vTaskSuspend(StartTxTask); // This calls breaks the OS..???
-			 osDelay(4); // Delay 4 ms
-			 vTaskResume(StartTxTask);
+//			 vTaskSuspend(StartTxTask); // This calls breaks the OS..???
+//			 osDelay(4); // Delay 4 ms
+//			 vTaskResume(StartTxTask);
 		 }
 //		 LED(); // Debugging for RX
 	 }
