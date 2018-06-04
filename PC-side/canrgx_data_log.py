@@ -53,6 +53,8 @@ with serial.Serial('COM3',230400,timeout=10) as ser:
     num_frame_shifts = 0
     num_receptions = 0
     
+    # ser.write(bytes(b'S')) # Send a character indicating the PC is ready to start
+    
     with open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w') as f:
         while(ser.isOpen()):
             try:
@@ -86,7 +88,6 @@ with serial.Serial('COM3',230400,timeout=10) as ser:
                     # Did not receive expected header "0xFF 0xFF"
                     
                     num_frame_shifts = num_frame_shifts + 1
-                    ser.write(bytes(b'F')) # Send byte to MCU to indicate a framing error so it stalls a bit before transmitting again
             except:
                 ser.close()
                 

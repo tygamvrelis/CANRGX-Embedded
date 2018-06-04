@@ -62,8 +62,8 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "MPU9250.h"
 #include "pid_contrl.h"
+#include "../Drivers/MPU9250/MPU9250.h"
 #include "userTypes.h"
 
 
@@ -110,8 +110,6 @@ osSemaphoreId semRxHandle;
 osStaticSemaphoreDef_t semRxControlBlock;
 osSemaphoreId semTemperatureHandle;
 osStaticSemaphoreDef_t semTemperatureControlBlock;
-osSemaphoreId semTxTimerHandle;
-osStaticSemaphoreDef_t semTxTimerControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
@@ -233,10 +231,6 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of semTemperature */
   osSemaphoreStaticDef(semTemperature, &semTemperatureControlBlock);
   semTemperatureHandle = osSemaphoreCreate(osSemaphore(semTemperature), 1);
-
-  /* definition and creation of semTxTimer */
-  osSemaphoreStaticDef(semTxTimer, &semTxTimerControlBlock);
-  semTxTimerHandle = osSemaphoreCreate(osSemaphore(semTxTimer), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -535,7 +529,7 @@ void StartTxTask(void const * argument)
 		   * UART. This idle time guarantees interpacket delay, thus reducing
 		   * the probability of a framing error. Time out after 1 ms. */
 		  HAL_TIM_Base_Start_IT(&htim10);
-		  xSemaphoreTake(semTxTimerHandle, pdMS_TO_TICKS(1));
+		  xTaskNotifyWait(UINT32_MAX, UINT32_MAX, NULL, 1);
 
 		  /* Transmit */
 		  HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
@@ -552,6 +546,9 @@ void StartTxTask(void const * argument)
 void StartMPU9250Task(void const * argument)
 {
   /* USER CODE BEGIN StartMPU9250Task */
+  int8_t accelStatus = 1;
+  int8_t magStatus = 1;
+
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
@@ -565,12 +562,22 @@ void StartMPU9250Task(void const * argument)
 
     // TODO: Can make accel and mag return -1 when they time out, in which case the sensor is re-initialized
     // so that data acquisition can begin again!
+    // -- Update (May 30, 2018) I think the issue might actually be a I2C bus lock-up, not sure though
     /* Acceleration */
-    accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
-    myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
+    accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
+    if(accelStatus == 1){
+    	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
+    }
+    else{
+    	/* The accelerometer was not able to be read from properly, handle this here. */
+    	myMPU9250.A = NAN;
+    }
 
 	/* Magnetometer */
-	magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
+	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
+	if(magStatus != 1){
+		/* The magnetometer was not able to be read from properly, handle this here. */
+	}
 
 	/********** Tell transmit task that new data is ready **********/
 	uint32_t dummyToSend = 1;
@@ -605,7 +612,7 @@ void StartRxTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	 HAL_UART_Receive_IT(&huart2, buffer, 1);
+	 HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
 		 if(buffer[0] == ' '){
@@ -625,16 +632,6 @@ void StartRxTask(void const * argument)
 			 else{
 				 manualOverride = REDUCEDGRAVITY;
 			 }
-		 }
-		 else if(buffer[0] == 'F'){
-			 // Frame shift error handling
-			 // TODO: In this case, we need to create some sort of idle delay
-			 // before sending the next packet, greater than or equal to the
-			 // length of a byte or 2. This should give the receiver
-			 // sufficient time to prepare for the next bytes properly
-//			 vTaskSuspend(StartTxTask); // This calls breaks the OS..???
-//			 osDelay(4); // Delay 4 ms
-//			 vTaskResume(StartTxTask);
 		 }
 //		 LED(); // Debugging for RX
 	 }

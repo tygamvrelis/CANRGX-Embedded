@@ -14,7 +14,6 @@
 
 /********************************** Includes **********************************/
 #include "stm32f4xx_hal.h"
-//#include "fmpi2c.h"
 #include "i2c.h"
 #include "freertos.h"
 #include "cmsis_os.h"
@@ -45,9 +44,13 @@
 #define I2C_SLV0_ADDR 0x25 // Physical address of I2C slave 0
 #define I2C_SLV0_REG 0x26 // Slave 0 register from where to begin data transfer
 #define I2C_SLV0_CTRL 0x27 // Control register for data transactions with slave 0
+#define I2C_SLV1_ADDR 0x2B // Physical address of I2C slave 1
+#define I2C_SLV1_REG 0x2C // Slave 1 register from where to begin data transfer
+#define I2C_SLV1_CTRL 0x2D // Control register for data transactions with slave 1
 #define INT_PIN_CFG 0x37 //
 #define EXT_SENS_DATA_00 0x49 // Holds data from external sensors (i.e. magnetometer)
 #define I2C_SLV0_DO 0x63 // Data out when writing to slave 0
+#define I2C_SLV1_DO 0x64 // Data out when writing to slave 1
 #define USER_CTRL 0x6A // Used to enable I2C interface module
 #define PWR_MGMT_1 0x6B // Used to set the clock source for the accel & gyro
 #define PWR_MGMT_2 0x6C // Used to force accelerometer and gyroscope on
@@ -120,8 +123,12 @@ extern const float g;
 
 /********************************* Functions *********************************/
 int MPU9250Init(MPU9250_t* myMPU);
+
 int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
+
+int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
+int magnetometerWrite(uint8_t addr, uint8_t data);
 
 #endif /* MPU9250_H_ */

@@ -62,7 +62,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include "MPU9250.h"
+#include "../Drivers/MPU9250/MPU9250.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -126,15 +126,48 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
-  // MPU9250
+  // Attempt to initialize the MPU9250, up to 5 attempts
   int mpuInitStatus;
   for(int i = 0; i < 5; i++){
-      mpuInitStatus = MPU9250Init(&myMPU9250); // Initialize MPU9250, up to 5 attempts
+      mpuInitStatus = MPU9250Init(&myMPU9250);
       if(mpuInitStatus == 1){
     	  break;
       }
+      else if(mpuInitStatus > -10){
+    	  /* This is the case if there is a problem with the IMU module.
+    	   * Try hard-resetting the IMU module. */
+    	  uint8_t dataToWrite = 0x80;
+		  HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
+      }
+      else if(mpuInitStatus <= -10){
+    	  /* This is the case if there is a problem with the magnetometer.
+    	   * Try software-resetting the magnetometer. */
+    	  magnetometerWrite(CNTL2, 1);
+
+      }
       HAL_Delay(10);
   }
+//  // Transmit MPU init status
+//  HAL_UART_Transmit(&huart2, (uint8_t*)&mpuInitStatus, sizeof(mpuInitStatus), 10);
+//
+//  // Wait to receive time data
+//  uint8_t buff[3];
+//  HAL_UART_Receive(&huart2, buff, sizeof(buff), 100);
+//
+//  // Read the subseconds register for more precise synchronization
+//  // TODO
+//
+//  // Set RTC registers for hours, minutes, seconds (BCD)
+//  RTC_TimeTypeDef theTime;
+//  theTime.Hours = buff[1];
+//  theTime.Minutes = buff[2];
+//  theTime.Seconds = buff[3];
+//  theTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+//  theTime.StoreOperation = RTC_STOREOPERATION_RESET;
+//  if (HAL_RTC_SetTime(&hrtc, &theTime, RTC_FORMAT_BCD) != HAL_OK){
+//	  char msg[] = "RTC_ERR";
+//	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg));
+//  }
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

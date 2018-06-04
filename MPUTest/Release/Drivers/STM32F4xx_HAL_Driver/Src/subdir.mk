@@ -13,8 +13,6 @@ C_SRCS += \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c \
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_fmpi2c.c \
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_fmpi2c_ex.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
@@ -24,7 +22,6 @@ C_SRCS += \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc_ex.c \
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
 ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c 
@@ -39,8 +36,6 @@ OBJS += \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.o \
-./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_fmpi2c.o \
-./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_fmpi2c_ex.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.o \
@@ -50,7 +45,6 @@ OBJS += \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc_ex.o \
-./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.o \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.o 
@@ -65,8 +59,6 @@ C_DEPS += \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.d \
-./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_fmpi2c.d \
-./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_fmpi2c_ex.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.d \
@@ -76,7 +68,6 @@ C_DEPS += \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc_ex.d \
-./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.d \
 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.d 
@@ -87,7 +78,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/%.o: ../Drivers/STM32F4xx_HAL_Driver/Src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F446xx -I"C:/Users/linhz/Documents/STM32/CANTest0/Inc" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/CMSIS/Include" -I"C:/Users/linhz/Documents/STM32/CANTest0/Inc" -I"C:/Users/linhz/Documents/STM32/CANTest0/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F" -I"C:/Users/linhz/Documents/STM32/CANTest0/Middlewares/Third_Party/FreeRTOS/Source/include" -I"C:/Users/linhz/Documents/STM32/CANTest0/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F446xx -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Inc" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/STM32F4xx_HAL_Driver/Inc" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/CMSIS/Include" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Inc" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Middlewares/Third_Party/FreeRTOS/Source/include" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

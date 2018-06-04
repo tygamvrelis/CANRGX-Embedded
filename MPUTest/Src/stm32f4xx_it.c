@@ -37,7 +37,7 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-extern osSemaphoreId semTxTimerHandle;
+extern osThreadId TxTaskHandle;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -116,7 +116,7 @@ void TIM1_UP_TIM10_IRQHandler(void)
   HAL_TIM_Base_Stop_IT(&htim10);
 
   BaseType_t xHigherPriorityTaskWoken = pdTRUE;
-  xSemaphoreGiveFromISR(semTxTimerHandle, &xHigherPriorityTaskWoken);
+  xTaskNotifyFromISR(TxTaskHandle, 1UL, eNoAction, &xHigherPriorityTaskWoken);
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
 }
 

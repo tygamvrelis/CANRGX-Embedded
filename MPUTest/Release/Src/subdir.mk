@@ -6,14 +6,14 @@
 C_SRCS += \
 ../Src/adc.c \
 ../Src/dma.c \
-../Src/fmpi2c.c \
+../Src/filter.c \
 ../Src/freertos.c \
 ../Src/gpio.c \
 ../Src/i2c.c \
 ../Src/main.c \
 ../Src/rtc.c \
-../Src/spi.c \
 ../Src/stm32f4xx_hal_msp.c \
+../Src/stm32f4xx_hal_timebase_TIM.c \
 ../Src/stm32f4xx_it.c \
 ../Src/system_stm32f4xx.c \
 ../Src/tim.c \
@@ -22,14 +22,14 @@ C_SRCS += \
 OBJS += \
 ./Src/adc.o \
 ./Src/dma.o \
-./Src/fmpi2c.o \
+./Src/filter.o \
 ./Src/freertos.o \
 ./Src/gpio.o \
 ./Src/i2c.o \
 ./Src/main.o \
 ./Src/rtc.o \
-./Src/spi.o \
 ./Src/stm32f4xx_hal_msp.o \
+./Src/stm32f4xx_hal_timebase_TIM.o \
 ./Src/stm32f4xx_it.o \
 ./Src/system_stm32f4xx.o \
 ./Src/tim.o \
@@ -38,14 +38,14 @@ OBJS += \
 C_DEPS += \
 ./Src/adc.d \
 ./Src/dma.d \
-./Src/fmpi2c.d \
+./Src/filter.d \
 ./Src/freertos.d \
 ./Src/gpio.d \
 ./Src/i2c.d \
 ./Src/main.d \
 ./Src/rtc.d \
-./Src/spi.d \
 ./Src/stm32f4xx_hal_msp.d \
+./Src/stm32f4xx_hal_timebase_TIM.d \
 ./Src/stm32f4xx_it.d \
 ./Src/system_stm32f4xx.d \
 ./Src/tim.d \
@@ -57,7 +57,7 @@ Src/%.o: ../Src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F446xx -I"C:/Users/linhz/Documents/STM32/CANTest0/Inc" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/linhz/Documents/STM32/CANTest0/Drivers/CMSIS/Include" -I"C:/Users/linhz/Documents/STM32/CANTest0/Inc" -I"C:/Users/linhz/Documents/STM32/CANTest0/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F" -I"C:/Users/linhz/Documents/STM32/CANTest0/Middlewares/Third_Party/FreeRTOS/Source/include" -I"C:/Users/linhz/Documents/STM32/CANTest0/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F446xx -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Inc" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/STM32F4xx_HAL_Driver/Inc" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Drivers/CMSIS/Include" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Inc" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Middlewares/Third_Party/FreeRTOS/Source/include" -I"D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
