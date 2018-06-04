@@ -124,6 +124,11 @@ extern const float g;
 /********************************* Functions *********************************/
 int MPU9250Init(MPU9250_t* myMPU);
 
+int runtimeResetIMU(osSemaphoreId sem);
+int runtimeResetMagnetometer(osSemaphoreId sem);
+void I2C_ClearBusyFlagErratum(void); // Use with caution
+void generateClocks(uint8_t numClocks); // Use with caution
+
 int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);

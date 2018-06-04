@@ -560,9 +560,6 @@ void StartMPU9250Task(void const * argument)
   {
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS)); // Service this task every MPU9250_CYCLE_MS milliseconds
 
-    // TODO: Can make accel and mag return -1 when they time out, in which case the sensor is re-initialized
-    // so that data acquisition can begin again!
-    // -- Update (May 30, 2018) I think the issue might actually be a I2C bus lock-up, not sure though
     /* Acceleration */
     accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
     if(accelStatus == 1){
@@ -571,12 +568,24 @@ void StartMPU9250Task(void const * argument)
     else{
     	/* The accelerometer was not able to be read from properly, handle this here. */
     	myMPU9250.A = NAN;
+    	accelStatus = runtimeResetIMU(semMPU9250Handle);
+    	if(accelStatus != 1){
+    		/* If we still couldn't successfully communicate with this device,
+			 * either it is not working properly, or there is
+			 * an I2C issue. */
+    	}
     }
 
 	/* Magnetometer */
 	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 	if(magStatus != 1){
 		/* The magnetometer was not able to be read from properly, handle this here. */
+		magStatus = runtimeResetMagnetometer(semMPU9250Handle);
+    	if(magStatus != 1){
+    		/* If we still couldn't successfully communicate with the magnetometer,
+    		 * either the magnetometer module is not working properly, or there is
+    		 * an I2C issue. */
+    	}
 	}
 
 	/********** Tell transmit task that new data is ready **********/

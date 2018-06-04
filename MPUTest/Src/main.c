@@ -126,6 +126,13 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
+  // Tell PC we are powered on
+  char msg[] = "Microcontroller init sequence begin";
+  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+
+  /*************************************************************************
+   *                      MPU9250 Initialization                           *
+   ************************************************************************/
   // Attempt to initialize the MPU9250, up to 5 attempts
   int mpuInitStatus;
   for(int i = 0; i < 5; i++){
@@ -143,13 +150,41 @@ int main(void)
     	  /* This is the case if there is a problem with the magnetometer.
     	   * Try software-resetting the magnetometer. */
     	  magnetometerWrite(CNTL2, 1);
-
+      }
+      if(i == 2){
+    	  /* When the microcontroller program starts up, it is not guaranteed that
+		   * it is from a power cycle. Instead, the program may be starting up from
+		   * a reset. A reset, however, only affects the microcontroller, and does not
+		   * affect any peripherals connected to it. Thus, it is possible for the I2C
+		   * bus to get locked when the slave is asserting an ACK and then the master
+		   * clock drops out. The solution is to send some clock pulses to transition the
+		   * state of the slave that's freezing the bus. */
+    	  generateClocks(10);
+      }
+      if(i == 3){
+    	  /* There is a silicon bug in some ST MCUs where a filter in the I2C module
+    	   * randomly asserts the busy flag. The function below follows certain procedures
+    	   * presented in an errata document to alleviate the issue. */
+    	  I2C_ClearBusyFlagErratum();
       }
       HAL_Delay(10);
   }
-//  // Transmit MPU init status
-//  HAL_UART_Transmit(&huart2, (uint8_t*)&mpuInitStatus, sizeof(mpuInitStatus), 10);
-//
+
+  // Transmit MPU init status
+  if(mpuInitStatus == 1){
+	  char msg[] = "MPU9250 init success";
+	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+  }
+  else{
+	  char msg[] = "MPU9250 init fail";
+	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+  }
+
+
+  /*************************************************************************
+   *                        RTC Initialization                             *
+   ************************************************************************/
+
 //  // Wait to receive time data
 //  uint8_t buff[3];
 //  HAL_UART_Receive(&huart2, buff, sizeof(buff), 100);

@@ -94,3 +94,9 @@ with serial.Serial('COM3',230400,timeout=10) as ser:
         # Once MCU is unplugged, we write out all remaining data and close the file
         f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
         f.close()
+
+f = open("C:\\Users\\Admin\\CANRGX_data\\2018_06_04_00_51_54\\2018_06_04_00_51_54.txt", 'r')
+f.seek(0)
+for line in f:
+    if "nan" in line:
+        print(line)
