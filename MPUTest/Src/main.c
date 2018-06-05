@@ -127,7 +127,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
   // Tell PC we are powered on
-  char msg[] = "Microcontroller init sequence begin";
+  char msg[] = "Microcontroller init sequence begin\n";
   HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
 
   /*************************************************************************
@@ -172,11 +172,11 @@ int main(void)
 
   // Transmit MPU init status
   if(mpuInitStatus == 1){
-	  char msg[] = "MPU9250 init success";
+	  char msg[] = "MPU9250 init success\n";
 	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
   }
   else{
-	  char msg[] = "MPU9250 init fail";
+	  char msg[] = "MPU9250 init fail\n";
 	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
   }
 

@@ -13,15 +13,7 @@ import time
 import os
 import numpy as np
 import struct
-
-data_root = 'CANRGX_data/' + time.strftime('%Y_%m_%d_%H_%M_%S')+'/'
-if not os.path.exists(data_root):
-            os.makedirs(data_root)
-global_start_time=time.time()
-# i=0
-# n=0
-# N=50
-# fp=np.lib.format.open_memmap(data_root + time.strftime('%Y_%m_%d_%H_%M_%S')+"_decay_t.npy", mode='w+', shape=(1, N))
+from datetime import datetime
 
 def decode_func(raw_bytes):
     header=struct.unpack('<H',raw_bytes[0:2])[0]
@@ -47,56 +39,86 @@ def decode_func(raw_bytes):
                 mag_1_duty_cycle, mag_2_duty_cycle, tec_1_duty_cycle, \
                 tec_2_duty_cycle, temperature_1, temperature_2, temperature_3, \
                 temperature_4, temperature_5, temperature_6])
-
-with serial.Serial('COM3',230400,timeout=10) as ser:
-    print(ser.name)
+    
+def receive_stream_loop():
     num_frame_shifts = 0
     num_receptions = 0
-    
-    # ser.write(bytes(b'S')) # Send a character indicating the PC is ready to start
-    
-    with open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w') as f:
-        while(ser.isOpen()):
-            try:
-                while(ser.in_waiting<50):
-                    pass
-                    # time.sleep(0.001)
-                raw_data=ser.read(50)
-                
-                # Log raw data
-                # f.write(str(raw_data))
-                # f.write("\n")
-                
-                # Log unpacked data
-                l = decode_func(raw_data)
-                for item in l:
-                    f.write(str(item) + "\t")
-                f.write("\n")
-                
-                # Every so often, we want to make sure our data is written to disk
-                num_receptions = num_receptions + 1
-                if(num_receptions % 1000 == 0):
-                    f.flush()
-                    #os.fsync()
-                
-                # Every so often, write results to terminal as sanity check, etc
-                if(num_receptions % 100 == 0):
-                    print("%d, %f, %f" % (l[1], l[4], l[7]))
-                    
-                header=struct.unpack('<H',raw_data[0:2])[0]
-                if(header != 65535):
-                    # Did not receive expected header "0xFF 0xFF"
-                    
-                    num_frame_shifts = num_frame_shifts + 1
-            except:
-                ser.close()
-                
-        # Once MCU is unplugged, we write out all remaining data and close the file
-        f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
-        f.close()
 
-f = open("C:\\Users\\Admin\\CANRGX_data\\2018_06_04_00_51_54\\2018_06_04_00_51_54.txt", 'r')
-f.seek(0)
-for line in f:
-    if "nan" in line:
-        print(line)
+    while(ser.isOpen()):
+        try:
+            while(ser.in_waiting<50):
+                pass
+                # time.sleep(0.001)
+            raw_data=ser.read(50)
+            
+            # Log raw data
+            # f.write(str(raw_data))
+            # f.write("\n")
+            
+            # Log unpacked data
+            l = decode_func(raw_data)
+            for item in l:
+                f.write(str(item) + "\t")
+            f.write("\n")
+            
+            # Every so often, we want to make sure our data is written to disk
+            num_receptions = num_receptions + 1
+            if(num_receptions % 1000 == 0):
+                f.flush() # flushes writes to the disk buffer
+                #os.fsync() # if we really wanna make sure the writes persist, this will flush the disk buffer. Slow though
+            
+            # Every so often, write results to terminal as sanity check, etc
+            if(num_receptions % 100 == 0):
+                print("%d, %f, %f" % (l[1], l[4], l[7]))
+                
+            header=struct.unpack('<H',raw_data[0:2])[0]
+            if(header != 65535):
+                # Did not receive expected header "0xFF 0xFF"
+                num_frame_shifts = num_frame_shifts + 1
+        except:
+            ser.close()
+
+if __name__ == "__main__":
+    print("Starting PC-side initialization sequence")
+    
+    data_root = 'CANRGX_data\\' + time.strftime('%Y_%m_%d_%H_%M_%S')+'\\'
+    if not os.path.exists(data_root):
+        os.makedirs(data_root)
+    print("Log created at ", os.getcwd() + '\\' + data_root)
+    
+    
+    with serial.Serial('COM3',230400,timeout=10) as ser:
+        print(ser.name)
+        with open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w') as f:
+            # Wait for microcontroller to come on and send its startup message
+            power_on_msg = ser.readline()
+            print(power_on_msg)
+            f.write(power_on_msg + "\n")
+            
+            # Wait for microcontroller to send its MPU9250 initialization status
+            mpu_status_msg = ser.readline()
+            print(mpu_status_msg)
+            f.write(mpu_status_msg + "\n")
+            
+            # Write current time to microcontroller and wait for it to send the
+            # time back after a short delay. Log this time, as it is the time
+            # the microcontroller is starting the scheduler
+            theTime = datetime.now().strftime('%H.%M.%S.%f')
+            ser.write(bytes(theTime.encode()))
+            mcu_time_msg = ser.readline()
+            print(mcu_time_msg)
+            f.write(mcu_time_msg + "\n")
+            
+            # Log data in a loop
+            receive_stream_loop()
+            
+            # Once MCU is unplugged, we write out all remaining data and close the file
+            f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
+            f.close()
+    
+    
+# f = open("C:\\Users\\Admin\\CANRGX_data\\2018_06_04_00_51_54\\2018_06_04_00_51_54.txt", 'r')
+# f.seek(0)
+# for line in f:
+#     if "nan" in line:
+#         print(line)
