@@ -57,6 +57,7 @@ def receive_stream_loop():
             
             # Log unpacked data
             l = decode_func(raw_data)
+            f.write(datetime.now().strftime('%H.%M.%S.%f') + " ")
             for item in l:
                 f.write(str(item) + "\t")
             f.write("\n")
@@ -77,45 +78,55 @@ def receive_stream_loop():
                 num_frame_shifts = num_frame_shifts + 1
         except:
             ser.close()
+    return num_frame_shifts
+            
+def printAndLogStringFromSerial(userMsg=""):
+    msg = ser.readline().decode("utf-8")[:-1] # Don't log the newline
+    theString = datetime.now().strftime('%H.%M.%S.%f') + " " + userMsg + msg
+    print(theString)
+    f.write(theString)
+    
+def logString(userMsg):
+    print(datetime.now().strftime('%H.%M.%S.%f') + " " + userMsg)
+
+def sendToMCU(msg):
+    ser.write(bytes(msg.encode()))
 
 if __name__ == "__main__":
-    print("Starting PC-side initialization sequence")
+    logString("Starting PC-side application")
     
     data_root = 'CANRGX_data\\' + time.strftime('%Y_%m_%d_%H_%M_%S')+'\\'
     if not os.path.exists(data_root):
         os.makedirs(data_root)
-    print("Log created at ", os.getcwd() + '\\' + data_root)
+    logString("Log created at " + str(os.getcwd()) + '\\' + data_root)
     
     
-    with serial.Serial('COM3',230400,timeout=10) as ser:
-        print(ser.name)
+    with serial.Serial('COM3',230400,timeout=100) as ser:
+        logString("Opened port " + ser.name)
         with open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w') as f:
             # Wait for microcontroller to come on and send its startup message
-            power_on_msg = ser.readline()
-            print(power_on_msg)
-            f.write(power_on_msg + "\n")
+            printAndLogStringFromSerial("MCU sent: ")
+            sendToMCU('A') # ACK
             
             # Wait for microcontroller to send its MPU9250 initialization status
-            mpu_status_msg = ser.readline()
-            print(mpu_status_msg)
-            f.write(mpu_status_msg + "\n")
+            printAndLogStringFromSerial("MCU sent: ")
+            sendToMCU('A') # ACK
             
             # Write current time to microcontroller and wait for it to send the
             # time back after a short delay. Log this time, as it is the time
-            # the microcontroller is starting the scheduler
-            theTime = datetime.now().strftime('%H.%M.%S.%f')
-            ser.write(bytes(theTime.encode()))
-            mcu_time_msg = ser.readline()
-            print(mcu_time_msg)
-            f.write(mcu_time_msg + "\n")
+            # the microcontroller is starting the scheduler.
+            # One experiment showed there is a (310434-309425)/2 = 504.5 
+            # microsecond delay when sending the time. This may vary a bit, and
+            # so should ideally be done on-the-fly.
+            sendToMCU(datetime.now().strftime('%H.%M.%S.%f'))
+            printAndLogStringFromSerial("MCU starting scheduler. Echoed: ")
             
             # Log data in a loop
-            receive_stream_loop()
+            num_frame_shifts = receive_stream_loop()
             
             # Once MCU is unplugged, we write out all remaining data and close the file
             f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
             f.close()
-    
     
 # f = open("C:\\Users\\Admin\\CANRGX_data\\2018_06_04_00_51_54\\2018_06_04_00_51_54.txt", 'r')
 # f.seek(0)

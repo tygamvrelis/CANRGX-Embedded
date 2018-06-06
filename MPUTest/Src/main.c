@@ -126,9 +126,17 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
+  HAL_Delay(100);
+
+  uint8_t recvBuff = 0;
+
   // Tell PC we are powered on
   char msg[] = "Microcontroller init sequence begin\n";
-  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+  do{
+	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+	  HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+  }while(recvBuff != 'A');
+  recvBuff = 0; // Clear ACK
 
   /*************************************************************************
    *                      MPU9250 Initialization                           *
@@ -159,13 +167,13 @@ int main(void)
 		   * bus to get locked when the slave is asserting an ACK and then the master
 		   * clock drops out. The solution is to send some clock pulses to transition the
 		   * state of the slave that's freezing the bus. */
-    	  generateClocks(10);
+    	  generateClocks(10, 0); // Generate 10 clock periods
       }
       if(i == 3){
     	  /* There is a silicon bug in some ST MCUs where a filter in the I2C module
     	   * randomly asserts the busy flag. The function below follows certain procedures
     	   * presented in an errata document to alleviate the issue. */
-    	  I2C_ClearBusyFlagErratum();
+    	  generateClocks(1, 1); // Send 1 stop bit
       }
       HAL_Delay(10);
   }
@@ -173,11 +181,19 @@ int main(void)
   // Transmit MPU init status
   if(mpuInitStatus == 1){
 	  char msg[] = "MPU9250 init success\n";
-	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+	  do{
+		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+		  HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+	  }while(recvBuff != 'A');
+	  recvBuff = 0; // Clear ACK
   }
   else{
 	  char msg[] = "MPU9250 init fail\n";
-	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+	  do{
+		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+		  HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+	  }while(recvBuff != 'A');
+	  recvBuff = 0; // Clear ACK
   }
 
 
@@ -185,6 +201,19 @@ int main(void)
    *                        RTC Initialization                             *
    ************************************************************************/
 
+  // Time is of the form HH.MM.SS.mmmuuu, sent as ASCII (16 bytes total)
+  uint8_t buff[16] = {0};
+  buff[15] = '\n';
+  if(HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100) != HAL_OK){ // Receive time
+	  /* For some reason, the PC did not send the time after the last
+	   * message was sent. Handle this here. */
+	  // TODO (not urgent; unlikely to happen)
+  }
+  // TODO: program RTC here
+
+  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
+
+  while(1);
 //  // Wait to receive time data
 //  uint8_t buff[3];
 //  HAL_UART_Receive(&huart2, buff, sizeof(buff), 100);
