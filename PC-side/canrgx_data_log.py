@@ -120,6 +120,7 @@ if __name__ == "__main__":
             # so should ideally be done on-the-fly.
             sendToMCU(datetime.now().strftime('%H.%M.%S.%f'))
             printAndLogStringFromSerial("MCU starting scheduler. Echoed: ")
+            sendToMCU('A') # ACK
             
             # Log data in a loop
             num_frame_shifts = receive_stream_loop()

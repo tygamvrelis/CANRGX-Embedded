@@ -229,6 +229,9 @@ int main(void)
 		  aToUint((char*)(ptrSubseconds + 5)) * 0.000001
   	  };
 
+  // TODO: Compensate for the comm link delay
+  float linkDelay = 0.000502; // Estimate for number of seconds to send time info
+
   // Set RTC registers for hours, minutes, seconds (BCD)
   RTC_TimeTypeDef theTime;
   RTC_DateTypeDef theDate;
@@ -272,7 +275,14 @@ int main(void)
 	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
 
 	  // TODO: pack data to transmit into buff here
-
+	  *ptrHours = BCDToA(theTime.Hours) >> 8;
+	  *(ptrHours + 1) = BCDToA(theTime.Hours) & 0xFF;
+	  *ptrMinutes = BCDToA(theTime.Minutes) >> 8;
+	  *(ptrMinutes + 1) = BCDToA(theTime.Minutes) & 0xFF;
+	  *ptrSeconds = BCDToA(theTime.Seconds) >> 8;
+	  *(ptrSeconds + 1) = BCDToA(theTime.Seconds) & 0xFF;
+	  readSubseconds = 1000.0 - (float)(theTime.SubSeconds * 1000.0 / theTime.SecondFraction);
+	  sprintf((char*)ptrSubseconds, "%0.6f", readSubseconds);
 
 	  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
 	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
