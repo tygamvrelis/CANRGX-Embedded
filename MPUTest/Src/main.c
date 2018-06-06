@@ -78,8 +78,7 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-inline uint8_t aToBCD(char* c);
-inline uint8_t aToUint(char* c);
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -233,9 +232,9 @@ int main(void)
   // Set RTC registers for hours, minutes, seconds (BCD)
   RTC_TimeTypeDef theTime;
   RTC_DateTypeDef theDate;
-  theTime.Hours = aToBCD(ptrHours);
-  theTime.Minutes = aToBCD(ptrMinutes);
-  theTime.Seconds = aToBCD(ptrSeconds);
+  theTime.Hours = aToBCD((char*)ptrHours);
+  theTime.Minutes = aToBCD((char*)ptrMinutes);
+  theTime.Seconds = aToBCD((char*)ptrSeconds);
   theTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   theTime.StoreOperation = RTC_STOREOPERATION_RESET;
   HAL_RTC_SetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
@@ -250,15 +249,18 @@ int main(void)
 
   if(readSubseconds > recvSubseconds){
 	  // We need to delay the RTC
-	  float millisToDelay = readSubseconds - recvSubseconds;
+	  float millisToDelay= readSubseconds - recvSubseconds;
 	  uint16_t S = theTime.SecondFraction;
-
-	  hrtc.Instance->SHIFTR =  S - (uint16_t)(millisToDelay * S / 1000);
+	  uint16_t ticksToAdvance = S - (uint16_t)(millisToDelay * S / 1000);
+	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_RESET, ticksToAdvance);
   }
   else{
 	  // We need to advance the RTC. I suppose this case is also entered if,
 	  // through some miracle, readSubseconds is exactly equal to recvSubseconds.
-
+	  float millisToAdvance= recvSubseconds - readSubseconds;
+	  uint16_t S = theTime.SecondFraction;
+	  uint16_t ticksToAdvance = S - (uint16_t)(millisToAdvance * S / 1000);
+	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_SET, UINT16_MAX - ticksToAdvance);
   }
 
   HAL_Delay(100); // Wait 100 ms, then send time. This way the PC will have logged data
@@ -268,6 +270,9 @@ int main(void)
   do{
 	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
 	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
+
+	  // TODO: pack data to transmit into buff here
+
 
 	  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
 	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
@@ -374,13 +379,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-inline uint8_t aToBCD(char* c){
-	return ((c[0] - '0') << 4) | (c[1] - '0');
-}
 
-inline uint8_t aToUint(char* c){
-	return (c[0] - '0');
-}
 /* USER CODE END 4 */
 
 /**
