@@ -72,7 +72,7 @@ extern void _Error_Handler(char *, int);
 void MX_RTC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void MANUAL_MX_RTC_Init(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

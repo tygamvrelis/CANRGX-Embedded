@@ -78,7 +78,8 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+inline uint8_t aToBCD(char* c);
+inline uint8_t aToUint(char* c);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -126,7 +127,9 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
-  HAL_Delay(100);
+  MANUAL_MX_RTC_Init(); // Fix HAL bug where RTC is not initialized in the generated code
+
+  HAL_Delay(100); // We're in no rush here...
 
   uint8_t recvBuff = 0;
 
@@ -134,13 +137,13 @@ int main(void)
   char msg[] = "Microcontroller init sequence begin\n";
   do{
 	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
-	  HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
   }while(recvBuff != 'A');
   recvBuff = 0; // Clear ACK
 
   /*************************************************************************
    *                      MPU9250 Initialization                           *
-   ************************************************************************/
+   *************************************************************************/
   // Attempt to initialize the MPU9250, up to 5 attempts
   int mpuInitStatus;
   for(int i = 0; i < 5; i++){
@@ -183,7 +186,7 @@ int main(void)
 	  char msg[] = "MPU9250 init success\n";
 	  do{
 		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
-		  HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+		  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
 	  }while(recvBuff != 'A');
 	  recvBuff = 0; // Clear ACK
   }
@@ -191,7 +194,7 @@ int main(void)
 	  char msg[] = "MPU9250 init fail\n";
 	  do{
 		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
-		  HAL_StatusTypeDef status = HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+		  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
 	  }while(recvBuff != 'A');
 	  recvBuff = 0; // Clear ACK
   }
@@ -199,39 +202,80 @@ int main(void)
 
   /*************************************************************************
    *                        RTC Initialization                             *
-   ************************************************************************/
-
+   *************************************************************************/
   // Time is of the form HH.MM.SS.mmmuuu, sent as ASCII (16 bytes total)
   uint8_t buff[16] = {0};
-  buff[15] = '\n';
-  if(HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100) != HAL_OK){ // Receive time
+  uint8_t* ptrHours = &buff[0]; // 2 elements
+  uint8_t* ptrMinutes = &buff[3]; // 2 elements
+  uint8_t* ptrSeconds = &buff[6]; // 2 elements
+  uint8_t* ptrSubseconds = &buff[9]; // 6 elements; milliseconds and microseconds
+  buff[15] = '\n'; // This character is added so that serial.readline() can be used on the PC side
+
+  // Receive time
+  if(HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100) != HAL_OK){
 	  /* For some reason, the PC did not send the time after the last
 	   * message was sent. Handle this here. */
 	  // TODO (not urgent; unlikely to happen)
   }
-  // TODO: program RTC here
 
-  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
+  // This is the received subseconds (millis and micros) in float form.
+  // We may lose some precision by doing it this way, but this step will
+  // still yield much higher calibration accuracy than if we skip this.
+  volatile float recvSubseconds = {
+		  aToUint((char*)ptrSubseconds) * 0.1 +
+		  aToUint((char*)(ptrSubseconds + 1)) * 0.01 +
+		  aToUint((char*)(ptrSubseconds + 2)) * 0.001 +
+		  aToUint((char*)(ptrSubseconds + 3)) * 0.0001 +
+		  aToUint((char*)(ptrSubseconds + 4)) * 0.00001 +
+		  aToUint((char*)(ptrSubseconds + 5)) * 0.000001
+  	  };
+
+  // Set RTC registers for hours, minutes, seconds (BCD)
+  RTC_TimeTypeDef theTime;
+  RTC_DateTypeDef theDate;
+  theTime.Hours = aToBCD(ptrHours);
+  theTime.Minutes = aToBCD(ptrMinutes);
+  theTime.Seconds = aToBCD(ptrSeconds);
+  theTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  theTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  HAL_RTC_SetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
+
+  // Read the subseconds register and use the RTC_SHIFTR register for
+  // subsecond synchronization. Note that BOTH the time and date must
+  // ALWAYS be read, and in that order, to ensure proper behaviour of
+  // the RTC.
+  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
+  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
+  float readSubseconds = 1000.0 - (float)(theTime.SubSeconds * 1000.0 / theTime.SecondFraction);
+
+  if(readSubseconds > recvSubseconds){
+	  // We need to delay the RTC
+	  float millisToDelay = readSubseconds - recvSubseconds;
+	  uint16_t S = theTime.SecondFraction;
+
+	  hrtc.Instance->SHIFTR =  S - (uint16_t)(millisToDelay * S / 1000);
+  }
+  else{
+	  // We need to advance the RTC. I suppose this case is also entered if,
+	  // through some miracle, readSubseconds is exactly equal to recvSubseconds.
+
+  }
+
+  HAL_Delay(100); // Wait 100 ms, then send time. This way the PC will have logged data
+  	  	  	  	  // demonstrating its accuracy over a reasonable time period.
+
+  // Load transmit buffer with fresh time
+  do{
+	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
+	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
+
+	  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
+	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+  }while(recvBuff != 'A');
+  recvBuff = 0; // Clear ACK
 
   while(1);
-//  // Wait to receive time data
-//  uint8_t buff[3];
-//  HAL_UART_Receive(&huart2, buff, sizeof(buff), 100);
-//
-//  // Read the subseconds register for more precise synchronization
-//  // TODO
-//
-//  // Set RTC registers for hours, minutes, seconds (BCD)
-//  RTC_TimeTypeDef theTime;
-//  theTime.Hours = buff[1];
-//  theTime.Minutes = buff[2];
-//  theTime.Seconds = buff[3];
-//  theTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-//  theTime.StoreOperation = RTC_STOREOPERATION_RESET;
-//  if (HAL_RTC_SetTime(&hrtc, &theTime, RTC_FORMAT_BCD) != HAL_OK){
-//	  char msg[] = "RTC_ERR";
-//	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg));
-//  }
+
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -330,7 +374,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+inline uint8_t aToBCD(char* c){
+	return ((c[0] - '0') << 4) | (c[1] - '0');
+}
 
+inline uint8_t aToUint(char* c){
+	return (c[0] - '0');
+}
 /* USER CODE END 4 */
 
 /**

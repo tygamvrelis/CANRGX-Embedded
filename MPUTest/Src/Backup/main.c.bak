@@ -78,7 +78,7 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+inline uint8_t aToBCD(char* c);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -126,6 +126,21 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
+  HAL_Delay(100);
+
+  uint8_t recvBuff = 0;
+
+  // Tell PC we are powered on
+  char msg[] = "Microcontroller init sequence begin\n";
+  do{
+	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+  }while(recvBuff != 'A');
+  recvBuff = 0; // Clear ACK
+
+  /*************************************************************************
+   *                      MPU9250 Initialization                           *
+   *************************************************************************/
   // Attempt to initialize the MPU9250, up to 5 attempts
   int mpuInitStatus;
   for(int i = 0; i < 5; i++){
@@ -133,30 +148,92 @@ int main(void)
       if(mpuInitStatus == 1){
     	  break;
       }
-      // TODO: Run master clock here in case slave is stuck in ACK state
+      else if(mpuInitStatus > -10){
+    	  /* This is the case if there is a problem with the IMU module.
+    	   * Try hard-resetting the IMU module. */
+    	  uint8_t dataToWrite = 0x80;
+		  HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
+      }
+      else if(mpuInitStatus <= -10){
+    	  /* This is the case if there is a problem with the magnetometer.
+    	   * Try software-resetting the magnetometer. */
+    	  magnetometerWrite(CNTL2, 1);
+      }
+      if(i == 2){
+    	  /* When the microcontroller program starts up, it is not guaranteed that
+		   * it is from a power cycle. Instead, the program may be starting up from
+		   * a reset. A reset, however, only affects the microcontroller, and does not
+		   * affect any peripherals connected to it. Thus, it is possible for the I2C
+		   * bus to get locked when the slave is asserting an ACK and then the master
+		   * clock drops out. The solution is to send some clock pulses to transition the
+		   * state of the slave that's freezing the bus. */
+    	  generateClocks(10, 0); // Generate 10 clock periods
+      }
+      if(i == 3){
+    	  /* There is a silicon bug in some ST MCUs where a filter in the I2C module
+    	   * randomly asserts the busy flag. The function below follows certain procedures
+    	   * presented in an errata document to alleviate the issue. */
+    	  generateClocks(1, 1); // Send 1 stop bit
+      }
       HAL_Delay(10);
   }
+
   // Transmit MPU init status
-  HAL_UART_Transmit(&huart2, (uint8_t*)&mpuInitStatus, sizeof(mpuInitStatus), 10);
+  if(mpuInitStatus == 1){
+	  char msg[] = "MPU9250 init success\n";
+	  do{
+		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+		  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+	  }while(recvBuff != 'A');
+	  recvBuff = 0; // Clear ACK
+  }
+  else{
+	  char msg[] = "MPU9250 init fail\n";
+	  do{
+		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
+		  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+	  }while(recvBuff != 'A');
+	  recvBuff = 0; // Clear ACK
+  }
 
-  // Wait to receive time data
-  uint8_t buff[3];
-  HAL_UART_Receive(&huart2, buff, sizeof(buff), 100);
 
-  // Read the subseconds register for more precise synchronization
-  // TODO
+  /*************************************************************************
+   *                        RTC Initialization                             *
+   *************************************************************************/
+  // Time is of the form HH.MM.SS.mmmuuu, sent as ASCII (16 bytes total)
+  uint8_t buff[16] = {0};
+  uint8_t* hours = &buff[0]; // 2 elements
+  uint8_t* minutes = &buff[3]; // 2 elements
+  uint8_t* seconds = &buff[6]; // 2 elements
+  uint8_t* subseconds = &buff[9]; // 6 elements; milliseconds and microseconds
+  buff[15] = '\n'; // This character is added so that serial.readline() can be used on the PC side
+  if(HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100) != HAL_OK){ // Receive time
+	  /* For some reason, the PC did not send the time after the last
+	   * message was sent. Handle this here. */
+	  // TODO (not urgent; unlikely to happen)
+  }
 
   // Set RTC registers for hours, minutes, seconds (BCD)
   RTC_TimeTypeDef theTime;
-  theTime.Hours = buff[1];
-  theTime.Minutes = buff[2];
-  theTime.Seconds = buff[3];
+  RTC_DateTypeDef theDate;
+  theTime.Hours = aToBCD(hours);
+  theTime.Minutes = aToBCD(minutes);
+  theTime.Seconds = aToBCD(seconds);
   theTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   theTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &theTime, RTC_FORMAT_BCD) != HAL_OK){
-	  char msg[] = "RTC_ERR";
-	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg));
+  HAL_RTC_SetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
+
+  // Read the subseconds register and use the RTC_SHIFTR register for more subsecond synchronization
+  while(1){
+	  HAL_RTC_WaitForSynchro(&hrtc);
+	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
+	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
   }
+
+  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
+
+  while(1);
+
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -255,7 +332,9 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+inline uint8_t aToBCD(char* c){
+	return ((c[0] - '0') << 4) | (c[1] - '0');
+}
 /* USER CODE END 4 */
 
 /**
