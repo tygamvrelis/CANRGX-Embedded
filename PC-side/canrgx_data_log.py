@@ -54,7 +54,9 @@ def printAndLogStringFromSerial(userMsg=""):
     f.write(theString)
     
 def logString(userMsg):
-    print(datetime.now().strftime('%H.%M.%S.%f') + " " + userMsg)
+    theString = datetime.now().strftime('%H.%M.%S.%f') + " " + userMsg
+    print(theString)
+    f.write(theString)
 
 def sendToMCU(msg):
     ser.write(bytes(msg.encode()))

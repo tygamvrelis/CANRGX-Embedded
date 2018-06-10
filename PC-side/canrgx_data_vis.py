@@ -62,7 +62,7 @@ class canrgx_data_visualizer():
         axs[0].plot(self.data_time, self.acc_vec[:,1],fmt='g',label='Y')
         axs[0].plot(self.data_time, self.acc_vec[:,2],fmt='r',label='Z')
         axs[0].set_ylabel('Accelerometer reading (m/s^2)')
-        axs[0].set_xlabel('MCU Tick Time (sec)')
+        axs[0].set_xlabel('MCU Tick Time (millisec)')
         axs[0].legend(loc='best')
 
         axs[1].plot(self.data_time, self.mag_nrm,fmt='k',label='norm')
@@ -70,7 +70,7 @@ class canrgx_data_visualizer():
         axs[1].plot(self.data_time, self.mag_vec[:,1],fmt='g',label='Y')
         axs[1].plot(self.data_time, self.mag_vec[:,2],fmt='r',label='Z')
         axs[1].set_ylabel('Magnetometer reading (m/s^2)')
-        axs[1].set_xlabel('MCU Tick Time (sec)')
+        axs[1].set_xlabel('MCU Tick Time (millisec)')
         axs[1].legend(loc='best')
 
 
@@ -79,7 +79,7 @@ class canrgx_data_visualizer():
         axs[2].plot(self.data_time, self.pwr_record[:,2],label='TEC A')
         axs[2].plot(self.data_time, self.pwr_record[:,3],label='TEC B')
         axs[2].set_ylabel('Power Setting')
-        axs[2].set_xlabel('MCU Tick Time (sec)')
+        axs[2].set_xlabel('MCU Tick Time (millisec)')
         axs[2].legend(loc='best')
 
         axs[3].plot(self.data_time, self.tmp_record[:,0],label='Temp A')
@@ -89,7 +89,7 @@ class canrgx_data_visualizer():
         axs[3].plot(self.data_time, self.tmp_record[:,4],label='Temp E')
         axs[3].plot(self.data_time, self.tmp_record[:,5],label='Temp F')
         axs[3].set_ylabel('Power Setting')
-        axs[3].set_xlabel('MCU Tick Time (sec)')
+        axs[3].set_xlabel('MCU Tick Time (millisec)')
         axs[3].legend(loc='best')
 
 
