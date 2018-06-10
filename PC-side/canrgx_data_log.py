@@ -27,10 +27,6 @@ def receive_stream_loop(canrgx_log):
                 # time.sleep(0.001)
             raw_data=ser.read(50)
             
-            # Log raw data
-            # f.write(str(raw_data))
-            # f.write("\n")
-            
             # Log unpacked data
             header = canrgx_log.decode_data(raw_data)
             #f.write(datetime.now().strftime('%H.%M.%S.%f') + " ")
@@ -62,17 +58,18 @@ def sendToMCU(msg):
     ser.write(bytes(msg.encode()))
 
 if __name__ == "__main__":
-    logString("Starting PC-side application")
+    print("Starting PC-side application")
     
     data_root = 'CANRGX_data\\' + time.strftime('%Y_%m_%d_%H_%M_%S')+'\\'
     if not os.path.exists(data_root):
         os.makedirs(data_root)
+
+    with open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w') as f:
     logString("Log created at " + str(os.getcwd()) + '\\' + data_root)
     
-    
-    with serial.Serial('COM3',230400,timeout=100) as ser:
-        logString("Opened port " + ser.name)
-        with open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w') as f:
+        with serial.Serial('COM3',230400,timeout=100) as ser:
+            logString("Opened port " + ser.name)
+            
             canrgx_log=canrgx_log_files(data_root)
             # Wait for microcontroller to come on and send its startup message
             printAndLogStringFromSerial("MCU sent: ")
@@ -98,9 +95,3 @@ if __name__ == "__main__":
             # Once MCU is unplugged, we write out all remaining data and close the file
             f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
             f.close()
-    
-# f = open("C:\\Users\\Admin\\CANRGX_data\\2018_06_04_00_51_54\\2018_06_04_00_51_54.txt", 'r')
-# f.seek(0)
-# for line in f:
-#     if "nan" in line:
-#         print(line)

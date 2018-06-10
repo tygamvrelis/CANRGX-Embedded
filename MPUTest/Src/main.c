@@ -220,7 +220,7 @@ int main(void)
   // This is the received subseconds (millis and micros) in float form.
   // We may lose some precision by doing it this way, but this step will
   // still yield much higher calibration accuracy than if we skip this.
-  volatile float recvSubseconds = {
+  float recvSubseconds = {
 		  aToUint((char*)ptrSubseconds) * 0.1 +
 		  aToUint((char*)(ptrSubseconds + 1)) * 0.01 +
 		  aToUint((char*)(ptrSubseconds + 2)) * 0.001 +
@@ -248,26 +248,28 @@ int main(void)
   // the RTC.
   HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
   HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
-  float readSubseconds = 1000.0 - (float)(theTime.SubSeconds * 1000.0 / theTime.SecondFraction);
+  float readSubseconds = 1.0 - ((float)theTime.SubSeconds / (float)theTime.SecondFraction);
 
   if(readSubseconds > recvSubseconds){
 	  // We need to delay the RTC
-	  float millisToDelay= readSubseconds - recvSubseconds;
+	  float millisToDelay = readSubseconds - recvSubseconds;
 	  uint16_t S = theTime.SecondFraction;
-	  uint16_t ticksToAdvance = S - (uint16_t)(millisToDelay * S / 1000);
-	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_RESET, ticksToAdvance);
+	  uint16_t ticksToDelay = S - (uint16_t)(millisToDelay * S);
+	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_RESET, ticksToDelay);
   }
   else{
 	  // We need to advance the RTC. I suppose this case is also entered if,
 	  // through some miracle, readSubseconds is exactly equal to recvSubseconds.
-	  float millisToAdvance= recvSubseconds - readSubseconds;
+	  float millisToAdvance = recvSubseconds - readSubseconds;
 	  uint16_t S = theTime.SecondFraction;
-	  uint16_t ticksToAdvance = S - (uint16_t)(millisToAdvance * S / 1000);
-	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_SET, UINT16_MAX - ticksToAdvance);
+	  uint16_t ticksToAdvance = S - (uint16_t)(millisToAdvance * S);
+	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_SET, ticksToAdvance);
   }
 
-  HAL_Delay(100); // Wait 100 ms, then send time. This way the PC will have logged data
-  	  	  	  	  // demonstrating its accuracy over a reasonable time period.
+  HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
+  	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
+  	  	  	  	   // 1500 ms is necessary because after setting the RTC shift register,
+                   // it takes about a second or so for it to work again properly.
 
   // Load transmit buffer with fresh time
   do{
@@ -281,15 +283,19 @@ int main(void)
 	  *(ptrMinutes + 1) = BCDToA(theTime.Minutes) & 0xFF;
 	  *ptrSeconds = BCDToA(theTime.Seconds) >> 8;
 	  *(ptrSeconds + 1) = BCDToA(theTime.Seconds) & 0xFF;
-	  readSubseconds = 1000.0 - (float)(theTime.SubSeconds * 1000.0 / theTime.SecondFraction);
-	  sprintf((char*)ptrSubseconds, "%0.6f", readSubseconds);
+	  readSubseconds = 1.0 - ((float)theTime.SubSeconds / (float)theTime.SecondFraction);
+
+	  // For subseconds, we use sprintf to convert from floating-point to ASCII
+	  // We need to save this in an intermediate buffer so that we can ignore the
+	  // "0." at the beginning of the float; this will make the time format consistent.
+	  char subSecondsBuff[8] = {0};
+	  sprintf((char*)subSecondsBuff, "%.6f", readSubseconds);
+	  memcpy(ptrSubseconds, &subSecondsBuff[2], 6);
 
 	  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
 	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
   }while(recvBuff != 'A');
   recvBuff = 0; // Clear ACK
-
-  while(1);
 
   /* USER CODE END 2 */
 
