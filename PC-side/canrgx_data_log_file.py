@@ -25,6 +25,8 @@ class canrgx_log_files:
         self.tmp_record = np.lib.format.open_memmap(self.data_root + "tmp.npy", dtype=np.float32, mode='w+', shape=(self.max_n  ,6))
         #Temperature Sensor
         self.syt_record = np.lib.format.open_memmap(self.data_root + "syt.npy", dtype=np.float64, mode='w+', shape=(self.max_n  ,1))
+
+        self.syt_record [:]=-1 #Initialize to -1, so we know what are the valid data.
         self.i=0
 
     def decode_data(self, raw_bytes):
