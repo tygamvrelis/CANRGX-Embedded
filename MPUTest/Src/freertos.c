@@ -567,25 +567,15 @@ void StartMPU9250Task(void const * argument)
     }
     else{
     	/* The accelerometer was not able to be read from properly, handle this here. */
+    	generateClocks(1, 1);
     	myMPU9250.A = NAN;
-    	accelStatus = runtimeResetIMU(semMPU9250Handle);
-    	if(accelStatus != 1){
-    		/* If we still couldn't successfully communicate with this device,
-			 * either it is not working properly, or there is
-			 * an I2C issue. */
-    	}
     }
 
 	/* Magnetometer */
 	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 	if(magStatus != 1){
 		/* The magnetometer was not able to be read from properly, handle this here. */
-		magStatus = runtimeResetMagnetometer(semMPU9250Handle);
-    	if(magStatus != 1){
-    		/* If we still couldn't successfully communicate with the magnetometer,
-    		 * either the magnetometer module is not working properly, or there is
-    		 * an I2C issue. */
-    	}
+		//magStatus = runtimeResetMagnetometer(semMPU9250Handle);
 	}
 
 	/********** Tell transmit task that new data is ready **********/

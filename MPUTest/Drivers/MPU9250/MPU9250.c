@@ -448,8 +448,9 @@ static int magnetometerWrite_IT(uint8_t addr, uint8_t data, osSemaphoreId sem){
 
 
 // Note: The following 2 functions are used as a workaround for an issue where the BUSY flag of the
-// I2C module is erroneously asserted in the hardware (a silicon bug, essentially). This workaround has
-// not been thoroughly tested.
+// I2C module is erroneously asserted in the hardware (a silicon bug, essentially). By checking the logs
+// for "nan", I have been able to see that this fix indeed will resolve I2C bus conflict. So it is useful to
+// have.
 //
 // Overall, use these functions with EXTREME caution.
 static uint8_t wait_for_gpio_state_timeout(GPIO_TypeDef *port, uint16_t pin, GPIO_PinState state, uint8_t timeout){
