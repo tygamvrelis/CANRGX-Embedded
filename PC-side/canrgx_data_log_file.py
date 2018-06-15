@@ -29,7 +29,8 @@ class canrgx_log_files:
 
         self.syt_record [:]=-1 #Initialize to -1, so we know what are the valid data.
         self.i=0
-
+    def __enter__(self):
+        return self
 
     def decode_data(self, raw_bytes):
         self.tic_record [self.i,0] = struct.unpack('<H',raw_bytes[ 0: 2])[0] # header
@@ -84,4 +85,14 @@ class canrgx_log_files:
         self.tmp_record.flush()
         self.syt_record.flush()
         #os.fsync() # if we really wanna make sure the writes persist, this will flush the disk buffer. Slow though
+    def close(self):
+        del self.tic_record
+        del self.imu_record
+        del self.pwr_record
+        del self.tmp_record
+        del self.syt_record
+        print("Log %s properly closed"%(self.data_root))
+
+    def __exit__(self, type, value, tb):
+        self.close()
 

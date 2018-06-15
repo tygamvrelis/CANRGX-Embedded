@@ -19,12 +19,14 @@ from canrgx_data_log_file import canrgx_log_files
 def receive_stream_loop(canrgx_log):
     num_frame_shifts = 0
     num_receptions = 0
-    print('hh')
+    print('Enter Stream Loop')
     while(ser.isOpen()):
         try:
             while(ser.in_waiting<50):
-                pass
-                # time.sleep(0.001)
+                time.sleep(0.002)
+            #Do sleep so that we don't keep pulling and saturate CPU
+            #The serial port has buffer underneath so it should not 
+            # affect data integrity.
             raw_data=ser.read(50)
             
             # Log unpacked data
@@ -38,10 +40,11 @@ def receive_stream_loop(canrgx_log):
             if(header != 65535):
                 # Did not receive expected header "0xFF 0xFF"
                 num_frame_shifts = num_frame_shifts + 1
-                #print('HERR')
+                print('HERR')
         except Exception as e:
             print(e)
             ser.close()
+            print('SER Properly Closed')
     return num_frame_shifts
     
 def printAndLogStringFromSerial(file, userMsg=""):
@@ -69,34 +72,33 @@ if __name__ == "__main__":
 
     with open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w') as f:
         logString("Log created at " + str(os.getcwd()) + '\\' + data_root, f)
-        canrgx_log=canrgx_log_files(data_root)
-        
-        with serial.Serial('COM3',230400,timeout=100) as ser:
-            logString("Opened port " + ser.name, f)
-            # Wait for microcontroller to come on and send its startup message
-            ser.flushOutput()
-            ser.flushInput()
-            printAndLogStringFromSerial(f, "MCU sent: ")
-            sendToMCU('A') # ACK
+        with canrgx_log_files(data_root) as canrgx_log:
+            with serial.Serial('COM3',230400,timeout=100) as ser:
+                logString("Opened port " + ser.name, f)
+                # Wait for microcontroller to come on and send its startup message
+                ser.flushOutput()
+                ser.flushInput()
+                printAndLogStringFromSerial(f, "MCU sent: ")
+                sendToMCU('A') # ACK
+                
+                # Wait for microcontroller to send its MPU9250 initialization status
+                printAndLogStringFromSerial(f, "MCU sent: ")
+                sendToMCU('A') # ACK
             
-            # Wait for microcontroller to send its MPU9250 initialization status
-            printAndLogStringFromSerial(f, "MCU sent: ")
-            sendToMCU('A') # ACK
-        
-            
-            # Write current time to microcontroller and wait for it to send the
-            # time back after a short delay. Log this time, as it is the time
-            # the microcontroller is starting the scheduler.
-            # One experiment showed there is a (310434-309425)/2 = 504.5 
-            # microsecond delay when sending the time. This may vary a bit, and
-            # so should ideally be done on-the-fly.
-            sendToMCU(datetime.now().strftime('%H.%M.%S.%f'))
-            printAndLogStringFromSerial(f, "MCU starting scheduler. Echoed: ")
-            sendToMCU('A') # ACK
-            
-            # Log data in a loop
-            num_frame_shifts = receive_stream_loop(canrgx_log)
-            
-            # Once MCU is unplugged, we write out all remaining data and close the file
-            f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
-            f.close()
+                
+                # Write current time to microcontroller and wait for it to send the
+                # time back after a short delay. Log this time, as it is the time
+                # the microcontroller is starting the scheduler.
+                # One experiment showed there is a (310434-309425)/2 = 504.5 
+                # microsecond delay when sending the time. This may vary a bit, and
+                # so should ideally be done on-the-fly.
+                sendToMCU(datetime.now().strftime('%H.%M.%S.%f'))
+                printAndLogStringFromSerial(f, "MCU starting scheduler. Echoed: ")
+                sendToMCU('A') # ACK
+                
+                # Log data in a loop
+                num_frame_shifts = receive_stream_loop(canrgx_log)
+                
+                # Once MCU is unplugged, we write out all remaining data and close the file
+                f.write("Data collection terminated. Number of frame shifts: %d" % num_frame_shifts)
+                f.close()

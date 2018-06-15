@@ -34,11 +34,11 @@ class canrgx_data_visualizer():
             self.tmp_record = self.tmp_record[:n]
             self.syt_record = self.syt_record[:n]
 
-            np.save(data_root + "tic.npy", self.tic_record)
-            np.save(data_root + "imu.npy", self.imu_record)
-            np.save(data_root + "pwr.npy", self.pwr_record)
-            np.save(data_root + "tmp.npy", self.tmp_record)
-            np.save(data_root + "syt.npy", self.syt_record)
+            np.save(data_root + "/tic.npy", self.tic_record)
+            np.save(data_root + "/imu.npy", self.imu_record)
+            np.save(data_root + "/pwr.npy", self.pwr_record)
+            np.save(data_root + "/tmp.npy", self.tmp_record)
+            np.save(data_root + "/syt.npy", self.syt_record)
 
         
         
@@ -69,7 +69,7 @@ class canrgx_data_visualizer():
         axs[0][1].plot(self.data_time, self.mag_vec[:,0],'b',label='X')
         axs[0][1].plot(self.data_time, self.mag_vec[:,1],'g',label='Y')
         axs[0][1].plot(self.data_time, self.mag_vec[:,2],'r',label='Z')
-        axs[0][1].set_ylabel('Magnetometer reading (m/s^2)')
+        axs[0][1].set_ylabel('Magnetometer reading (G)')
         axs[0][1].set_xlabel('MCU Tick Time (millisec)')
         axs[0][1].legend(loc='best')
 
