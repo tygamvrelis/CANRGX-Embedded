@@ -10,10 +10,15 @@ Created on Sat Jun  9 15:54:56 2018
 import numpy as np
 import struct
 import time
+from PyQt5 import QtCore
 
-class canrgx_log_files:
-    
-    def __init__(self,data_root,max_n=500000):
+class canrgx_log_files(QtCore.QObject):
+
+
+    update_data = QtCore.pyqtSignal(np.ndarray, np.ndarray, np.ndarray, np.ndarray)
+    def __init__(self,data_root,max_n=500000,parent=None):
+        super(canrgx_log_files,self).__init__(parent)
+
         self.data_root=data_root
         self.max_n=max_n
 
@@ -29,6 +34,7 @@ class canrgx_log_files:
 
         self.syt_record [:]=-1 #Initialize to -1, so we know what are the valid data.
         self.i=0
+    
     def __enter__(self):
         return self
 
@@ -57,7 +63,11 @@ class canrgx_log_files:
         
         self.syt_record [self.i,0] = time.time() #System time stamp
         
+        
         header=self.tic_record [self.i,0] # Return header
+        
+        self.i+=1 # increment count
+        
         # Every so often, write results to terminal as sanity check, etc
         if self.i%100==0:
             self.sanity_check()
@@ -69,13 +79,22 @@ class canrgx_log_files:
         if self.i>self.max_n*0.8 and self.i%1000==0:
             print("OVF WARNING")
         #print('*')
-        self.i+=1 # increment count
+        
         return header
 
     def sanity_check(self):
         #Pring data as sanity check
-        print("%d, %f, %f" % (self.tic_record [self.i,1], self.imu_record [self.i,2], self.pwr_record [self.i,0]))
-
+        print("%d, %f, %f" % (self.tic_record [self.i-1,1], self.imu_record [self.i-1,2], self.pwr_record [self.i-1,0]))
+        tic_tmp=np.copy(self.tic_record[self.i-100:self.i,1])
+        imu_tmp=np.copy(self.imu_record[self.i-100:self.i,:])
+        pwr_tmp=np.copy(self.pwr_record[self.i-100:self.i,:])
+        tmp_tmp=np.copy(self.tmp_record[self.i-100:self.i,:])
+        #print(np.shape(tic_tmp))
+        #print(np.shape(imu_tmp))
+        #print(np.shape(pwr_tmp))
+        #print(np.shape(tmp_tmp))
+        
+        self.update_data.emit(tic_tmp,imu_tmp,pwr_tmp,tmp_tmp)
 
     def flush(self):
         #Flush data to disk
@@ -91,6 +110,7 @@ class canrgx_log_files:
         del self.pwr_record
         del self.tmp_record
         del self.syt_record
+        
         print("Log %s properly closed"%(self.data_root))
 
     def __exit__(self, type, value, tb):
