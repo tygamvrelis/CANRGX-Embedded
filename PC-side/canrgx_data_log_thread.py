@@ -22,12 +22,28 @@ class CANRGXLoggingThread(QtCore.QThread):
     def __init__(self, parent=None,graphic_slot=None):
         super(CANRGXLoggingThread, self).__init__(parent)
         self.graphic_slot=graphic_slot
+        self.quit_flag=False
+        self.mutex=QtCore.QMutex()
+    
+    def set_quit(self):
+        self.mutex.lock()
+        self.quit_flag=True
+        self.mutex.unlock()
 
     def receive_stream_loop(self,canrgx_log):
         num_frame_shifts = 0
         num_receptions = 0
         print('Enter Stream Loop')
         while(self.ser.isOpen()):
+            self.mutex.lock()
+            #print("qFlag",self.quit_flag)
+            if self.quit_flag:
+                print("Logging Thread Quitting")
+                self.ser.close()
+                self.mutex.unlock()
+                break
+            self.mutex.unlock()
+
             try:
                 while(self.ser.in_waiting<50):
                     time.sleep(0.002)
@@ -51,7 +67,8 @@ class CANRGXLoggingThread(QtCore.QThread):
             except Exception as e:
                 print(e)
                 self.ser.close()
-                print('SER Properly Closed')
+                print('Exception encounterred, but ser properly closed')
+                break
         return num_frame_shifts
         
     def printAndLogStringFromSerial(self,file, userMsg=""):
@@ -89,7 +106,11 @@ class CANRGXLoggingThread(QtCore.QThread):
                     # Wait for microcontroller to come on and send its startup message
                     ser.flushOutput()
                     ser.flushInput()
-                    self.printAndLogStringFromSerial(f, "MCU sent: ")
+                    try:
+                        self.printAndLogStringFromSerial(f, "MCU sent: ")
+                    except UnicodeDecodeError as decode_err:
+                        print('Not valid MCU response, quit')
+                        return
                     self.sendToMCU('A') # ACK
                     
                     # Wait for microcontroller to send its MPU9250 initialization status

@@ -45,6 +45,7 @@ def receive_stream_loop(canrgx_log):
             print(e)
             ser.close()
             print('SER Properly Closed')
+            break
     return num_frame_shifts
     
 def printAndLogStringFromSerial(file, userMsg=""):

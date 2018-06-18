@@ -78,6 +78,9 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         #self.camThread.external_quit()
         #print('ExternalQuit executed')
         #self.camThread.wait()
+        self.log_thread.set_quit()
+        self.log_thread.wait()
+        
         self.cameraImageCanvas.close()
         #self.rowAvgDataCanvas.close()
         # Make sure various sub-components are closed before main widget exits.

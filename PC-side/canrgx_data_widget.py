@@ -22,7 +22,7 @@ from matplotlib.figure import Figure
 class CANRGXPlotCanvas(FigureCanvas):
     """Inhereit the FigureCanvas from matplotlib (Qt5 backend version), which is ultimately a QWdiget"""
 
-    def __init__(self, parent=None, width=4, height=3, dpi=160, data_n=300):
+    def __init__(self, parent=None, width=10, height=8, dpi=160, data_n=300):
         # Initialize various components and flags for the widget
         
         fig = Figure(figsize=(width, height), dpi=dpi)
@@ -41,6 +41,7 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.init_data_buffer()
         self.show_initial_figure()
 
+        
         FigureCanvas.setSizePolicy(
             self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)

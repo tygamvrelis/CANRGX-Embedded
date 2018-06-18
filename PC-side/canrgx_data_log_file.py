@@ -110,7 +110,6 @@ class canrgx_log_files(QtCore.QObject):
         del self.pwr_record
         del self.tmp_record
         del self.syt_record
-        
         print("Log %s properly closed"%(self.data_root))
 
     def __exit__(self, type, value, tb):
