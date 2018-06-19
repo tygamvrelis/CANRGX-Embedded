@@ -37,7 +37,7 @@ def main():
         
     # The aircraft data is broadcast as a UDP packet on port 5124.
     # The host computer must have an IP address as follows: 132.246.192.[25..50]
-    host = "134.246.192.255" # Ending in 255
+    host = '127.0.0.1' #"134.246.192.255" # Ending in 255
     UDP_PORT = 5124
 
     # Create a socket for sending
@@ -47,7 +47,7 @@ def main():
     
     # Configure socket for broadcast
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)     
-    print("Socket broadcasing on {0}:{1}".format(host, UDP_PORT)) 
+    print("Socket broadcasting UDP packets on {0}:{1}".format(host, UDP_PORT)) 
 
     # Send dummy data forever
     numPackets = 0

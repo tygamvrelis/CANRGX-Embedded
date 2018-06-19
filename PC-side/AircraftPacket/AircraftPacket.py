@@ -20,7 +20,7 @@ def NavPacketDecoder(packet):
     d['Pitch'] = struct.unpack('>f', packet[20:24])[0]
     d['TrueHeading'] = struct.unpack('>f', packet[24:28])[0]
     d['AngularRateX'] = struct.unpack('>f', packet[28:32])[0]
-    d['AngularRateY'] = struct.unpack('>f', packet[32:46])[0]
+    d['AngularRateY'] = struct.unpack('>f', packet[32:36])[0]
     d['AngularRateZ'] = struct.unpack('>f', packet[36:40])[0]
     d['Latitude'] = struct.unpack('>d', packet[40:48])[0]
     d['Longitude'] = struct.unpack('>d', packet[48:56])[0]
@@ -51,8 +51,8 @@ def main():
         logString("Log created at " + str(os.getcwd()) + '\\' + data_root, f)
         # The aircraft data is broadcast as a UDP packet on port 5124.
         # The host computer must have an IP address as follows: 132.246.192.[25..50]
-        UDP_IP = "134.246.192.255"
-        UDP_PORT = 5124
+        bind_ip = '127.0.0.1' #'134.246.192.255'
+        bind_port = 5124
     
         # Create a socket for receiving
         sock = socket.socket(socket.AF_INET, # Internet
@@ -60,8 +60,8 @@ def main():
         print("Socket created")                   
         
         # Bind the socket to the IP address and port
-        sock.connect((UDP_IP, UDP_PORT))
-        print("Socket connected to {0}:{1}".format(UDP_IP, UDP_PORT))
+        sock.bind((bind_ip, bind_port))
+        print("Socket connected to {0}:{1}".format(bind_ip, bind_port))
     
         numReceptions = 0
         while True:
@@ -73,9 +73,9 @@ def main():
             parsedNavPacket = NavPacketDecoder(rawNavPacket)
                 
             # Log data
-            file.write(datetime.now().strftime('%H.%M.%S.%f') + '\n')
+            f.write(datetime.now().strftime('%H.%M.%S.%f') + '\n')
             for key in parsedNavPacket.keys():
-                f.write(str(key) + ": " + str(parsedNavPacket[key]) + '\n')
+                f.write(str(key) + ": " + str(parsedNavPacket[key]) + '\n\n')
             
             # Print data every so often
             if(numReceptions % 100 == 0):
