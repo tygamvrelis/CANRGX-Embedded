@@ -1,33 +1,36 @@
 
+import os
 import sys
 import socket
 import struct
 from datetime import datetime
+import time
 
 def NavPacketDecoder(packet):
     ''' Decodes the navigational packet, interpreted as per the Excel document
         given by the NRC.
     '''
     
+    # Big endian because that is consistent with network byte order
     d = dict()
-    d['GPSTime'] = struct.unpack('<d', packet[0:8])[0]
-    d['INSMode'] = struct.unpack('<i', packet[8:12])[0]
-    d['GPSMode'] = struct.unpack('<i', packet[12:16])[0]
-    d['Roll'] = struct.unpack('<f', packet[16:20])[0]
-    d['Pitch'] = struct.unpack('<f', packet[20:24])[0]
-    d['TrueHeading'] = struct.unpack('<f', packet[24:28])[0]
-    d['AngularRateX'] = struct.unpack('<f', packet[28:32])[0]
-    d['AngularRateY'] = struct.unpack('<f', packet[32:46])[0]
-    d['AngularRateZ'] = struct.unpack('<f', packet[36:40])[0]
-    d['Latitude'] = struct.unpack('<d', packet[40:48])[0]
-    d['Longitude'] = struct.unpack('<d', packet[48:56])[0]
-    d['Altitude'] = struct.unpack('<d', packet[56:64])[0]
-    d['VelocityNorth'] = struct.unpack('<f', packet[64:68])[0]
-    d['VelocityEast'] = struct.unpack('<f', packet[68:72])[0]
-    d['VelocityDown'] = struct.unpack('<f', packet[72:76])[0]
-    d['AccelerationX'] = struct.unpack('<f', packet[76:80])[0]
-    d['AccelerationY'] = struct.unpack('<f', packet[80:84])[0]
-    d['AccelerationZ'] = struct.unpack('<f', packet[84:88])[0]
+    d['GPSTime'] = struct.unpack('>d', packet[0:8])[0]
+    d['INSMode'] = struct.unpack('>i', packet[8:12])[0]
+    d['GPSMode'] = struct.unpack('>i', packet[12:16])[0]
+    d['Roll'] = struct.unpack('>f', packet[16:20])[0]
+    d['Pitch'] = struct.unpack('>f', packet[20:24])[0]
+    d['TrueHeading'] = struct.unpack('>f', packet[24:28])[0]
+    d['AngularRateX'] = struct.unpack('>f', packet[28:32])[0]
+    d['AngularRateY'] = struct.unpack('>f', packet[32:46])[0]
+    d['AngularRateZ'] = struct.unpack('>f', packet[36:40])[0]
+    d['Latitude'] = struct.unpack('>d', packet[40:48])[0]
+    d['Longitude'] = struct.unpack('>d', packet[48:56])[0]
+    d['Altitude'] = struct.unpack('>d', packet[56:64])[0]
+    d['VelocityNorth'] = struct.unpack('>f', packet[64:68])[0]
+    d['VelocityEast'] = struct.unpack('>f', packet[68:72])[0]
+    d['VelocityDown'] = struct.unpack('>f', packet[72:76])[0]
+    d['AccelerationX'] = struct.unpack('>f', packet[76:80])[0]
+    d['AccelerationY'] = struct.unpack('>f', packet[80:84])[0]
+    d['AccelerationZ'] = struct.unpack('>f', packet[84:88])[0]
     
     return d
     
@@ -48,7 +51,7 @@ def main():
         logString("Log created at " + str(os.getcwd()) + '\\' + data_root, f)
         # The aircraft data is broadcast as a UDP packet on port 5124.
         # The host computer must have an IP address as follows: 132.246.192.[25..50]
-        UDP_IP = "134.246.192.25"
+        UDP_IP = "134.246.192.255"
         UDP_PORT = 5124
     
         # Create a socket for receiving
