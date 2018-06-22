@@ -18,11 +18,12 @@ from canrgx_data_log_file import canrgx_log_files
 from PyQt5 import QtCore
 from QtCore import QObject, QTimer, QThread
 
+
 class CANRGXSerialDataListener(QtCore.QObject):
 
     def __init__(self, parent=None):
         super(CANRGXLoggingThread, self).__init__(parent)
-        #self.initialize()
+        # self.initialize()
 
     issue_encountered = QtCore.pyqtSignal()
     request_close = QtCore.pyqtSignal()
@@ -30,7 +31,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
     def initialize(self):
 
         self.issue_encountered.connect(self.cleanup)
-        #First, make sure when any issue is encountered, go cleanup.
+        # First, make sure when any issue is encountered, go cleanup.
 
         print("Starting PC-side application")
 
@@ -69,13 +70,11 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.sendToMCU('A')  # ACK
 
         self.num_frame_shifts = 0
-        self.timer=QTimer(self.parent())
+        self.timer = QTimer(self.parent())
         self.timer.timeout.connect(self.check_serial_buffer)
         self.timer.start(2)
-        #Create the timer that fires every 2ms to check the serial buffer.
+        # Create the timer that fires every 2ms to check the serial buffer.
         print("Start Listening to MCU Data")
-
-        
 
     def cleanup(self):
         self.timer.stop()
@@ -86,10 +85,9 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.file.close()
         self.ser.close()
         self.canrgx_log.close()
-        
+
         print("Resource for MCU data listener properly closed. Request closing of thread.")
         self.request_close.emit()
-        
 
     def check_serial_buffer(self):
         try:
@@ -110,7 +108,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
                 print('HERR')
         except Exception as e:
             print(e)
-            #self.ser.close()
+            # self.ser.close()
             print('Exception encounterred')
             self.issue_encountered.emit()
 
@@ -130,7 +128,6 @@ class CANRGXSerialDataListener(QtCore.QObject):
 
     def sendToMCU(self, msg):
         self.ser.write(bytes(msg.encode()))
-
 
 
 if __name__ == '__main__':

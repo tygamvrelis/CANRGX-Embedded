@@ -30,14 +30,15 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         # Check documentation of pyqt5 or try qt-designer if you want to extend it.
         QtWidgets.QMainWindow.__init__(self)
 
-        #self.camThread = CrossCorreCamera(
+        # self.camThread = CrossCorreCamera(
         #    cali=cali, background=background, t_img=t_img, n_img=n_img)
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle("CANRGX Team FAM (UofT EngSci) Real Time Data")
 
         self.main_menu = QtWidgets.QMenu('&Menu', self)
-        self.main_menu.addAction('&Quit', self.fileQuit, QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
+        self.main_menu.addAction(
+            '&Quit', self.fileQuit, QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         #self.main_menu.addAction('&Acquire Background', self.acquire_background)
         self.menuBar().addMenu(self.main_menu)
 
@@ -52,13 +53,13 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
             self.cameraImageCanvas, self.main_widget)
         self.cameraImageLayout.addWidget(self.cameraImageToolBar)
 
-
         main_layout.addLayout(self.cameraImageLayout)
-        #main_layout.addLayout(self.rowAvgDataLayout)
+        # main_layout.addLayout(self.rowAvgDataLayout)
         print("Setup Graphic")
         # Qt timer and the working thread started by the main thread.
-        
-        self.log_thread = CANRGXLoggingThread(graphic_slot=self.cameraImageCanvas.new_data_slot)
+
+        self.log_thread = CANRGXLoggingThread(
+            graphic_slot=self.cameraImageCanvas.new_data_slot)
         QtCore.QTimer.singleShot(0, self.log_thread.start)
         #QtCore.QTimer.singleShot(200, self.camThread.timer.start)
 
@@ -67,7 +68,6 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.statusBar().showMessage("All hail matplotlib!", 2000)
 
-
     def fileQuit(self):
         # Close action for the Quit button in menubar.
         self.close()
@@ -75,14 +75,14 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, ce):
         print('closeEvent')
         # self.fileQuit()
-        #self.camThread.external_quit()
+        # self.camThread.external_quit()
         #print('ExternalQuit executed')
-        #self.camThread.wait()
+        # self.camThread.wait()
         self.log_thread.set_quit()
         self.log_thread.wait()
-        
+
         self.cameraImageCanvas.close()
-        #self.rowAvgDataCanvas.close()
+        # self.rowAvgDataCanvas.close()
         # Make sure various sub-components are closed before main widget exits.
         # Especially the working thread needs to be stopped.
         super().closeEvent(ce)
@@ -93,7 +93,9 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
             for streaming experiment data from the micro-controller for the 
             CANRGX FAM team (UofT EngSci) experiment. It is written with numpy,
             scipy, matplotlib, and PyQt5, by Hanzhen Lin. """)
-#Use python click 
+
+
+# Use python click
 if __name__ == '__main__':
     # Main program runs from here. Standard Qt start procedure.
     qApp = QtWidgets.QApplication(sys.argv)
