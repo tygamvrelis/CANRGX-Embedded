@@ -5,6 +5,7 @@ import socket
 import struct
 from datetime import datetime
 import time
+import numpy as np
 
 def NavPacketDecoder(packet):
     ''' Decodes the navigational packet, interpreted as per the Excel document
@@ -32,6 +33,16 @@ def NavPacketDecoder(packet):
     d['AccelerationY'] = struct.unpack('>f', packet[80:84])[0]
     d['AccelerationZ'] = struct.unpack('>f', packet[84:88])[0]
     
+    double_type = np.dtype('>d')
+    float_type = np.dtype('>f')
+    int_type = np.dtype('>i')
+
+    GPSTime=np.frombuffer(packet,double_type,1,0)
+    ModeInfo=np.frombuffer(packet,int_type,2,8)
+    AttitudeInfo=np.frombuffer(packet,float_type,6,16)
+    EarthInfo=np.frombuffer(packet,double_type,3,40)
+    LinearMotion = np.frombuffer(packet, float_type, 6, 64)
+
     return d
     
 def logString(userMsg, file):
