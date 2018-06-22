@@ -34,34 +34,46 @@ class canrgx_log_files(QtCore.QObject):
 
         self.syt_record [:]=-1 #Initialize to -1, so we know what are the valid data.
         self.i=0
+
+        self.half_type = np.dtype('<H')
+        self.int_type = np.dtype('<I')
+        self.float_type = np.dtype('<f')
+
     
     def __enter__(self):
         return self
 
     def decode_data(self, raw_bytes):
-        self.tic_record [self.i,0] = struct.unpack('<H',raw_bytes[ 0: 2])[0] # header
-        self.tic_record [self.i,1] = struct.unpack('<I',raw_bytes[ 2: 6])[0] # mcu time tic
-
-        self.imu_record [self.i,0] = struct.unpack('<f',raw_bytes[ 6:10])[0] # acc_x
-        self.imu_record [self.i,1] = struct.unpack('<f',raw_bytes[10:14])[0] # acc_y
-        self.imu_record [self.i,2] = struct.unpack('<f',raw_bytes[14:18])[0] # acc_z
-        self.imu_record [self.i,3] = struct.unpack('<f',raw_bytes[18:22])[0] # mag_x
-        self.imu_record [self.i,4] = struct.unpack('<f',raw_bytes[22:26])[0] # mag_y
-        self.imu_record [self.i,5] = struct.unpack('<f',raw_bytes[26:30])[0] # mag_z
-        
-        self.pwr_record [self.i,0] = struct.unpack('<H',raw_bytes[30:32])[0] # mag_1_duty_cycle
-        self.pwr_record [self.i,1] = struct.unpack('<H',raw_bytes[32:34])[0] # mag_2_duty_cycle
-        self.pwr_record [self.i,2] = struct.unpack('<H',raw_bytes[34:36])[0] # tec_1_duty_cycle
-        self.pwr_record [self.i,3] = struct.unpack('<H',raw_bytes[36:38])[0] # tec_2_duty_cycle
-        
-        self.tmp_record [self.i,0] = struct.unpack('<H',raw_bytes[38:40])[0] # temperature_1
-        self.tmp_record [self.i,1] = struct.unpack('<H',raw_bytes[40:42])[0] # temperature_2
-        self.tmp_record [self.i,2] = struct.unpack('<H',raw_bytes[42:44])[0] # temperature_3
-        self.tmp_record [self.i,3] = struct.unpack('<H',raw_bytes[44:46])[0] # temperature_4
-        self.tmp_record [self.i,4] = struct.unpack('<H',raw_bytes[46:48])[0] # temperature_5
-        self.tmp_record [self.i,5] = struct.unpack('<H',raw_bytes[48:50])[0] # temperature_6
+        #self.tic_record [self.i,0] = struct.unpack('<H',raw_bytes[ 0: 2])[0] # header
+        #self.tic_record [self.i,1] = struct.unpack('<I',raw_bytes[ 2: 6])[0] # mcu time tic
+        #
+        #self.imu_record [self.i,0] = struct.unpack('<f',raw_bytes[ 6:10])[0] # acc_x
+        #self.imu_record [self.i,1] = struct.unpack('<f',raw_bytes[10:14])[0] # acc_y
+        #self.imu_record [self.i,2] = struct.unpack('<f',raw_bytes[14:18])[0] # acc_z
+        #self.imu_record [self.i,3] = struct.unpack('<f',raw_bytes[18:22])[0] # mag_x
+        #self.imu_record [self.i,4] = struct.unpack('<f',raw_bytes[22:26])[0] # mag_y
+        #self.imu_record [self.i,5] = struct.unpack('<f',raw_bytes[26:30])[0] # mag_z
+        #
+        #self.pwr_record [self.i,0] = struct.unpack('<H',raw_bytes[30:32])[0] # mag_1_duty_cycle
+        #self.pwr_record [self.i,1] = struct.unpack('<H',raw_bytes[32:34])[0] # mag_2_duty_cycle
+        #self.pwr_record [self.i,2] = struct.unpack('<H',raw_bytes[34:36])[0] # tec_1_duty_cycle
+        #self.pwr_record [self.i,3] = struct.unpack('<H',raw_bytes[36:38])[0] # tec_2_duty_cycle
+        #
+        #self.tmp_record [self.i,0] = struct.unpack('<H',raw_bytes[38:40])[0] # temperature_1
+        #self.tmp_record [self.i,1] = struct.unpack('<H',raw_bytes[40:42])[0] # temperature_2
+        #self.tmp_record [self.i,2] = struct.unpack('<H',raw_bytes[42:44])[0] # temperature_3
+        #self.tmp_record [self.i,3] = struct.unpack('<H',raw_bytes[44:46])[0] # temperature_4
+        #self.tmp_record [self.i,4] = struct.unpack('<H',raw_bytes[46:48])[0] # temperature_5
+        #self.tmp_record [self.i,5] = struct.unpack('<H',raw_bytes[48:50])[0] # temperature_6
         
         self.syt_record [self.i,0] = time.time() #System time stamp
+        
+        #Or, use np.frombuffer()
+        self.tic_record [self.i,0] = np.frombuffer(raw_bytes,self.half_type,1,0)
+        self.tic_record [self.i,1] = np.frombuffer(raw_bytes,self.int_type,1,2)
+        self.imu_record [self.i,:] = np.frombuffer(raw_bytes,self.float_type,6,6)
+        self.pwr_record [self.i,:] = np.frombuffer(raw_bytes,self.half_type,4,30)
+        self.tmp_record [self.i,:] = np.frombuffer(raw_bytes,self.half_type,6,38)
         
         
         header=self.tic_record [self.i,0] # Return header
