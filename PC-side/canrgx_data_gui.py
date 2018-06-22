@@ -17,7 +17,7 @@ from numpy import arange, sin, pi, random
 import peakutils
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolBar
 from canrgx_data_widget import CANRGXPlotCanvas
-from canrgx_data_log_thread import CANRGXLoggingThread
+from canrgx_serial_data_listener import CANRGXSerialDataListener
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
@@ -58,10 +58,17 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         print("Setup Graphic")
         # Qt timer and the working thread started by the main thread.
 
-        self.log_thread = CANRGXLoggingThread(
-            graphic_slot=self.cameraImageCanvas.new_data_slot)
-        QtCore.QTimer.singleShot(0, self.log_thread.start)
-        #QtCore.QTimer.singleShot(200, self.camThread.timer.start)
+        self.listener = CANRGXSerialDataListener()
+        self.listener.register_update_slot(self.cameraImageCanvas.new_data_slot)
+        self.log_thread = QThread()
+        self.listener.moveToThread(self.log_thread)
+
+        self.listener = CANRGXSerialDataListener(self.log_thread)
+        self.listener.request_close.connect(self.log_thread.quit)
+        self.log_thread.started.connect(self.listener.initialize)
+        #self.log_thread.finished.connect(qApp.quit)
+        self.log_thread.start()
+
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
@@ -78,7 +85,8 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         # self.camThread.external_quit()
         #print('ExternalQuit executed')
         # self.camThread.wait()
-        self.log_thread.set_quit()
+        self.listener.close()
+        #self.log_thread.quit()
         self.log_thread.wait()
 
         self.cameraImageCanvas.close()
