@@ -76,13 +76,13 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.log_thread.started.connect(self.listener.initialize)
         self.closing.connect(self.listener.close)
         #self.log_thread.finished.connect(qApp.quit)
-        self.log_thread.start()
-
-
+        
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
 
         self.statusBar().showMessage("All hail matplotlib!", 2000)
+        
+        self.log_thread.start()
     
     def hook_update(self):
         print("Hook Properly Connected")

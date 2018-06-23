@@ -128,16 +128,11 @@ int main(void)
   /********** Start-up procedure prior to starting the scheduler **********/
   MANUAL_MX_RTC_Init(); // Fix HAL bug where RTC is not initialized in the generated code
 
-  HAL_Delay(1); // We're in no rush here...
+  HAL_Delay(100); // We're in no rush here...
 
-  // Wait for PC to request status
-  char startSequence;
-  do{
-    HAL_UART_Receive(&huart2, (uint8_t*)&startSequence, 1, 2);
-  }while(startSequence != 'R');
+  uint8_t recvBuff = 0;
 
   // Tell PC we are powered on
-  uint8_t recvBuff = 0;
   char msg[] = "Microcontroller init sequence begin\n";
   do{
 	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);

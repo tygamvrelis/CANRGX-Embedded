@@ -363,10 +363,10 @@ void StartControlTask(void const * argument)
 
 					// POSITIVECURRENT and NEGATIVECURRENT make the magnetic field
 					// be generated in opposite directions
-					magnet1Info.magnetState = POSITIVECURRENT;
-					magnet2Info.magnetState = POSITIVECURRENT;
-//					magnet1Info.magnetState = NEGATIVECURRENT;
-//					magnet2Info.magnetState = NEGATIVECURRENT;
+//					magnet1Info.magnetState = POSITIVECURRENT;
+//					magnet2Info.magnetState = POSITIVECURRENT;
+					magnet1Info.magnetState = NEGATIVECURRENT;
+					magnet2Info.magnetState = NEGATIVECURRENT;
 
 					// Make status LED blink at 10 Hz
 					osTimerStop(tmrLEDBlinkHandle);
