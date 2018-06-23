@@ -361,12 +361,8 @@ void StartControlTask(void const * argument)
 					TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
 					TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
 
-					// POSITIVECURRENT and NEGATIVECURRENT make the magnetic field
-					// be generated in opposite directions
-//					magnet1Info.magnetState = POSITIVECURRENT;
-//					magnet2Info.magnetState = POSITIVECURRENT;
-					magnet1Info.magnetState = NEGATIVECURRENT;
-					magnet2Info.magnetState = NEGATIVECURRENT;
+					magnet1Info.magnetState = PWM;
+					magnet2Info.magnetState = PWM;
 
 					// Make status LED blink at 10 Hz
 					osTimerStop(tmrLEDBlinkHandle);

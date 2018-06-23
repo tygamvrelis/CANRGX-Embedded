@@ -51,43 +51,44 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-inline void MAGNET1_MAKE_GPIO(){\
+inline void MAGNET_MAKE_GPIO(GPIO_TypeDef* gpio, uint16_t magnet_pin){
+	/* Force PWM pin function to GPIO
+	 *
+	 * Arguments: port, pin
+	 *
+	 * Returns: none
+	 */
+
 	GPIO_InitTypeDef GPIO_InitStruct;
-	GPIO_InitStruct.Pin = Magnet_1A_Pin|Magnet_1B_Pin;
+	GPIO_InitStruct.Pin = magnet_pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(gpio, &GPIO_InitStruct);
 }
 
-inline void MAGNET1_MAKE_PWM(){\
+inline void MAGNET_MAKE_PWM(GPIO_TypeDef* gpio, uint16_t magnet_pin){
+	/* Force PWM pin function to PWM
+	 *
+	 * Arguments: port, pin
+	 *
+	 * Returns: none
+	 */
+
 	GPIO_InitTypeDef GPIO_InitStruct;
-	GPIO_InitStruct.Pin = Magnet_1A_Pin|Magnet_1B_Pin;
+	GPIO_InitStruct.Pin = magnet_pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(gpio, &GPIO_InitStruct);
 }
 
-inline void MAGNET2_MAKE_GPIO(){\
-	GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.Pin = Magnet_2A_Pin|Magnet_2B_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-}
-
-inline void MAGNET2_MAKE_PWM(){\
-	GPIO_InitTypeDef GPIO_InitStruct;
-	GPIO_InitStruct.Pin = Magnet_2A_Pin|Magnet_2B_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-}
+typedef enum{
+	NONE,
+	POSITIVE,
+	NEGATIVE
+}current_e;
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim3;
@@ -362,36 +363,44 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 	 * Returns: 1 if successful, otherwise a negative error code
 	 */
 
-	// Non-PWM mode of operation
+	static current_e current;
+
+	/***** Non-PWM mode of operation *****/
 	if(magnetInfo -> magnetState == COAST){
+		current = NONE;
 		if(magnetInfo -> magnet == MAGNET1){
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
-			MAGNET1_MAKE_GPIO(); // Change pin function to GPIO
+			MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+			MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
 			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_SET);
 			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_SET);
 		}
 		else{ // if(magnetInfo -> magnet == MAGNET2)
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
-			MAGNET2_MAKE_GPIO(); // Change pin function to GPIO
+			MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+			MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
 			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_SET);
 			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_SET);
 		}
 		return 1;
 	}
-	if(magnetInfo -> magnetState == BRAKE){
+	else if(magnetInfo -> magnetState == BRAKE){
+		current = NONE;
 		if(magnetInfo -> magnet == MAGNET1){
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
-			MAGNET1_MAKE_GPIO(); // Change pin function to GPIO
+			MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+			MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
 			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
 		}
 		else{ // if(magnetInfo -> magnet == MAGNET2)
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
-			MAGNET2_MAKE_GPIO(); // Change pin function to GPIO
+			MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+			MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
 			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
 		}
@@ -399,13 +408,18 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 	}
 
 
-	// PWM modes
+	/***** PWM modes *****/
 	if((magnetInfo -> dutyCycle) < 0 || (magnetInfo -> dutyCycle) > 1){
 		return -1;
 	}
 
-	MAGNET1_MAKE_PWM(); // Change pin function to PWM
-	MAGNET2_MAKE_PWM(); // Change pin function to PWM
+	// Force pin function to PWM
+	MAGNET_MAKE_PWM(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+	MAGNET_MAKE_PWM(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+	MAGNET_MAKE_PWM(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+	MAGNET_MAKE_PWM(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+
+	current = (magnetInfo -> dutyCycle < 0) ? NEGATIVE : POSITIVE; // Compute polarity
 
 	TIM_OC_InitTypeDef sConfigOC;
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
@@ -414,7 +428,7 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 
 	if(magnetInfo -> magnet == MAGNET1){
-		if(magnetInfo -> magnetState == POSITIVECURRENT){
+		if(current == POSITIVE){
 			// Magnet 1A is GPIO here and Magnet 1B is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1); // Magnet 1A
 			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
@@ -426,7 +440,7 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 		    }
 			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 		}
-		else{ // if(magnetInfo -> magnetState == NEGATIVECURRENT)
+		else{ // if(current == NEGATIVE)
 			// Magnet 1B is GPIO here and Magnet 1A is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2); // Magnet 1B
 			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
@@ -440,7 +454,7 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 		}
 	}
 	else{ // if(magnetInfo -> magnet == MAGNET2)
-		if(magnetInfo -> magnetState == POSITIVECURRENT){
+		if(current == POSITIVE){
 			// Magnet 2A is GPIO here and Magnet 2B is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3); // Magnet 2A
 			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
@@ -452,7 +466,7 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 		    }
 			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 		}
-		else{ // if(magnetInfo -> magnetState == NEGATIVECURRENT)
+		else{ // if(current == NEGATIVE)
 			// Magnet 2B is GPIO here and Magnet 2A is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4); // Magnet 2B
 			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
