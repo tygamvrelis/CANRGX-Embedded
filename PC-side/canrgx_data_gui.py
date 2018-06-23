@@ -49,16 +49,48 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.main_widget = QtWidgets.QWidget(self)
 
-        main_layout = QtWidgets.QHBoxLayout(self.main_widget)
+        self.mainLayout = QtWidgets.QVBoxLayout(self.main_widget)
+        self.dataCanvas = CANRGXPlotCanvas()
+        self.mainLayout.addWidget(self.dataCanvas)
 
-        self.cameraImageLayout = QtWidgets.QVBoxLayout()
-        self.cameraImageCanvas = CANRGXPlotCanvas()
-        self.cameraImageLayout.addWidget(self.cameraImageCanvas)
-        self.cameraImageToolBar = NavigationToolBar(
-            self.cameraImageCanvas, self.main_widget)
-        self.cameraImageLayout.addWidget(self.cameraImageToolBar)
 
-        main_layout.addLayout(self.cameraImageLayout)
+        self.plotToolBar = NavigationToolBar(
+            self.dataCanvas, self.main_widget)
+        
+        self.bottomHLayout = QtWidgets.QHBoxLayout()
+        self.bottomHLayout.addWidget(self.plotToolBar)
+
+
+        self.runNumberSpinBox = QtWidgets.QSpinBox(self.main_widget)
+        self.runNumberSpinBox.setObjectName("runNumberSpinBox")
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.runNumberSpinBox.sizePolicy().hasHeightForWidth())
+        self.runNumberSpinBox.setSizePolicy(sizePolicy)
+        self.runNumberSpinBox.setAlignment(
+            QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
+        self.runNumberSpinBox.setMinimum(0)
+        self.runNumberSpinBox.setMaximum(9)
+        self.runNumberSpinBox.setPrefix("S")
+        self.bottomHLayout.addWidget(self.runNumberSpinBox)
+
+
+        self.manualStartButton = QtWidgets.QPushButton(self.main_widget)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.manualStartButton.sizePolicy().hasHeightForWidth())
+        self.manualStartButton.setObjectName("manualStartButton")
+        self.manualStartButton.setText( "Manual Start")
+        self.bottomHLayout.addWidget(self.manualStartButton)
+        
+        self.mainLayout.addLayout(self.bottomHLayout)
+
         # main_layout.addLayout(self.rowAvgDataLayout)
         print("Setup Graphic")
         print("Main Thread ID:", int( QThread.currentThreadId()))
@@ -87,7 +119,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     def hook_update(self):
         print("Hook Properly Connected")
         self.listener.canrgx_log.update_data.connect(
-            self.cameraImageCanvas.new_data_slot
+            self.dataCanvas.new_data_slot
         )
         
     def fileQuit(self):
@@ -105,7 +137,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         #self.log_thread.quit()
         #
         print('Thread Exited')
-        self.cameraImageCanvas.close()
+        self.dataCanvas.close()
         # self.rowAvgDataCanvas.close()
         # Make sure various sub-components are closed before main widget exits.
         # Especially the working thread needs to be stopped.
