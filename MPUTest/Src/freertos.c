@@ -327,6 +327,8 @@ void StartControlTask(void const * argument)
 	float TEC2DutyCycle = 0;
 	MagnetInfo_t magnet1Info = {MAGNET1, COAST, 0.0};
 	MagnetInfo_t magnet2Info = {MAGNET2, COAST, 0.0};
+	setMagnet(&magnet1Info);
+	setMagnet(&magnet2Info);
 
 	TickType_t curTick;
 
@@ -401,8 +403,8 @@ void StartControlTask(void const * argument)
 				// Update PWM duty cycle for magnets
 				curTick = xTaskGetTickCount();
 
-				magnet1Info.dutyCycle = (1.0 + sinf(0.02 * curTick)) / 2.0;
-				magnet2Info.dutyCycle = (1.0 + cosf(0.02 * curTick)) / 2.0;
+				magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
+				magnet2Info.dutyCycle = (1.0 + cosf(0.002 * curTick)) / 2.0;
 				setMagnet(&magnet1Info);
 				setMagnet(&magnet2Info);
 				break;
@@ -605,6 +607,8 @@ void StartMPU9250Task(void const * argument)
 void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
+  const char MANUAL_OVERRIDE_CHAR = 's';
+
   uint8_t buffer[1];
   enum flightEvents_e manualOverride = REDUCEDGRAVITY;
 
@@ -614,7 +618,7 @@ void StartRxTask(void const * argument)
 	 HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
-		 if(buffer[0] == ' '){
+		 if(buffer[0] == MANUAL_OVERRIDE_CHAR){
 			 // Manual override for starting experiment
 			 // TODO: figure out how to make sure this message makes it no matter
 			 // what (had some issues with xQueueOverwrite); maybe use a specific

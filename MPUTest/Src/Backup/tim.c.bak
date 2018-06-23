@@ -331,6 +331,21 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 		if(magnetInfo -> magnet == MAGNET1){
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_SET);
+		}
+		else{ // if(magnetInfo -> magnet == MAGNET2)
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_SET);
+		}
+		return 1;
+	}
+	if(magnetInfo -> magnetState == BRAKE){
+		if(magnetInfo -> magnet == MAGNET1){
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
 		}
 		else{ // if(magnetInfo -> magnet == MAGNET2)
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);

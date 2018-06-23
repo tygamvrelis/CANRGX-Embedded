@@ -58,7 +58,7 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "stm32f4xx_hal_rtc_ex.h"
 /* USER CODE END Includes */
 
 extern RTC_HandleTypeDef hrtc;
@@ -72,7 +72,23 @@ extern void _Error_Handler(char *, int);
 void MX_RTC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+inline uint8_t aToBCD(char* c){
+	return ((c[0] - '0') << 4) | (c[1] - '0');
+}
 
+inline uint16_t BCDToA(uint8_t bcd){
+	return (((bcd >> 4) + '0') << 8) | ((bcd & 0x0F) + '0');
+}
+
+inline uint8_t aToUint(char* c){
+	return (c[0] - '0');
+}
+
+inline char UintToA(uint8_t u){
+	return (u + '0');
+}
+
+void MANUAL_MX_RTC_Init(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

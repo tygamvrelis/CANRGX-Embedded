@@ -51,7 +51,43 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
+inline void MAGNET1_MAKE_GPIO(){\
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.Pin = Magnet_1A_Pin|Magnet_1B_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
 
+inline void MAGNET1_MAKE_PWM(){\
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.Pin = Magnet_1A_Pin|Magnet_1B_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+inline void MAGNET2_MAKE_GPIO(){\
+	GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = Magnet_2A_Pin|Magnet_2B_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
+
+inline void MAGNET2_MAKE_PWM(){\
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.Pin = Magnet_2A_Pin|Magnet_2B_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim3;
@@ -225,14 +261,14 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     GPIO_InitStruct.Pin = Magnet_1A_Pin|Magnet_1B_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = Magnet_2A_Pin|Magnet_2B_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -331,10 +367,33 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 		if(magnetInfo -> magnet == MAGNET1){
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+			MAGNET1_MAKE_GPIO(); // Change pin function to GPIO
+			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_SET);
 		}
 		else{ // if(magnetInfo -> magnet == MAGNET2)
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+			MAGNET2_MAKE_GPIO(); // Change pin function to GPIO
+			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_SET);
+		}
+		return 1;
+	}
+	if(magnetInfo -> magnetState == BRAKE){
+		if(magnetInfo -> magnet == MAGNET1){
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+			MAGNET1_MAKE_GPIO(); // Change pin function to GPIO
+			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
+		}
+		else{ // if(magnetInfo -> magnet == MAGNET2)
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+			MAGNET2_MAKE_GPIO(); // Change pin function to GPIO
+			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
 		}
 		return 1;
 	}
@@ -344,6 +403,9 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 	if((magnetInfo -> dutyCycle) < 0 || (magnetInfo -> dutyCycle) > 1){
 		return -1;
 	}
+
+	MAGNET1_MAKE_PWM(); // Change pin function to PWM
+	MAGNET2_MAKE_PWM(); // Change pin function to PWM
 
 	TIM_OC_InitTypeDef sConfigOC;
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;

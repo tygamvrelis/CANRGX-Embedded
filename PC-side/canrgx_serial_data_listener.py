@@ -46,14 +46,19 @@ class CANRGXSerialDataListener(QtCore.QObject):
             os.makedirs(data_root)
 
         self.file = open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w')
-        self.logString("Log created at " + str(os.getcwd()) + '\\' + data_root)
+        self.logString("Log created at " + str(os.getcwd()) + '\\' + data_root + '\n')
         self.canrgx_log = canrgx_log_files(data_root)
 
         self.ser = serial.Serial('COM3', 230400, timeout=100)
-        self.logString("Opened port " + self.ser.name)
+        self.logString("Opened port " + self.ser.name + '\n')
         # Wait for microcontroller to come on and send its startup message
         self.ser.flushOutput()
         self.ser.flushInput()
+        
+        while(self.ser.in_waiting == 0):
+            self.sendToMCU('R') # Request MCU status
+            time.sleep(0.05)
+            
         try:
             self.printAndLogStringFromSerial("MCU sent: ")
         except UnicodeDecodeError as decode_err:
