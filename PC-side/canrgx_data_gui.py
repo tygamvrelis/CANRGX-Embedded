@@ -25,6 +25,9 @@ progversion = "0.1"
 
 
 class CANRGXMainWindow(QtWidgets.QMainWindow):
+
+    closing=QtCore.pyqtSignal()
+
     def __init__(self):
 
         # Initialize the main application window and put various components on it.
@@ -71,6 +74,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.listener.initialized.connect(self.hook_update)
         self.listener.request_close.connect(self.log_thread.quit)
         self.log_thread.started.connect(self.listener.initialize)
+        self.closing.connect(self.listener.close)
         #self.log_thread.finished.connect(qApp.quit)
         self.log_thread.start()
 
@@ -96,14 +100,16 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         # self.camThread.external_quit()
         #print('ExternalQuit executed')
         # self.camThread.wait()
-        self.listener.close()
+        self.closing.emit()
+        print('Closing Emitted')
         #self.log_thread.quit()
-        self.log_thread.wait()
-
+        #
+        print('Thread Exited')
         self.cameraImageCanvas.close()
         # self.rowAvgDataCanvas.close()
         # Make sure various sub-components are closed before main widget exits.
         # Especially the working thread needs to be stopped.
+        #self.log_thread.wait()
         super().closeEvent(ce)
 
     def about(self):

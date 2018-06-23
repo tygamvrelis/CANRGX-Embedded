@@ -32,11 +32,14 @@ class CANRGXSerialDataListener(QtCore.QObject):
 
     def initialize(self):
 
-        self.issue_encountered.connect(self.cleanup)
+        self.issue_encountered.connect(self.close)
         # First, make sure when any issue is encountered, go cleanup.
 
         print("Starting PC-side application")
         print("Worker Thread ID:", int(QThread.currentThreadId()))
+
+        self.num_frame_shifts = 0
+        self.timer = QTimer(self)
 
         data_root = 'CANRGX_data\\' + time.strftime('%Y_%m_%d_%H_%M_%S') + '\\'
         if not os.path.exists(data_root):
@@ -72,8 +75,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.printAndLogStringFromSerial("MCU starting scheduler. Echoed: ")
         self.sendToMCU('A')  # ACK
 
-        self.num_frame_shifts = 0
-        self.timer = QTimer(self)
+        
         self.timer.timeout.connect(self.check_serial_buffer)
         # Create the timer that fires every 2ms to check the serial buffer.
         self.initialized.emit()
@@ -82,10 +84,9 @@ class CANRGXSerialDataListener(QtCore.QObject):
 
         self.timer.start(2)
 
-
     def close(self):
         self.cleanup()
-
+        self.request_close.emit()
     def cleanup(self):
         self.timer.stop()
         # Stop any further processing by disable the timer.
@@ -97,7 +98,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.canrgx_log.close()
 
         print("Resource for MCU data listener properly closed. Request closing of thread.")
-        self.request_close.emit()
+        
 
     def check_serial_buffer(self):
         try:
@@ -155,8 +156,10 @@ if __name__ == '__main__':
     thread.finished.connect(qApp.quit)
     listener.initialized.connect(show_initialization)
 
+    #QTimer.singleShot(100,self.close)
+
     thread.start()
     
     #stream = QtCore.QTextStream(sys.stdin, QtCore.QIODevice.ReadOnly)
-
+    thread.wait()
     sys.exit(qApp.exec_())
