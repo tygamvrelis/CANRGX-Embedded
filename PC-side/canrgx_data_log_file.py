@@ -44,6 +44,7 @@ class canrgx_log_files(QtCore.QObject):
         self.i = 0
 
         self.half_type = np.dtype('<H')
+        self.signed_half_type = np.dtype('<h')
         self.int_type = np.dtype('<I')
         self.float_type = np.dtype('<f')
 
@@ -83,7 +84,7 @@ class canrgx_log_files(QtCore.QObject):
         self.imu_record[self.i, :] = np.frombuffer(
             raw_bytes, self.float_type, 6, 6)
         self.pwr_record[self.i, :] = np.frombuffer(
-            raw_bytes, self.half_type, 4, 30)
+            raw_bytes, self.signed_half_type, 4, 30)
         self.tmp_record[self.i, :] = np.frombuffer(
             raw_bytes, self.half_type, 6, 38)
 

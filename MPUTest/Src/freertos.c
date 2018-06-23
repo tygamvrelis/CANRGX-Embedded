@@ -411,8 +411,8 @@ void StartControlTask(void const * argument)
 		}
 
 		/********** Tell transmit task that new data is ready **********/
-		controlData.mag1Power = (uint16_t)(fabs(magnet1Info.dutyCycle * 100));
-		controlData.mag2Power = (uint16_t)(fabs(magnet2Info.dutyCycle * 100));
+		controlData.mag1Power = (int16_t)(magnet1Info.dutyCycle * 100);
+		controlData.mag2Power = (int16_t)(magnet2Info.dutyCycle * 100);
 		controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 100);
 		controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 100);
 		xQueueSend(xControlToTXQueueHandle, &controlData, 1);
@@ -487,12 +487,12 @@ void StartTxTask(void const * argument)
 			  taskFlags = taskFlags | 0b00000010;
 
 			  /* Copy data to buffer */
-			  uint16_t mag1data = controlDataBuff.mag1Power;
-			  uint16_t mag2data = controlDataBuff.mag2Power;
+			  int16_t mag1data = controlDataBuff.mag1Power;
+			  int16_t mag2data = controlDataBuff.mag2Power;
 			  uint16_t tec1data = controlDataBuff.tec1Power;
 			  uint16_t tec2data = controlDataBuff.tec2Power;
-			  memcpy(mag1Power, &mag1data, sizeof(uint16_t));
-			  memcpy(mag2Power, &mag2data, sizeof(uint16_t));
+			  memcpy(mag1Power, &mag1data, sizeof(int16_t));
+			  memcpy(mag2Power, &mag2data, sizeof(int16_t));
 			  memcpy(tec1Power, &tec1data, sizeof(uint16_t));
 			  memcpy(tec2Power, &tec2data, sizeof(uint16_t));
 		  }
