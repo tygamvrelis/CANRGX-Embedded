@@ -16,21 +16,19 @@ import sys
 from datetime import datetime
 from canrgx_data_log_file import canrgx_log_files
 from PyQt5 import QtCore
-from QtCore import QObject, QTimer, QThread
+from PyQt5.QtCore import QObject, QTimer, QThread
 
 
 class CANRGXSerialDataListener(QtCore.QObject):
 
     def __init__(self, parent=None):
-        super(CANRGXLoggingThread, self).__init__(parent)
+        super(CANRGXSerialDataListener, self).__init__(parent)
         # self.initialize()
-        self.update_slot=None
+        self.update_slot=[]
 
     issue_encountered = QtCore.pyqtSignal()
     request_close = QtCore.pyqtSignal()
-
-    def register_update_slot(self, slot):
-        self.update_slot=slot
+    initialized = QtCore.pyqtSignal()
 
     def initialize(self):
 
@@ -38,19 +36,18 @@ class CANRGXSerialDataListener(QtCore.QObject):
         # First, make sure when any issue is encountered, go cleanup.
 
         print("Starting PC-side application")
+        print("Worker Thread ID:", int(QThread.currentThreadId()))
 
         data_root = 'CANRGX_data\\' + time.strftime('%Y_%m_%d_%H_%M_%S') + '\\'
         if not os.path.exists(data_root):
             os.makedirs(data_root)
 
-        self.file = open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w'):
+        self.file = open(data_root + time.strftime('%Y_%m_%d_%H_%M_%S') + ".txt", 'w')
         self.logString("Log created at " + str(os.getcwd()) + '\\' + data_root)
-        self.canrgx_log = canrgx_log_files(data_root):
-        if self.update_slot is not None:
-            self.canrgx_log.update_data.connect (self.update_slot)
+        self.canrgx_log = canrgx_log_files(data_root)
 
-        self.ser = serial.Serial('COM3', 230400, timeout=100):
-        self.logString("Opened port " + ser.name)
+        self.ser = serial.Serial('COM3', 230400, timeout=100)
+        self.logString("Opened port " + self.ser.name)
         # Wait for microcontroller to come on and send its startup message
         self.ser.flushOutput()
         self.ser.flushInput()
@@ -78,9 +75,13 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.num_frame_shifts = 0
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.check_serial_buffer)
-        self.timer.start(2)
         # Create the timer that fires every 2ms to check the serial buffer.
+        self.initialized.emit()
+
         print("Start Listening to MCU Data")
+
+        self.timer.start(2)
+
 
     def close(self):
         self.cleanup()
@@ -139,14 +140,23 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.ser.write(bytes(msg.encode()))
 
 
+def show_initialization():
+    print("Initialized!!!!")
+
 if __name__ == '__main__':
     qApp = QtCore.QCoreApplication(sys.argv)
     thread = QThread()
+
+    listener = CANRGXSerialDataListener()
     listener.moveToThread(thread)
 
-    listener = CANRGXSerialDataListener(thread)
     listener.request_close.connect(thread.quit)
     thread.started.connect(listener.initialize)
     thread.finished.connect(qApp.quit)
+    listener.initialized.connect(show_initialization)
+
     thread.start()
+    
+    #stream = QtCore.QTextStream(sys.stdin, QtCore.QIODevice.ReadOnly)
+
     sys.exit(qApp.exec_())

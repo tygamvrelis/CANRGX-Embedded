@@ -109,6 +109,7 @@ class canrgx_log_files(QtCore.QObject):
         # Pring data as sanity check
         print("%d, %f, %f" % (
             self.tic_record[self.i - 1, 1], self.imu_record[self.i - 1, 2], self.pwr_record[self.i - 1, 0]))
+        print ("Log Thread ID: ", int(QtCore.QThread.currentThreadId()))
         tic_tmp = np.copy(self.tic_record[self.i - 100:self.i, 1])
         imu_tmp = np.copy(self.imu_record[self.i - 100:self.i, :])
         pwr_tmp = np.copy(self.pwr_record[self.i - 100:self.i, :])

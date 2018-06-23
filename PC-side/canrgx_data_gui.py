@@ -12,6 +12,8 @@ import os
 import argparse
 # Make sure that we are using QT5
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import QObject, QTimer, QThread
+
 import numpy as np
 from numpy import arange, sin, pi, random
 import peakutils
@@ -56,14 +58,17 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         main_layout.addLayout(self.cameraImageLayout)
         # main_layout.addLayout(self.rowAvgDataLayout)
         print("Setup Graphic")
+        print("Main Thread ID:", int( QThread.currentThreadId()))
+
         # Qt timer and the working thread started by the main thread.
 
+        self.log_thread = QtCore.QThread()
+        #print("Log Thread", self.log_thread)
         self.listener = CANRGXSerialDataListener()
-        self.listener.register_update_slot(self.cameraImageCanvas.new_data_slot)
-        self.log_thread = QThread()
+        
         self.listener.moveToThread(self.log_thread)
 
-        self.listener = CANRGXSerialDataListener(self.log_thread)
+        self.listener.initialized.connect(self.hook_update)
         self.listener.request_close.connect(self.log_thread.quit)
         self.log_thread.started.connect(self.listener.initialize)
         #self.log_thread.finished.connect(qApp.quit)
@@ -74,7 +79,13 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.main_widget)
 
         self.statusBar().showMessage("All hail matplotlib!", 2000)
-
+    
+    def hook_update(self):
+        print("Hook Properly Connected")
+        self.listener.canrgx_log.update_data.connect(
+            self.cameraImageCanvas.new_data_slot
+        )
+        
     def fileQuit(self):
         # Close action for the Quit button in menubar.
         self.close()
