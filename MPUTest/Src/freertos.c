@@ -605,7 +605,7 @@ void StartMPU9250Task(void const * argument)
 void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
-  const char MANUAL_OVERRIDE_CHAR = 's';
+  const char MANUAL_OVERRIDE_CHAR = ' ';
 
   uint8_t buffer[1];
   enum flightEvents_e manualOverride = REDUCEDGRAVITY;
