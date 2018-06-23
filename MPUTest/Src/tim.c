@@ -127,6 +127,7 @@ void MX_TIM3_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   if (HAL_TIM_OC_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -354,8 +355,8 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
 
 /* USER CODE BEGIN 1 */
 int8_t setMagnet(MagnetInfo_t* magnetInfo){
-	/* Sets the state of the specified magnet to coast, break, or PWM in the selected
-	 * direction.
+	/* Sets the state of the specified magnet to coast, break, or PWM in the direction
+	 * selected by the duty cycle.
 	 *
 	 * Arguments: magnetInfo, pointer to a struct that contains the configuration
 	 * 			  info for the magnet
@@ -409,47 +410,56 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 
 
 	/***** PWM modes *****/
-	if((magnetInfo -> dutyCycle) < 0 || (magnetInfo -> dutyCycle) > 1){
+	if((magnetInfo -> dutyCycle) < -1 || (magnetInfo -> dutyCycle) > 1){
 		return -1;
 	}
-
-	// Force pin function to PWM
-	MAGNET_MAKE_PWM(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
-	MAGNET_MAKE_PWM(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
-	MAGNET_MAKE_PWM(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
-	MAGNET_MAKE_PWM(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
 
 	current = (magnetInfo -> dutyCycle < 0) ? NEGATIVE : POSITIVE; // Compute polarity
 
 	TIM_OC_InitTypeDef sConfigOC;
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = (magnetInfo -> dutyCycle) * MAGNET_PWM_PERIOD;
-	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.Pulse = (fabs(magnetInfo -> dutyCycle)) * MAGNET_PWM_PERIOD;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 
 	if(magnetInfo -> magnet == MAGNET1){
 		if(current == POSITIVE){
 			// Magnet 1A is GPIO here and Magnet 1B is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1); // Magnet 1A
-			HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
 
-		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK){
-		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
-		       * to it must be invalid. Handle the error here. */
-		    	return -2;
-		    }
+			if(magnetInfo -> driveMode == ACTIVE_LOW){
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+				MAGNET_MAKE_PWM(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+				MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+				HAL_GPIO_WritePin(Magnet_1A_GPIO_Port, Magnet_1A_Pin, GPIO_PIN_SET);
+			}
+			else{
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+				MAGNET_MAKE_PWM(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+				MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+				HAL_GPIO_WritePin(Magnet_1A_GPIO_Port, Magnet_1A_Pin, GPIO_PIN_RESET);
+			}
+
+		    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
 			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 		}
 		else{ // if(current == NEGATIVE)
 			// Magnet 1B is GPIO here and Magnet 1A is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2); // Magnet 1B
-			HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
 
-		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK){
-		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
-		       * to it must be invalid. Handle the error here. */
-		    	return -3;
-		    }
+			if(magnetInfo -> driveMode == ACTIVE_LOW){
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+				MAGNET_MAKE_PWM(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+				MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+				HAL_GPIO_WritePin(Magnet_1B_GPIO_Port, Magnet_1B_Pin, GPIO_PIN_SET);
+			}
+			else{
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+				MAGNET_MAKE_PWM(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+				MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+				HAL_GPIO_WritePin(Magnet_1B_GPIO_Port, Magnet_1B_Pin, GPIO_PIN_RESET);
+			}
+
+		    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		}
 	}
@@ -457,25 +467,41 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 		if(current == POSITIVE){
 			// Magnet 2A is GPIO here and Magnet 2B is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3); // Magnet 2A
-			HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
 
-		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK){
-		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
-		       * to it must be invalid. Handle the error here. */
-		    	return -4;
-		    }
+			if(magnetInfo -> driveMode == ACTIVE_LOW){
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+				MAGNET_MAKE_PWM(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+				MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+				HAL_GPIO_WritePin(Magnet_2A_GPIO_Port, Magnet_2A_Pin, GPIO_PIN_SET);
+			}
+			else{
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+				MAGNET_MAKE_PWM(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+				MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+				HAL_GPIO_WritePin(Magnet_2A_GPIO_Port, Magnet_2A_Pin, GPIO_PIN_RESET);
+			}
+
+		    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
 			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 		}
 		else{ // if(current == NEGATIVE)
 			// Magnet 2B is GPIO here and Magnet 2A is PWM
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4); // Magnet 2B
-			HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
 
-		    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK){
-		      /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
-		       * to it must be invalid. Handle the error here. */
-		    	return -5;
-		    }
+			if(magnetInfo -> driveMode == ACTIVE_LOW){
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+				MAGNET_MAKE_PWM(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+				MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+				HAL_GPIO_WritePin(Magnet_2B_GPIO_Port, Magnet_2B_Pin, GPIO_PIN_SET);
+			}
+			else{
+				sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+				MAGNET_MAKE_PWM(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+				MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+				HAL_GPIO_WritePin(Magnet_2B_GPIO_Port, Magnet_2B_Pin, GPIO_PIN_RESET);
+			}
+
+		    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
 			HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
 		}
 	}

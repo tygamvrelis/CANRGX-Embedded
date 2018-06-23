@@ -325,8 +325,8 @@ void StartControlTask(void const * argument)
 
 	float TEC1DutyCycle = 0;
 	float TEC2DutyCycle = 0;
-	MagnetInfo_t magnet1Info = {MAGNET1, COAST, 0.0};
-	MagnetInfo_t magnet2Info = {MAGNET2, COAST, 0.0};
+	MagnetInfo_t magnet1Info = {MAGNET1, COAST, ACTIVE_HIGH, 0.0};
+	MagnetInfo_t magnet2Info = {MAGNET2, COAST, ACTIVE_HIGH, 0.0};
 	setMagnet(&magnet1Info);
 	setMagnet(&magnet2Info);
 
@@ -399,8 +399,10 @@ void StartControlTask(void const * argument)
 				// Update PWM duty cycle for magnets
 				curTick = xTaskGetTickCount();
 
-				magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
-				magnet2Info.dutyCycle = (1.0 + cosf(0.002 * curTick)) / 2.0;
+//				magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
+//				magnet2Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
+				magnet1Info.dutyCycle = sinf(0.002 * curTick);
+				magnet2Info.dutyCycle = sinf(0.002 * curTick);
 				setMagnet(&magnet1Info);
 				setMagnet(&magnet2Info);
 				break;
@@ -409,8 +411,8 @@ void StartControlTask(void const * argument)
 		}
 
 		/********** Tell transmit task that new data is ready **********/
-		controlData.mag1Power = (uint16_t)(magnet1Info.dutyCycle * 100);
-		controlData.mag2Power = (uint16_t)(magnet2Info.dutyCycle * 100);
+		controlData.mag1Power = (uint16_t)(fabs(magnet1Info.dutyCycle * 100));
+		controlData.mag2Power = (uint16_t)(fabs(magnet2Info.dutyCycle * 100));
 		controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 100);
 		controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 100);
 		xQueueSend(xControlToTXQueueHandle, &controlData, 1);

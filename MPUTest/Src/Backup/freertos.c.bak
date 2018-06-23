@@ -327,6 +327,8 @@ void StartControlTask(void const * argument)
 	float TEC2DutyCycle = 0;
 	MagnetInfo_t magnet1Info = {MAGNET1, COAST, 0.0};
 	MagnetInfo_t magnet2Info = {MAGNET2, COAST, 0.0};
+	setMagnet(&magnet1Info);
+	setMagnet(&magnet2Info);
 
 	TickType_t curTick;
 
@@ -359,12 +361,8 @@ void StartControlTask(void const * argument)
 					TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
 					TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
 
-					// POSITIVECURRENT and NEGATIVECURRENT make the magnetic field
-					// be generated in opposite directions
-					magnet1Info.magnetState = POSITIVECURRENT;
-					magnet2Info.magnetState = POSITIVECURRENT;
-//					magnet1Info.magnetState = NEGATIVECURRENT;
-//					magnet2Info.magnetState = NEGATIVECURRENT;
+					magnet1Info.magnetState = PWM;
+					magnet2Info.magnetState = PWM;
 
 					// Make status LED blink at 10 Hz
 					osTimerStop(tmrLEDBlinkHandle);
@@ -605,6 +603,8 @@ void StartMPU9250Task(void const * argument)
 void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
+  const char MANUAL_OVERRIDE_CHAR = 's';
+
   uint8_t buffer[1];
   enum flightEvents_e manualOverride = REDUCEDGRAVITY;
 
@@ -614,7 +614,7 @@ void StartRxTask(void const * argument)
 	 HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
-		 if(buffer[0] == ' '){
+		 if(buffer[0] == MANUAL_OVERRIDE_CHAR){
 			 // Manual override for starting experiment
 			 // TODO: figure out how to make sure this message makes it no matter
 			 // what (had some issues with xQueueOverwrite); maybe use a specific
