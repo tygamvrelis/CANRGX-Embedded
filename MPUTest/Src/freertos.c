@@ -325,8 +325,10 @@ void StartControlTask(void const * argument)
 
 	float TEC1DutyCycle = 0;
 	float TEC2DutyCycle = 0;
-	MagnetInfo_t magnet1Info = {MAGNET1, COAST, 0.0};
-	MagnetInfo_t magnet2Info = {MAGNET2, COAST, 0.0};
+	MagnetInfo_t magnet1Info = {MAGNET1, COAST, ACTIVE_HIGH, 0.0};
+	MagnetInfo_t magnet2Info = {MAGNET2, COAST, ACTIVE_HIGH, 0.0};
+	setMagnet(&magnet1Info);
+	setMagnet(&magnet2Info);
 
 	TickType_t curTick;
 
@@ -359,12 +361,8 @@ void StartControlTask(void const * argument)
 					TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
 					TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
 
-					// POSITIVECURRENT and NEGATIVECURRENT make the magnetic field
-					// be generated in opposite directions
-					magnet1Info.magnetState = POSITIVECURRENT;
-					magnet2Info.magnetState = POSITIVECURRENT;
-//					magnet1Info.magnetState = NEGATIVECURRENT;
-//					magnet2Info.magnetState = NEGATIVECURRENT;
+					magnet1Info.magnetState = PWM;
+					magnet2Info.magnetState = PWM;
 
 					// Make status LED blink at 10 Hz
 					osTimerStop(tmrLEDBlinkHandle);
@@ -401,8 +399,10 @@ void StartControlTask(void const * argument)
 				// Update PWM duty cycle for magnets
 				curTick = xTaskGetTickCount();
 
-				magnet1Info.dutyCycle = (1.0 + sinf(0.02 * curTick)) / 2.0;
-				magnet2Info.dutyCycle = (1.0 + cosf(0.02 * curTick)) / 2.0;
+//				magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
+//				magnet2Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
+				magnet1Info.dutyCycle = sinf(0.002 * curTick);
+				magnet2Info.dutyCycle = sinf(0.002 * curTick);
 				setMagnet(&magnet1Info);
 				setMagnet(&magnet2Info);
 				break;
@@ -411,8 +411,8 @@ void StartControlTask(void const * argument)
 		}
 
 		/********** Tell transmit task that new data is ready **********/
-		controlData.mag1Power = (uint16_t)(magnet1Info.dutyCycle * 100);
-		controlData.mag2Power = (uint16_t)(magnet2Info.dutyCycle * 100);
+		controlData.mag1Power = (int16_t)(magnet1Info.dutyCycle * 100);
+		controlData.mag2Power = (int16_t)(magnet2Info.dutyCycle * 100);
 		controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 100);
 		controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 100);
 		xQueueSend(xControlToTXQueueHandle, &controlData, 1);
@@ -487,12 +487,12 @@ void StartTxTask(void const * argument)
 			  taskFlags = taskFlags | 0b00000010;
 
 			  /* Copy data to buffer */
-			  uint16_t mag1data = controlDataBuff.mag1Power;
-			  uint16_t mag2data = controlDataBuff.mag2Power;
+			  int16_t mag1data = controlDataBuff.mag1Power;
+			  int16_t mag2data = controlDataBuff.mag2Power;
 			  uint16_t tec1data = controlDataBuff.tec1Power;
 			  uint16_t tec2data = controlDataBuff.tec2Power;
-			  memcpy(mag1Power, &mag1data, sizeof(uint16_t));
-			  memcpy(mag2Power, &mag2data, sizeof(uint16_t));
+			  memcpy(mag1Power, &mag1data, sizeof(int16_t));
+			  memcpy(mag2Power, &mag2data, sizeof(int16_t));
 			  memcpy(tec1Power, &tec1data, sizeof(uint16_t));
 			  memcpy(tec2Power, &tec2data, sizeof(uint16_t));
 		  }
@@ -605,6 +605,8 @@ void StartMPU9250Task(void const * argument)
 void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
+  const char MANUAL_OVERRIDE_CHAR = ' ';
+
   uint8_t buffer[1];
   enum flightEvents_e manualOverride = REDUCEDGRAVITY;
 
@@ -614,7 +616,7 @@ void StartRxTask(void const * argument)
 	 HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 // TODO: Parse input and do something based on it
-		 if(buffer[0] == ' '){
+		 if(buffer[0] == MANUAL_OVERRIDE_CHAR){
 			 // Manual override for starting experiment
 			 // TODO: figure out how to make sure this message makes it no matter
 			 // what (had some issues with xQueueOverwrite); maybe use a specific

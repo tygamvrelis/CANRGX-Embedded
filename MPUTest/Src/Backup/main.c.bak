@@ -78,7 +78,7 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-inline uint8_t aToBCD(char* c);
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -126,7 +126,9 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
-  HAL_Delay(100);
+  MANUAL_MX_RTC_Init(); // Fix HAL bug where RTC is not initialized in the generated code
+
+  HAL_Delay(100); // We're in no rush here...
 
   uint8_t recvBuff = 0;
 
@@ -202,37 +204,98 @@ int main(void)
    *************************************************************************/
   // Time is of the form HH.MM.SS.mmmuuu, sent as ASCII (16 bytes total)
   uint8_t buff[16] = {0};
-  uint8_t* hours = &buff[0]; // 2 elements
-  uint8_t* minutes = &buff[3]; // 2 elements
-  uint8_t* seconds = &buff[6]; // 2 elements
-  uint8_t* subseconds = &buff[9]; // 6 elements; milliseconds and microseconds
+  uint8_t* ptrHours = &buff[0]; // 2 elements
+  uint8_t* ptrMinutes = &buff[3]; // 2 elements
+  uint8_t* ptrSeconds = &buff[6]; // 2 elements
+  uint8_t* ptrSubseconds = &buff[9]; // 6 elements; milliseconds and microseconds
   buff[15] = '\n'; // This character is added so that serial.readline() can be used on the PC side
-  if(HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100) != HAL_OK){ // Receive time
+
+  // Receive time
+  if(HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100) != HAL_OK){
 	  /* For some reason, the PC did not send the time after the last
 	   * message was sent. Handle this here. */
 	  // TODO (not urgent; unlikely to happen)
   }
 
+  // This is the received subseconds (millis and micros) in float form.
+  // We may lose some precision by doing it this way, but this step will
+  // still yield much higher calibration accuracy than if we skip this.
+  float recvSubseconds = {
+		  aToUint((char*)ptrSubseconds) * 0.1 +
+		  aToUint((char*)(ptrSubseconds + 1)) * 0.01 +
+		  aToUint((char*)(ptrSubseconds + 2)) * 0.001 +
+		  aToUint((char*)(ptrSubseconds + 3)) * 0.0001 +
+		  aToUint((char*)(ptrSubseconds + 4)) * 0.00001 +
+		  aToUint((char*)(ptrSubseconds + 5)) * 0.000001
+  	  };
+
+  // TODO: Compensate for the comm link delay
+  float linkDelay = 0.000502; // Estimate for number of seconds to send time info
+
   // Set RTC registers for hours, minutes, seconds (BCD)
   RTC_TimeTypeDef theTime;
   RTC_DateTypeDef theDate;
-  theTime.Hours = aToBCD(hours);
-  theTime.Minutes = aToBCD(minutes);
-  theTime.Seconds = aToBCD(seconds);
+  theTime.Hours = aToBCD((char*)ptrHours);
+  theTime.Minutes = aToBCD((char*)ptrMinutes);
+  theTime.Seconds = aToBCD((char*)ptrSeconds);
   theTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   theTime.StoreOperation = RTC_STOREOPERATION_RESET;
   HAL_RTC_SetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
 
-  // Read the subseconds register and use the RTC_SHIFTR register for more subsecond synchronization
-  while(1){
-	  HAL_RTC_WaitForSynchro(&hrtc);
-	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
-	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
+  // Read the subseconds register and use the RTC_SHIFTR register for
+  // subsecond synchronization. Note that BOTH the time and date must
+  // ALWAYS be read, and in that order, to ensure proper behaviour of
+  // the RTC.
+  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
+  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
+  float readSubseconds = 1.0 - ((float)theTime.SubSeconds / (float)theTime.SecondFraction);
+
+  if(readSubseconds > recvSubseconds){
+	  // We need to delay the RTC
+	  float millisToDelay = readSubseconds - recvSubseconds;
+	  uint16_t S = theTime.SecondFraction;
+	  uint16_t ticksToDelay = S - (uint16_t)(millisToDelay * S);
+	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_RESET, ticksToDelay);
+  }
+  else{
+	  // We need to advance the RTC. I suppose this case is also entered if,
+	  // through some miracle, readSubseconds is exactly equal to recvSubseconds.
+	  float millisToAdvance = recvSubseconds - readSubseconds;
+	  uint16_t S = theTime.SecondFraction;
+	  uint16_t ticksToAdvance = S - (uint16_t)(millisToAdvance * S);
+	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_SET, ticksToAdvance);
   }
 
-  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
+  HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
+  	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
+  	  	  	  	   // 1500 ms is necessary because after setting the RTC shift register,
+                   // it takes about a second or so for it to work again properly.
 
-  while(1);
+  // Load transmit buffer with fresh time
+  do{
+	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
+	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
+
+	  // TODO: pack data to transmit into buff here
+	  *ptrHours = BCDToA(theTime.Hours) >> 8;
+	  *(ptrHours + 1) = BCDToA(theTime.Hours) & 0xFF;
+	  *ptrMinutes = BCDToA(theTime.Minutes) >> 8;
+	  *(ptrMinutes + 1) = BCDToA(theTime.Minutes) & 0xFF;
+	  *ptrSeconds = BCDToA(theTime.Seconds) >> 8;
+	  *(ptrSeconds + 1) = BCDToA(theTime.Seconds) & 0xFF;
+	  readSubseconds = 1.0 - ((float)theTime.SubSeconds / (float)theTime.SecondFraction);
+
+	  // For subseconds, we use sprintf to convert from floating-point to ASCII
+	  // We need to save this in an intermediate buffer so that we can ignore the
+	  // "0." at the beginning of the float; this will make the time format consistent.
+	  char subSecondsBuff[8] = {0};
+	  sprintf((char*)subSecondsBuff, "%.6f", readSubseconds);
+	  memcpy(ptrSubseconds, &subSecondsBuff[2], 6);
+
+	  HAL_UART_Transmit(&huart2, (uint8_t*)buff, 16, 100);
+	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+  }while(recvBuff != 'A');
+  recvBuff = 0; // Clear ACK
 
   /* USER CODE END 2 */
 
@@ -332,9 +395,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-inline uint8_t aToBCD(char* c){
-	return ((c[0] - '0') << 4) | (c[1] - '0');
-}
+
 /* USER CODE END 4 */
 
 /**

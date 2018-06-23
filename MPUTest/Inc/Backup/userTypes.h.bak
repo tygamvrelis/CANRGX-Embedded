@@ -3,8 +3,8 @@
 #define __USER_TYPES_H__
 
 typedef struct{
-    uint16_t mag1Power;
-    uint16_t mag2Power;
+    int16_t mag1Power;
+    int16_t mag2Power;
     uint16_t tec1Power;
     uint16_t tec2Power;
 }controlData_t;

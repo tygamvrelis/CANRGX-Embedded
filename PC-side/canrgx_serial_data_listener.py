@@ -52,8 +52,8 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.ser = serial.Serial('COM4', 230400, timeout=100)
         self.logString("Opened port " + self.ser.name)
         # Wait for microcontroller to come on and send its startup message
-        self.ser.flushOutput()
-        self.ser.flushInput()
+        self.ser.reset_output_buffer()
+        self.ser.reset_input_buffer()
         try:
             self.printAndLogStringFromSerial("MCU sent: ")
         except UnicodeDecodeError as decode_err:
@@ -105,14 +105,8 @@ class CANRGXSerialDataListener(QtCore.QObject):
             if self.ser.in_waiting < 50:
                 return
             raw_data = self.ser.read(50)
-            # Log unpacked data
-            header = self.canrgx_log.decode_data(raw_data)
-            #f.write(datetime.now().strftime('%H.%M.%S.%f') + " ")
-            # for item in l:
-            #    f.write(str(item) + "\t")
-            # f.write("\n")
 
-            # header=struct.unpack('<H',raw_data[0:2])[0]
+            header = self.canrgx_log.decode_data(raw_data)
             if(header != 65535):
                 # Did not receive expected header "0xFF 0xFF"
                 self.num_frame_shifts += 1
