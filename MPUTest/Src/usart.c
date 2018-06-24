@@ -164,7 +164,7 @@ extern osSemaphoreId semTxHandle;
 extern osSemaphoreId semRxHandle;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
-    if (huart->Instance == USART2){
+    if (huart->Instance == USART2 && semTxHandle != NULL){
     	// Check USART instance
     	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
     	xSemaphoreGiveFromISR(semTxHandle, &xHigherPriorityTaskWoken);
@@ -172,7 +172,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-    if (huart->Instance == USART2){
+    if (huart->Instance == USART2 && semTxHandle != NULL){
     	// Check USART instance
     	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
     	xSemaphoreGiveFromISR(semRxHandle, &xHigherPriorityTaskWoken);

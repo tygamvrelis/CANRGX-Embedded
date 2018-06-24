@@ -136,7 +136,7 @@ int main(void)
   char msg[] = "Microcontroller init sequence begin\n";
   do{
 	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
-	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+	  HAL_UART_Receive(&huart2, &recvBuff, 1, 1000);
   }while(recvBuff != 'A');
   recvBuff = 0; // Clear ACK
 
@@ -185,7 +185,7 @@ int main(void)
 	  char msg[] = "MPU9250 init success\n";
 	  do{
 		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
-		  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+		  HAL_UART_Receive(&huart2, &recvBuff, 1, 1000);
 	  }while(recvBuff != 'A');
 	  recvBuff = 0; // Clear ACK
   }
@@ -193,7 +193,7 @@ int main(void)
 	  char msg[] = "MPU9250 init fail\n";
 	  do{
 		  HAL_UART_Transmit(&huart2, (uint8_t*)msg, sizeof(msg), 10);
-		  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
+		  HAL_UART_Receive(&huart2, &recvBuff, 1, 1000);
 	  }while(recvBuff != 'A');
 	  recvBuff = 0; // Clear ACK
   }

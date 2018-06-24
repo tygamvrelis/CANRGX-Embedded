@@ -288,7 +288,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PB14     ------> TIM12_CH1
     PB15     ------> TIM12_CH2 
     */
-    GPIO_InitStruct.Pin = TEC_Top_Pin|TEC_Bot_Pin;
+    GPIO_InitStruct.Pin = TEC_Right_Pin|TEC_Left_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
