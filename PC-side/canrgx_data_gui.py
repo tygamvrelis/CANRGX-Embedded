@@ -27,6 +27,7 @@ progversion = "0.1"
 class CANRGXMainWindow(QtWidgets.QMainWindow):
 
     closing=QtCore.pyqtSignal()
+    manual_start = QtCore.pyqtSignal(int)
 
     def __init__(self):
 
@@ -88,7 +89,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.manualStartButton.setObjectName("manualStartButton")
         self.manualStartButton.setText( "Manual Start")
         self.bottomHLayout.addWidget(self.manualStartButton)
-        
+        self.manualStartButton.clicked.connect(self.manual_start_button_callback)
 
         self.errLabel = QtWidgets.QLabel(self.main_widget)
         sizePolicy = QtWidgets.QSizePolicy(
@@ -123,6 +124,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.closing.connect(self.listener.close)
         #self.log_thread.finished.connect(qApp.quit)
         self.listener.frame_error.connect(self.update_error)
+        self.manual_start.connect(self.listener.send_manual_start)
 
         self.log_thread.start()
         
@@ -143,6 +145,11 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
             self.errLabel.setText("ERROR")
         else:
             self.errLabel.setText("CLEAR")
+    
+    
+    def manual_start_button_callback(self,checked):
+        self.manual_start.emit(self.runNumberSpinBox.value)
+
 
     def fileQuit(self):
         # Close action for the Quit button in menubar.
