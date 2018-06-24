@@ -237,12 +237,18 @@ int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
     uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
     int16_t temp;
 
-    HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
+    if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_ACCEL_X_ADDR_H,\
+    		I2C_MEMADD_SIZE_8BIT, mpu_buff, 6) != HAL_OK){
+    	myMPU9250.ax = NAN;
+    	myMPU9250.ay = NAN;
+    	myMPU9250.az = NAN;
+    	return -1;
+    }
     if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
     	myMPU9250.ax = NAN;
     	myMPU9250.ay = NAN;
     	myMPU9250.az = NAN;
-		return -1;
+		return -2;
 	}
 
     /* Process data; scale to physical units */
@@ -274,7 +280,13 @@ int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
     uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
     int16_t temp;
 
-	HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H, I2C_MEMADD_SIZE_8BIT, mpu_buff, 6);
+	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, MPU9250_GYRO_X_ADDR_H,\
+			I2C_MEMADD_SIZE_8BIT, mpu_buff, 6) != HAL_OK){
+		myMPU9250.vx = NAN;
+		myMPU9250.vy = NAN;
+		myMPU9250.vz = NAN;
+		return -1;
+	}
 	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
 		myMPU9250.vx = NAN;
 		myMPU9250.vy = NAN;
@@ -319,6 +331,9 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	dataToWrite[2] = 0x80 | 7; // Enable | transfer numBytes bytes
 
 	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, dataToWrite, sizeof(dataToWrite)) != HAL_OK){
+		myMPU9250.hx = NAN;
+		myMPU9250.hy = NAN;
+		myMPU9250.hz = NAN;
 		return -1;
 	}
 	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
@@ -329,6 +344,9 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	}
 
 	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, mpu_buff, 7) != HAL_OK){
+		myMPU9250.hx = NAN;
+		myMPU9250.hy = NAN;
+		myMPU9250.hz = NAN;
 		return -3;
 	}
 	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
