@@ -625,14 +625,11 @@ void StartMPU9250Task(void const * argument)
     }
 
 	/* Magnetometer */
-//	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
-//	if(magStatus != 1){
-//		generateClocks(&hi2c1, 1, 1);
-//		/* The magnetometer was not able to be read from properly, handle this here. */
-//	}
-    myMPU9250.hx = 20.0;
-    myMPU9250.hy = 30.0;
-    myMPU9250.hz = 40.0;
+	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
+	if(magStatus != 1){
+		generateClocks(&hi2c1, 1, 1);
+		/* The magnetometer was not able to be read from properly, handle this here. */
+	}
 
 	/********** Tell transmit task that new data is ready **********/
 	uint32_t dummyToSend = 1;

@@ -317,13 +317,13 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 		myMPU9250.hx = NAN;
 		myMPU9250.hy = NAN;
 		myMPU9250.hz = NAN;
-		return -3;
+		return -1;
 	}
 	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
 		myMPU9250.hx = NAN;
 		myMPU9250.hy = NAN;
 		myMPU9250.hz = NAN;
-		return -4;
+		return -2;
 	}
 
 	/* Process data; scale to physical units */

@@ -264,20 +264,30 @@ extern osSemaphoreId semMPU9250Handle;
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 	/* Returns the semaphore taken after non-blocking reception ends. */
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	if (hi2c->Instance == I2C3){
     	// Check I2C instance
-    	xSemaphoreGiveFromISR(semMPU9250Handle, pdTRUE);
-  }
-
+    	xSemaphoreGiveFromISR(semMPU9250Handle, &xHigherPriorityTaskWoken);
+	}
+	else if (hi2c->Instance == I2C1){
+    	// Check I2C instance
+    	xSemaphoreGiveFromISR(semMPU9250Handle, &xHigherPriorityTaskWoken);
+	}
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c){
 	/* Returns the semaphore taken after non-blocking transmission ends. */
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	if (hi2c->Instance == I2C3){
     	// Check I2C instance
-    	xSemaphoreGiveFromISR(semMPU9250Handle, pdTRUE);
-  }
-
+    	xSemaphoreGiveFromISR(semMPU9250Handle, &xHigherPriorityTaskWoken);
+	}
+	else if (hi2c->Instance == I2C1){
+    	// Check I2C instance
+    	xSemaphoreGiveFromISR(semMPU9250Handle, &xHigherPriorityTaskWoken);
+	}
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /* USER CODE END 1 */
