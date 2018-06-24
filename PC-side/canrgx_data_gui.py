@@ -160,7 +160,6 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         else:
             self.errLabel.setText("CLEAR")
     
-    
     def manual_start_button_callback(self,checked):
         self.request_manual_start.emit(int(self.runNumberSpinBox.value()))
 

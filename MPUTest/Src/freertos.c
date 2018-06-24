@@ -491,6 +491,8 @@ void StartTxTask(void const * argument)
   uint8_t* thermocouple5 = &buffer[46];
   uint8_t* thermocouple6 = &buffer[48];
 
+  TickType_t xLastWakeTime;
+  xLastWakeTime = xTaskGetTickCount();
 
   /* Infinite loop */
   for(;;)
@@ -575,6 +577,11 @@ void StartTxTask(void const * argument)
 
 	  /********** This runs when the first 2 data acquisition tasks have responded or timed out **********/
 	  if((taskFlags & 0b00000111) == 0b00000111){
+		  // Send packets every 3 milliseconds. At a symbol rate of 230400, it takes 2.17 ms
+		  // to send 50 bytes. To ease the data analysis process, this has been rounded up to
+		  // 3 ms so that it will be easier to "line up" data with the FreeRTOS tick.
+		  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
+
 		  /* Obligatory packing */
 		  TickType_t curTick = xTaskGetTickCount();
 		  memcpy(tickStart, &curTick, sizeof(TickType_t));
