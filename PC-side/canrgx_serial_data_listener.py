@@ -52,7 +52,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.logString("Log created at " + str(os.getcwd()) + '\\' + data_root)
         self.canrgx_log = canrgx_log_files(data_root)
 
-        self.ser = serial.Serial('COM12', 230400, timeout=100)
+        self.ser = serial.Serial('COM3', 230400, timeout=100)
         time.sleep(0.100) # A 100 ms delay typically can help with some serial
                           # port issues
         self.logString("Opened port " + self.ser.name)
@@ -148,9 +148,6 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.ser.write(bytes(msg.encode()))
 
     def execute_manual_start(self,program_id):
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(program_id)
-        print("\n")
         self.sendToMCU("S"+str(program_id)+"\n")
     
     def execute_manual_stop(self):

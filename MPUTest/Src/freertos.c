@@ -613,30 +613,23 @@ void StartMPU9250Task(void const * argument)
   {
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS)); // Service this task every MPU9250_CYCLE_MS milliseconds
 
-//    /* Acceleration */
-//    accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
-//    if(accelStatus == 1){
-//    	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
-//    }
-//    else{
-//    	/* The accelerometer was not able to be read from properly, handle this here. */
-//    	generateClocks(1, 1);
-//    	myMPU9250.A = NAN;
-//    }
-//
-//	/* Magnetometer */
-//	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
-//	if(magStatus != 1){
-//		generateClocks(1, 1);
-//		/* The magnetometer was not able to be read from properly, handle this here. */
-//	}
+    /* Acceleration */
+    accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
+    if(accelStatus == 1){
+    	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
+    }
+    else{
+    	/* The accelerometer was not able to be read from properly, handle this here. */
+    	generateClocks(1, 1);
+    	myMPU9250.A = NAN;
+    }
 
-	myMPU9250.ax = 2.0;
-	myMPU9250.ay = 4.0;
-	myMPU9250.az = 9.81;
-	myMPU9250.hx = 20.0;
-	myMPU9250.hy = 30.0;
-	myMPU9250.hz = 50.81;
+	/* Magnetometer */
+	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
+	if(magStatus != 1){
+		generateClocks(1, 1);
+		/* The magnetometer was not able to be read from properly, handle this here. */
+	}
 
 	/********** Tell transmit task that new data is ready **********/
 	uint32_t dummyToSend = 1;
