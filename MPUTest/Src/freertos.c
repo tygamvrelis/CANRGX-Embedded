@@ -627,8 +627,8 @@ void StartMPU9250Task(void const * argument)
 	/* Magnetometer */
 	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 	if(magStatus != 1){
-		generateClocks(&hi2c1, 1, 1);
 		/* The magnetometer was not able to be read from properly, handle this here. */
+		generateClocks(&hi2c1, 1, 1);
 	}
 
 	/********** Tell transmit task that new data is ready **********/
@@ -664,6 +664,7 @@ void StartRxTask(void const * argument)
   /* USER CODE BEGIN StartRxTask */
   const char MANUAL_OVERRIDE_START_CHAR = 'S';
   const char MANUAL_OVERRIDE_STOP_CHAR = 'X';
+  const char RESET_CHAR = 'E';
 
   uint8_t buffer[3]; // buffer[0] == control character, buffer[1] == accompanying data, buffer[2] == '\n'
 
@@ -679,6 +680,10 @@ void StartRxTask(void const * argument)
 		 else if(buffer[0] == MANUAL_OVERRIDE_STOP_CHAR){
 			 // Manual override for stopping experiment
 			 xTaskNotify(ControlTaskHandle, MANUAL_OVERRIDE_STOP_BITMASK, eSetBits);
+		 }
+		 else if(buffer[0] == RESET_CHAR){
+			 // Full system reset
+			 NVIC_SystemReset();
 		 }
 //		 LED(); // Debugging for RX
 	 }
