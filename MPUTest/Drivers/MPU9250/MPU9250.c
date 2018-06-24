@@ -97,20 +97,6 @@ int MPU9250Init(MPU9250_t* myMPU){
 		return -7;
 	}
 
-	// Note: Changing the filter bandwidth didn't have a noticeable effect as far as I could tell
-//	// Set accelerometer bandwidth 218 Hz
-//	dataToWrite = 0x01;
-//	if(HAL_I2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, ACCEL_CONFIG_2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
-//		return -8;
-//	}
-//
-//	// Set gyroscope bandwidth to 3600 Hz
-//	dataToWrite = 0x01;
-//	if(HAL_I2C_Mem_Write(&hfmpi2c1, MPU9250_ACCEL_AND_GYRO_ADDR, CONFIG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
-//		return -9;
-//	}
-
-
 	/********** Configure magnetometer **********/
 	// Check that correct device ID is read
 	magnetometerRead(WIA, 1, buff);
