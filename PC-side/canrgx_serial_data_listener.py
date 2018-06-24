@@ -52,7 +52,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.logString("Log created at " + str(os.getcwd()) + '\\' + data_root)
         self.canrgx_log = canrgx_log_files(data_root)
 
-        self.ser = serial.Serial('COM3', 230400, timeout=100)
+        self.ser = serial.Serial('COM12', 230400, timeout=100)
         self.logString("Opened port " + self.ser.name)
         # Wait for microcontroller to come on and send its startup message
         self.ser.reset_output_buffer()
