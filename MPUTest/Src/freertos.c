@@ -354,8 +354,7 @@ void StartControlTask(void const * argument)
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
 
 		/********** Check for flight events **********/
-		if(xTaskNotifyWait(0, MPU_BITMASK | MANUAL_OVERRIDE_START_BITMASK | MANUAL_OVERRIDE_STOP_BITMASK, \
-					&notification, pdMS_TO_TICKS(1)) == pdTRUE){
+		if(xTaskNotifyWait(0, UINT32_MAX, &notification, pdMS_TO_TICKS(1)) == pdTRUE){
 
 			// One-time state update for the event. The cases towards the end have the highest
 			// priority if they occur, which is why they are if statements and not if-else
@@ -375,9 +374,6 @@ void StartControlTask(void const * argument)
 				// This is the case for when a manual override STOP sequence is received
 				receivedEvent = NONE;
 			}
-
-			// Clear this task's notification data now that we have processed it
-			xTaskNotifyStateClear(NULL);
 
 			switch(receivedEvent){
 				case REDUCEDGRAVITY:
