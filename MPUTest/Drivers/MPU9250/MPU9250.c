@@ -471,16 +471,19 @@ static int magnetometerWrite_IT(uint8_t addr, uint8_t data, osSemaphoreId sem){
 // have.
 //
 // Overall, use these functions with EXTREME caution.
-static uint8_t wait_for_gpio_state_timeout(GPIO_TypeDef *port, uint16_t pin, GPIO_PinState state, uint8_t timeout){
-	/* Helper function for I2C_ClearBusyFlagErratum.
+static uint8_t wait_for_gpio_state_timeout(GPIO_TypeDef* port, uint16_t pin, GPIO_PinState state, uint8_t timeout){
+	/* Helper function for generateClocks.
 	 *
-	 * Arguments: none
+	 * Arguments: port, points to the SDA port
+	 * 			  pin, the SDA pin number
+	 * 			  state, the state to compare SDA to (i.e. desired SDA state)
+	 * 			  timeout, the number of ms to wait before leaving function
 	 *
-	 * Returns: none
+	 * Returns: 1 if SDA pin is read to be state, 0 if timeout
 	 */
 
     uint32_t Tickstart = HAL_GetTick();
-    uint8_t ret = 0;
+    uint8_t ret = 1;
     /* Wait until flag is set */
     while((state != HAL_GPIO_ReadPin(port, pin)) && (1 == ret)){
         /* Check for the timeout */
