@@ -27,7 +27,8 @@ progversion = "0.1"
 class CANRGXMainWindow(QtWidgets.QMainWindow):
 
     closing=QtCore.pyqtSignal()
-    manual_start = QtCore.pyqtSignal(int)
+    request_manual_start = QtCore.pyqtSignal(int)
+    request_manual_stop = QtCore.pyqtSignal()
 
     def __init__(self):
 
@@ -91,6 +92,18 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.bottomHLayout.addWidget(self.manualStartButton)
         self.manualStartButton.clicked.connect(self.manual_start_button_callback)
 
+        self.manualStopButton = QtWidgets.QPushButton(self.main_widget)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.manualStopButton.sizePolicy().hasHeightForWidth())
+        self.manualStopButton.setObjectName("manualStopButton")
+        self.manualStopButton.setText("Manual Stop")
+        self.bottomHLayout.addWidget(self.manualStopButton)
+        self.manualStopButton.clicked.connect(self.manual_stop_button_callback)
+
         self.errLabel = QtWidgets.QLabel(self.main_widget)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -124,8 +137,9 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.closing.connect(self.listener.close)
         #self.log_thread.finished.connect(qApp.quit)
         self.listener.frame_error.connect(self.update_error)
-        self.manual_start.connect(self.listener.send_manual_start)
-
+        self.request_manual_start.connect(self.listener.execute_manual_start)
+        self.request_manual_stop.connect(self.listener.execute_manual_stop)
+        
         self.log_thread.start()
         
         self.main_widget.setFocus()
@@ -148,7 +162,10 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     
     
     def manual_start_button_callback(self,checked):
-        self.manual_start.emit(self.runNumberSpinBox.value)
+        self.request_manual_start.emit(self.runNumberSpinBox.value)
+
+    def manual_stop_button_callback(self, checked):
+        self.request_manual_stop.emit()
 
 
     def fileQuit(self):

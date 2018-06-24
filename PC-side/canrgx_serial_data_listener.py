@@ -146,9 +146,11 @@ class CANRGXSerialDataListener(QtCore.QObject):
     def sendToMCU(self, msg):
         self.ser.write(bytes(msg.encode()))
 
-    def send_manual_start(self,program_id):
-        self.sendToMCU("S"+str(program_id))
-        
+    def execute_manual_start(self,program_id):
+        self.sendToMCU("S"+str(program_id)+"\n")
+    
+    def execute_manual_stop(self, program_id):
+        self.sendToMCU("XX\n")
 
 def show_initialization():
     print("Initialized!!!!")
