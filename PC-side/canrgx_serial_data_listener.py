@@ -53,6 +53,8 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.canrgx_log = canrgx_log_files(data_root)
 
         self.ser = serial.Serial('COM12', 230400, timeout=100)
+        time.sleep(0.100) # A 100 ms delay typically can help with some serial
+                          # port issues
         self.logString("Opened port " + self.ser.name)
         # Wait for microcontroller to come on and send its startup message
         self.ser.reset_output_buffer()
@@ -76,8 +78,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
         # so should ideally be done on-the-fly.
         self.sendToMCU(datetime.now().strftime('%H.%M.%S.%f'))
         self.printAndLogStringFromSerial("MCU starting scheduler. Echoed: ")
-        self.sendToMCU('A')  # ACK
-
+        self.sendToMCU('A')
         
         self.timer.timeout.connect(self.check_serial_buffer)
         # Create the timer that fires every 2ms to check the serial buffer.
@@ -147,9 +148,12 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.ser.write(bytes(msg.encode()))
 
     def execute_manual_start(self,program_id):
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(program_id)
+        print("\n")
         self.sendToMCU("S"+str(program_id)+"\n")
     
-    def execute_manual_stop(self, program_id):
+    def execute_manual_stop(self):
         self.sendToMCU("XX\n")
 
 def show_initialization():

@@ -180,8 +180,8 @@ enum controllerStates_e{
 #define MANUAL_OVERRIDE_START_BITMASK 0x80000000
 #define MANUAL_OVERRIDE_STOP_BITMASK 0x08000000
 #define MPU_BITMASK 0x00800000
-#define NOTIFY_FROM_MANUAL_OVERRIDE_START(x) (MANUAL_OVERRIDE_START_BITMASK | x)
-#define NOTIFY_FROM_MPU(x) (MPU_BITMASK | x)
+#define NOTIFY_FROM_MANUAL_OVERRIDE_START(x) (MANUAL_OVERRIDE_START_BITMASK | (x))
+#define NOTIFY_FROM_MPU(x) (MPU_BITMASK | (x))
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -354,28 +354,31 @@ void StartControlTask(void const * argument)
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
 
 		/********** Check for flight events **********/
-		do{
-			xTaskNotifyWait(0, MPU_BITMASK | MANUAL_OVERRIDE_START_BITMASK | MANUAL_OVERRIDE_STOP_BITMASK, \
-					&notification, pdMS_TO_TICKS(1));
-		}while((notification & \
-				(MPU_BITMASK | MANUAL_OVERRIDE_START_BITMASK | MANUAL_OVERRIDE_STOP_BITMASK)) == 0);
+		if(xTaskNotifyWait(0, MPU_BITMASK | MANUAL_OVERRIDE_START_BITMASK | MANUAL_OVERRIDE_STOP_BITMASK, \
+					&notification, pdMS_TO_TICKS(1)) == pdTRUE){
 
-		// One-time state update for the event
-		if((notification & MANUAL_OVERRIDE_START_BITMASK) == MANUAL_OVERRIDE_START_BITMASK){
-			// This is the case for when a manual override START sequence is received. In
-			// this case, the task notification holds the number of the experiment to run.
-			receivedEvent = REDUCEDGRAVITY;
-			controllerState = notification & (~MANUAL_OVERRIDE_START_BITMASK);
-		}
-		if((notification & MANUAL_OVERRIDE_STOP_BITMASK) == MANUAL_OVERRIDE_STOP_BITMASK){
-			// This is the case for when a manual override STOP sequence is received
-			receivedEvent = NONE;
-		}
-		else{
-			// This is the case for when the MPU9250 senses an event. In this case, the
-			// task notification holds the value of the enumerated type flightEvents_e
-			// sent by the MPU9250 thread.
-			receivedEvent = notification & (~MPU_BITMASK);
+			// One-time state update for the event. The cases towards the end have the highest
+			// priority if they occur, which is why they are if statements and not if-else
+			if((notification & MPU_BITMASK) == MPU_BITMASK){
+				// This is the case for when the MPU9250 senses an event. In this case, the
+				// task notification holds the value of the enumerated type flightEvents_e
+				// sent by the MPU9250 thread.
+				receivedEvent = notification & (~MPU_BITMASK);
+			}
+			if((notification & MANUAL_OVERRIDE_START_BITMASK) == MANUAL_OVERRIDE_START_BITMASK){
+				// This is the case for when a manual override START sequence is received. In
+				// this case, the task notification holds the number of the experiment to run.
+				receivedEvent = REDUCEDGRAVITY;
+				nextControllerState = notification & (~MANUAL_OVERRIDE_START_BITMASK);
+			}
+			if((notification & MANUAL_OVERRIDE_STOP_BITMASK) == MANUAL_OVERRIDE_STOP_BITMASK){
+				// This is the case for when a manual override STOP sequence is received
+				receivedEvent = NONE;
+			}
+
+			// Clear this task's notification data now that we have processed it
+			xTaskNotifyStateClear(NULL);
+
 			switch(receivedEvent){
 				case REDUCEDGRAVITY:
 					controllerState = nextControllerState;
@@ -673,7 +676,7 @@ void StartRxTask(void const * argument)
   const char MANUAL_OVERRIDE_START_CHAR = 'S';
   const char MANUAL_OVERRIDE_STOP_CHAR = 'X';
 
-  uint8_t buffer[2]; // buffer[0] == control character, buffer[1] == accompanying data
+  uint8_t buffer[3]; // buffer[0] == control character, buffer[1] == accompanying data, buffer[2] == '\n'
 
   /* Infinite loop */
   for(;;)
@@ -684,7 +687,7 @@ void StartRxTask(void const * argument)
 			 // Manual override for starting experiment
 			 xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'), eSetBits);
 		 }
-		 if(buffer[0] == MANUAL_OVERRIDE_STOP_CHAR){
+		 else if(buffer[0] == MANUAL_OVERRIDE_STOP_CHAR){
 			 // Manual override for stopping experiment
 			 xTaskNotify(ControlTaskHandle, MANUAL_OVERRIDE_STOP_BITMASK, eSetBits);
 		 }
@@ -709,11 +712,6 @@ void StartTempTask(void const * argument)
 	  // TODO: vTaskDelayUntil may not be needed in this thread
 	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS)); // Service this task every TEMP_CYCLE_MS milliseconds
 
-	  // TODO: Process data acquired from temperature sensors here.
-	  // The DMA wakeup occurs roughly every 133 microseconds for total buffer size of 100
-	  // and wakeups every half-full cycle
-	  // (1/((45*10^6)/8)) * 15 * 50 * 1000 = 0.133 ms per buffer half full
-
 	  Temp_Scan_Start();
 	  xSemaphoreTake(semTemperatureHandle, TEMP_CYCLE_MS - 2);
 	  Temp_Scan_Stop();
@@ -725,7 +723,7 @@ void StartTempTask(void const * argument)
 	  temperatureData.thermocouple5 = ADC_processed[TEMP5];
 	  temperatureData.thermocouple6 = ADC_processed[TEMP6];
 
-    xQueueSend(xTemperatureToTXQueueHandle, &temperatureData, 1);
+      xQueueSend(xTemperatureToTXQueueHandle, &temperatureData, 1);
   }
   /* USER CODE END StartTempTask */
 }
