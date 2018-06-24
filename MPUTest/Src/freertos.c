@@ -180,8 +180,8 @@ enum controllerStates_e{
 #define MANUAL_OVERRIDE_START_BITMASK 0x80000000
 #define MANUAL_OVERRIDE_STOP_BITMASK 0x08000000
 #define MPU_BITMASK 0x00800000
-#define NOTIFY_FROM_MANUAL_OVERRIDE_START(x) MANUAL_OVERRIDE_START_BITMASK | x
-#define NOTIFY_FROM_MPU(x) MPU_BITMASK | x
+#define NOTIFY_FROM_MANUAL_OVERRIDE_START(x) (MANUAL_OVERRIDE_START_BITMASK | x)
+#define NOTIFY_FROM_MPU(x) (MPU_BITMASK | x)
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -356,7 +356,7 @@ void StartControlTask(void const * argument)
 		/********** Check for flight events **********/
 		do{
 			xTaskNotifyWait(0, MPU_BITMASK | MANUAL_OVERRIDE_START_BITMASK | MANUAL_OVERRIDE_STOP_BITMASK, \
-					&notification, portMAX_DELAY);
+					&notification, pdMS_TO_TICKS(1));
 		}while((notification & \
 				(MPU_BITMASK | MANUAL_OVERRIDE_START_BITMASK | MANUAL_OVERRIDE_STOP_BITMASK)) == 0);
 
@@ -671,7 +671,7 @@ void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
   const char MANUAL_OVERRIDE_START_CHAR = 'S';
-  const char MANUAL_OVERRIDE_STOP_CHAR = 'P';
+  const char MANUAL_OVERRIDE_STOP_CHAR = 'X';
 
   uint8_t buffer[2]; // buffer[0] == control character, buffer[1] == accompanying data
 
@@ -682,7 +682,7 @@ void StartRxTask(void const * argument)
 	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
 		 if(buffer[0] == MANUAL_OVERRIDE_START_CHAR){
 			 // Manual override for starting experiment
-			 xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1]), eSetBits);
+			 xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'), eSetBits);
 		 }
 		 if(buffer[0] == MANUAL_OVERRIDE_STOP_CHAR){
 			 // Manual override for stopping experiment

@@ -8864,147 +8864,148 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
                 0x080086d8       0xd0 Src/freertos.o
                 0x080086d8                StartMPU9250Task
  .text.StartRxTask
-                0x080087a8       0x68 Src/freertos.o
+                0x080087a8       0x6c Src/freertos.o
                 0x080087a8                StartRxTask
  .text.StartTempTask
-                0x08008810       0x74 Src/freertos.o
-                0x08008810                StartTempTask
+                0x08008814       0x74 Src/freertos.o
+                0x08008814                StartTempTask
  .text.tmrLEDCallback
-                0x08008884       0x10 Src/freertos.o
-                0x08008884                tmrLEDCallback
+                0x08008888       0x10 Src/freertos.o
+                0x08008888                tmrLEDCallback
  .text.configureTimerForRunTimeStats
-                0x08008894        0x2 Src/freertos.o
-                0x08008894                configureTimerForRunTimeStats
+                0x08008898        0x2 Src/freertos.o
+                0x08008898                configureTimerForRunTimeStats
  .text.getRunTimeCounterValue
-                0x08008896        0x4 Src/freertos.o
-                0x08008896                getRunTimeCounterValue
- *fill*         0x0800889a        0x2 
+                0x0800889a        0x4 Src/freertos.o
+                0x0800889a                getRunTimeCounterValue
+ *fill*         0x0800889e        0x2 
  .text.vApplicationGetIdleTaskMemory
-                0x0800889c       0x14 Src/freertos.o
-                0x0800889c                vApplicationGetIdleTaskMemory
+                0x080088a0       0x14 Src/freertos.o
+                0x080088a0                vApplicationGetIdleTaskMemory
  .text.vApplicationGetTimerTaskMemory
-                0x080088b0       0x20 Src/freertos.o
-                0x080088b0                vApplicationGetTimerTaskMemory
+                0x080088b4       0x20 Src/freertos.o
+                0x080088b4                vApplicationGetTimerTaskMemory
  .text.MX_FREERTOS_Init
-                0x080088d0      0x1f0 Src/freertos.o
-                0x080088d0                MX_FREERTOS_Init
+                0x080088d4      0x1f0 Src/freertos.o
+                0x080088d4                MX_FREERTOS_Init
  .text.MX_GPIO_Init
-                0x08008ac0       0xa0 Src/gpio.o
-                0x08008ac0                MX_GPIO_Init
+                0x08008ac4       0xa0 Src/gpio.o
+                0x08008ac4                MX_GPIO_Init
  .text.MX_I2C3_Init
-                0x08008b60       0x44 Src/i2c.o
-                0x08008b60                MX_I2C3_Init
+                0x08008b64       0x44 Src/i2c.o
+                0x08008b64                MX_I2C3_Init
  .text.HAL_I2C_MspInit
-                0x08008ba4       0xd0 Src/i2c.o
-                0x08008ba4                HAL_I2C_MspInit
+                0x08008ba8       0xd0 Src/i2c.o
+                0x08008ba8                HAL_I2C_MspInit
  .text.HAL_I2C_MemRxCpltCallback
-                0x08008c74       0x20 Src/i2c.o
-                0x08008c74                HAL_I2C_MemRxCpltCallback
+                0x08008c78       0x20 Src/i2c.o
+                0x08008c78                HAL_I2C_MemRxCpltCallback
  .text.HAL_I2C_MemTxCpltCallback
-                0x08008c94       0x20 Src/i2c.o
-                0x08008c94                HAL_I2C_MemTxCpltCallback
+                0x08008c98       0x20 Src/i2c.o
+                0x08008c98                HAL_I2C_MemTxCpltCallback
  .text.HAL_TIM_PeriodElapsedCallback
-                0x08008cb4       0x18 Src/main.o
-                0x08008cb4                HAL_TIM_PeriodElapsedCallback
+                0x08008cb8       0x18 Src/main.o
+                0x08008cb8                HAL_TIM_PeriodElapsedCallback
  .text._Error_Handler
-                0x08008ccc        0x2 Src/main.o
-                0x08008ccc                _Error_Handler
- *fill*         0x08008cce        0x2 
+                0x08008cd0        0x2 Src/main.o
+                0x08008cd0                _Error_Handler
+ *fill*         0x08008cd2        0x2 
  .text.SystemClock_Config
-                0x08008cd0       0xf8 Src/main.o
-                0x08008cd0                SystemClock_Config
- .text.main     0x08008dc8      0x4a8 Src/main.o
-                0x08008dc8                main
+                0x08008cd4       0xf8 Src/main.o
+                0x08008cd4                SystemClock_Config
+ *fill*         0x08008dcc        0x4 
+ .text.main     0x08008dd0      0x4a8 Src/main.o
+                0x08008dd0                main
  .text.MX_RTC_Init
-                0x08009270       0xb8 Src/rtc.o
-                0x08009270                MX_RTC_Init
+                0x08009278       0xb8 Src/rtc.o
+                0x08009278                MX_RTC_Init
  .text.HAL_RTC_MspInit
-                0x08009328       0x1c Src/rtc.o
-                0x08009328                HAL_RTC_MspInit
+                0x08009330       0x1c Src/rtc.o
+                0x08009330                HAL_RTC_MspInit
  .text.MANUAL_MX_RTC_Init
-                0x08009344       0x9c Src/rtc.o
-                0x08009344                MANUAL_MX_RTC_Init
+                0x0800934c       0x9c Src/rtc.o
+                0x0800934c                MANUAL_MX_RTC_Init
  .text.HAL_MspInit
-                0x080093e0       0x5e Src/stm32f4xx_hal_msp.o
-                0x080093e0                HAL_MspInit
- *fill*         0x0800943e        0x2 
+                0x080093e8       0x5e Src/stm32f4xx_hal_msp.o
+                0x080093e8                HAL_MspInit
+ *fill*         0x08009446        0x2 
  .text.HAL_InitTick
-                0x08009440       0x7c Src/stm32f4xx_hal_timebase_TIM.o
-                0x08009440                HAL_InitTick
+                0x08009448       0x7c Src/stm32f4xx_hal_timebase_TIM.o
+                0x08009448                HAL_InitTick
  .text.SysTick_Handler
-                0x080094bc        0x8 Src/stm32f4xx_it.o
-                0x080094bc                SysTick_Handler
+                0x080094c4        0x8 Src/stm32f4xx_it.o
+                0x080094c4                SysTick_Handler
  .text.DMA1_Stream1_IRQHandler
-                0x080094c4       0x10 Src/stm32f4xx_it.o
-                0x080094c4                DMA1_Stream1_IRQHandler
+                0x080094cc       0x10 Src/stm32f4xx_it.o
+                0x080094cc                DMA1_Stream1_IRQHandler
  .text.DMA1_Stream6_IRQHandler
-                0x080094d4       0x10 Src/stm32f4xx_it.o
-                0x080094d4                DMA1_Stream6_IRQHandler
+                0x080094dc       0x10 Src/stm32f4xx_it.o
+                0x080094dc                DMA1_Stream6_IRQHandler
  .text.TIM1_UP_TIM10_IRQHandler
-                0x080094e4       0x34 Src/stm32f4xx_it.o
-                0x080094e4                TIM1_UP_TIM10_IRQHandler
+                0x080094ec       0x34 Src/stm32f4xx_it.o
+                0x080094ec                TIM1_UP_TIM10_IRQHandler
  .text.USART2_IRQHandler
-                0x08009518       0x10 Src/stm32f4xx_it.o
-                0x08009518                USART2_IRQHandler
+                0x08009520       0x10 Src/stm32f4xx_it.o
+                0x08009520                USART2_IRQHandler
  .text.TIM6_DAC_IRQHandler
-                0x08009528       0x10 Src/stm32f4xx_it.o
-                0x08009528                TIM6_DAC_IRQHandler
+                0x08009530       0x10 Src/stm32f4xx_it.o
+                0x08009530                TIM6_DAC_IRQHandler
  .text.DMA2_Stream0_IRQHandler
-                0x08009538       0x10 Src/stm32f4xx_it.o
-                0x08009538                DMA2_Stream0_IRQHandler
+                0x08009540       0x10 Src/stm32f4xx_it.o
+                0x08009540                DMA2_Stream0_IRQHandler
  .text.I2C3_EV_IRQHandler
-                0x08009548       0x10 Src/stm32f4xx_it.o
-                0x08009548                I2C3_EV_IRQHandler
+                0x08009550       0x10 Src/stm32f4xx_it.o
+                0x08009550                I2C3_EV_IRQHandler
  .text.SystemInit
-                0x08009558       0x4c Src/system_stm32f4xx.o
-                0x08009558                SystemInit
+                0x08009560       0x4c Src/system_stm32f4xx.o
+                0x08009560                SystemInit
  .text.MX_TIM10_Init
-                0x080095a4       0x34 Src/tim.o
-                0x080095a4                MX_TIM10_Init
+                0x080095ac       0x34 Src/tim.o
+                0x080095ac                MX_TIM10_Init
  .text.HAL_TIM_OC_MspInit
-                0x080095d8       0x30 Src/tim.o
-                0x080095d8                HAL_TIM_OC_MspInit
+                0x080095e0       0x30 Src/tim.o
+                0x080095e0                HAL_TIM_OC_MspInit
  .text.HAL_TIM_Base_MspInit
-                0x08009608       0x40 Src/tim.o
-                0x08009608                HAL_TIM_Base_MspInit
+                0x08009610       0x40 Src/tim.o
+                0x08009610                HAL_TIM_Base_MspInit
  .text.HAL_TIM_PWM_MspInit
-                0x08009648       0x30 Src/tim.o
-                0x08009648                HAL_TIM_PWM_MspInit
+                0x08009650       0x30 Src/tim.o
+                0x08009650                HAL_TIM_PWM_MspInit
  .text.HAL_TIM_MspPostInit
-                0x08009678       0x74 Src/tim.o
-                0x08009678                HAL_TIM_MspPostInit
+                0x08009680       0x74 Src/tim.o
+                0x08009680                HAL_TIM_MspPostInit
  .text.MX_TIM3_Init
-                0x080096ec       0xc8 Src/tim.o
-                0x080096ec                MX_TIM3_Init
+                0x080096f4       0xc8 Src/tim.o
+                0x080096f4                MX_TIM3_Init
  .text.MX_TIM12_Init
-                0x080097b4       0x78 Src/tim.o
-                0x080097b4                MX_TIM12_Init
- *fill*         0x0800982c        0x4 
+                0x080097bc       0x78 Src/tim.o
+                0x080097bc                MX_TIM12_Init
+ *fill*         0x08009834        0x4 
  .text.setMagnet
-                0x08009830      0x4b8 Src/tim.o
-                0x08009830                setMagnet
+                0x08009838      0x4b8 Src/tim.o
+                0x08009838                setMagnet
  .text.TEC_set_valuef
-                0x08009ce8       0xc4 Src/tim.o
-                0x08009ce8                TEC_set_valuef
+                0x08009cf0       0xc4 Src/tim.o
+                0x08009cf0                TEC_set_valuef
  .text.TEC_stop
-                0x08009dac       0x1c Src/tim.o
-                0x08009dac                TEC_stop
+                0x08009db4       0x1c Src/tim.o
+                0x08009db4                TEC_stop
  .text.MX_USART2_UART_Init
-                0x08009dc8       0x3c Src/usart.o
-                0x08009dc8                MX_USART2_UART_Init
+                0x08009dd0       0x3c Src/usart.o
+                0x08009dd0                MX_USART2_UART_Init
  .text.HAL_UART_MspInit
-                0x08009e04       0xa8 Src/usart.o
-                0x08009e04                HAL_UART_MspInit
+                0x08009e0c       0xa8 Src/usart.o
+                0x08009e0c                HAL_UART_MspInit
  .text.HAL_UART_TxCpltCallback
-                0x08009eac       0x2c Src/usart.o
-                0x08009eac                HAL_UART_TxCpltCallback
+                0x08009eb4       0x2c Src/usart.o
+                0x08009eb4                HAL_UART_TxCpltCallback
  .text.HAL_UART_RxCpltCallback
-                0x08009ed8       0x2c Src/usart.o
-                0x08009ed8                HAL_UART_RxCpltCallback
+                0x08009ee0       0x2c Src/usart.o
+                0x08009ee0                HAL_UART_RxCpltCallback
  .text.Reset_Handler
-                0x08009f04       0x50 startup/startup_stm32f446xx.o
-                0x08009f04                Reset_Handler
- *fill*         0x08009f54        0xc 
+                0x08009f0c       0x50 startup/startup_stm32f446xx.o
+                0x08009f0c                Reset_Handler
+ *fill*         0x08009f5c        0x4 
  .text.Default_Handler
                 0x08009f60       0x14 startup/startup_stm32f446xx.o
                 0x08009f60                RTC_Alarm_IRQHandler
@@ -9672,7 +9673,7 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
                 0x0000116c       0x22 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
 OUTPUT(MPUTest.elf elf32-littlearm)
 
-.debug_info     0x00000000    0x3acda
+.debug_info     0x00000000    0x3acd9
  .debug_info    0x00000000     0x1e10 Drivers/MPU9250/MPU9250.o
  .debug_info    0x00001e10     0x122e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
  .debug_info    0x0000303e     0x15da Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
@@ -9698,18 +9699,18 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_info    0x00026246      0xce4 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
  .debug_info    0x00026f2a     0x19ae Src/adc.o
  .debug_info    0x000288d8      0xe5f Src/dma.o
- .debug_info    0x00029737     0x34e1 Src/freertos.o
- .debug_info    0x0002cc18      0xd43 Src/gpio.o
- .debug_info    0x0002d95b     0x166d Src/i2c.o
- .debug_info    0x0002efc8     0x2bac Src/main.o
- .debug_info    0x00031b74     0x1008 Src/rtc.o
- .debug_info    0x00032b7c      0xc93 Src/stm32f4xx_hal_msp.o
- .debug_info    0x0003380f     0x1427 Src/stm32f4xx_hal_timebase_TIM.o
- .debug_info    0x00034c36     0x14c5 Src/stm32f4xx_it.o
- .debug_info    0x000360fb      0xd64 Src/system_stm32f4xx.o
- .debug_info    0x00036e5f     0x2811 Src/tim.o
- .debug_info    0x00039670     0x15c3 Src/usart.o
- .debug_info    0x0003ac33       0xa7 startup/startup_stm32f446xx.o
+ .debug_info    0x00029737     0x34e0 Src/freertos.o
+ .debug_info    0x0002cc17      0xd43 Src/gpio.o
+ .debug_info    0x0002d95a     0x166d Src/i2c.o
+ .debug_info    0x0002efc7     0x2bac Src/main.o
+ .debug_info    0x00031b73     0x1008 Src/rtc.o
+ .debug_info    0x00032b7b      0xc93 Src/stm32f4xx_hal_msp.o
+ .debug_info    0x0003380e     0x1427 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_info    0x00034c35     0x14c5 Src/stm32f4xx_it.o
+ .debug_info    0x000360fa      0xd64 Src/system_stm32f4xx.o
+ .debug_info    0x00036e5e     0x2811 Src/tim.o
+ .debug_info    0x0003966f     0x15c3 Src/usart.o
+ .debug_info    0x0003ac32       0xa7 startup/startup_stm32f446xx.o
 
 .debug_abbrev   0x00000000     0x6a16
  .debug_abbrev  0x00000000      0x3ac Drivers/MPU9250/MPU9250.o
@@ -10075,7 +10076,7 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_line    0x0001e2bc      0xc4e Src/usart.o
  .debug_line    0x0001ef0a       0x82 startup/startup_stm32f446xx.o
 
-.debug_str      0x00000000    0xe1106
+.debug_str      0x00000000    0xe110a
  .debug_str     0x00000000    0xd7068 Drivers/MPU9250/MPU9250.o
                               0xd749f (size before relaxing)
  .debug_str     0x000d7068      0xc3e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
@@ -10126,27 +10127,27 @@ OUTPUT(MPUTest.elf elf32-littlearm)
                               0xd771d (size before relaxing)
  .debug_str     0x000e00c0       0x19 Src/dma.o
                               0xd0f20 (size before relaxing)
- .debug_str     0x000e00d9      0xbb7 Src/freertos.o
-                              0xd90a6 (size before relaxing)
- .debug_str     0x000e0c90       0x1b Src/gpio.o
+ .debug_str     0x000e00d9      0xbbb Src/freertos.o
+                              0xd90aa (size before relaxing)
+ .debug_str     0x000e0c94       0x1b Src/gpio.o
                               0xd0a89 (size before relaxing)
- .debug_str     0x000e0cab       0x31 Src/i2c.o
+ .debug_str     0x000e0caf       0x31 Src/i2c.o
                               0xd6c94 (size before relaxing)
- .debug_str     0x000e0cdc      0x165 Src/main.o
+ .debug_str     0x000e0ce0      0x165 Src/main.o
                               0xd85cd (size before relaxing)
- .debug_str     0x000e0e41       0x17 Src/rtc.o
+ .debug_str     0x000e0e45       0x17 Src/rtc.o
                               0xd0c26 (size before relaxing)
- .debug_str     0x000e0e58       0x1b Src/stm32f4xx_hal_msp.o
+ .debug_str     0x000e0e5c       0x1b Src/stm32f4xx_hal_msp.o
                               0xd0e07 (size before relaxing)
- .debug_str     0x000e0e73       0x61 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_str     0x000e0e77       0x61 Src/stm32f4xx_hal_timebase_TIM.o
                               0xd1491 (size before relaxing)
- .debug_str     0x000e0ed4       0xe1 Src/stm32f4xx_it.o
+ .debug_str     0x000e0ed8       0xe1 Src/stm32f4xx_it.o
                               0xd699b (size before relaxing)
- .debug_str     0x000e0fb5       0x5a Src/system_stm32f4xx.o
+ .debug_str     0x000e0fb9       0x5a Src/system_stm32f4xx.o
                               0xd0a5f (size before relaxing)
- .debug_str     0x000e100f       0xdd Src/tim.o
+ .debug_str     0x000e1013       0xdd Src/tim.o
                               0xd209b (size before relaxing)
- .debug_str     0x000e10ec       0x1a Src/usart.o
+ .debug_str     0x000e10f0       0x1a Src/usart.o
                               0xd6bda (size before relaxing)
 
 .comment        0x00000000       0x7f
