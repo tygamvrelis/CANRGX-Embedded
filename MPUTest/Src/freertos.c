@@ -74,19 +74,19 @@ osThreadId defaultTaskHandle;
 uint32_t defaultTaskBuffer[ 1024 ];
 osStaticThreadDef_t defaultTaskControlBlock;
 osThreadId ControlTaskHandle;
-uint32_t ControlTaskBuffer[ 256 ];
+uint32_t ControlTaskBuffer[ 512 ];
 osStaticThreadDef_t ControlTaskControlBlock;
 osThreadId TxTaskHandle;
 uint32_t DataLogTaskBuffer[ 512 ];
 osStaticThreadDef_t DataLogTaskControlBlock;
 osThreadId MPU9250TaskHandle;
-uint32_t MPU9250TaskBuffer[ 256 ];
+uint32_t MPU9250TaskBuffer[ 512 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
 osThreadId RxTaskHandle;
 uint32_t rxTaskBuffer[ 512 ];
 osStaticThreadDef_t rxTaskControlBlock;
 osThreadId TempTaskHandle;
-uint32_t TempTaskBuffer[ 256 ];
+uint32_t TempTaskBuffer[ 512 ];
 osStaticThreadDef_t TempTaskControlBlock;
 osMessageQId xTXDataQueueHandle;
 uint8_t xTXDataQueueBuffer[ 4 * sizeof( TXData_t ) ];
@@ -247,7 +247,7 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of ControlTask */
-  osThreadStaticDef(ControlTask, StartControlTask, osPriorityNormal, 0, 256, ControlTaskBuffer, &ControlTaskControlBlock);
+  osThreadStaticDef(ControlTask, StartControlTask, osPriorityNormal, 0, 512, ControlTaskBuffer, &ControlTaskControlBlock);
   ControlTaskHandle = osThreadCreate(osThread(ControlTask), NULL);
 
   /* definition and creation of TxTask */
@@ -255,7 +255,7 @@ void MX_FREERTOS_Init(void) {
   TxTaskHandle = osThreadCreate(osThread(TxTask), NULL);
 
   /* definition and creation of MPU9250Task */
-  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityNormal, 0, 256, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
+  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityNormal, 0, 512, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
   MPU9250TaskHandle = osThreadCreate(osThread(MPU9250Task), NULL);
 
   /* definition and creation of RxTask */
@@ -263,7 +263,7 @@ void MX_FREERTOS_Init(void) {
   RxTaskHandle = osThreadCreate(osThread(RxTask), NULL);
 
   /* definition and creation of TempTask */
-  osThreadStaticDef(TempTask, StartTempTask, osPriorityNormal, 0, 256, TempTaskBuffer, &TempTaskControlBlock);
+  osThreadStaticDef(TempTask, StartTempTask, osPriorityNormal, 0, 512, TempTaskBuffer, &TempTaskControlBlock);
   TempTaskHandle = osThreadCreate(osThread(TempTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -628,6 +628,11 @@ void StartMPU9250Task(void const * argument)
   /* Initial state is sensing no event, and no command to transmit */
   enum flightEvents_e sensedEvent = NONE;
 
+  MPUFilterType azFilter, ayFilter, axFilter;
+  MPUFilter_init(&axFilter);
+  MPUFilter_init(&ayFilter);
+  MPUFilter_init(&azFilter);
+
   /* Infinite loop */
   for(;;)
   {
@@ -639,6 +644,16 @@ void StartMPU9250Task(void const * argument)
     /* Acceleration */
     accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
     if(accelStatus == 1){
+    	/***** Filter the signals along each axis *****/
+    	MPUFilter_writeInput(&axFilter, myMPU9250.ax);
+    	myMPU9250.ax = MPUFilter_readOutput(&axFilter);
+
+    	MPUFilter_writeInput(&ayFilter, myMPU9250.ay);
+    	myMPU9250.ay = MPUFilter_readOutput(&ayFilter);
+
+    	MPUFilter_writeInput(&azFilter, myMPU9250.az);
+    	myMPU9250.az = MPUFilter_readOutput(&azFilter);
+
     	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
     	accelerometerData.ax = myMPU9250.ax;
     	accelerometerData.ay = myMPU9250.ay;
@@ -667,14 +682,14 @@ void StartMPU9250Task(void const * argument)
 	xQueueSend(xTXDataQueueHandle, &txDataMag, 1);
 
 	/********** Use the acceleration magnitude to update state **********/
-	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing communication with the other tasks
+	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing
 //	if(myMPU9250.A < 0.981 && sensedEvent == NONE){
 		sensedEvent = REDUCEDGRAVITY;
 
 		// Notify task to start experiment
 		xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MPU(sensedEvent), eSetBits);
 	}
-	else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing communication with the other tasks
+	else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing
 //	else if(myMPU9250.A > 3.13 && sensedEvent == REDUCEDGRAVITY){
 		sensedEvent = NONE;
 

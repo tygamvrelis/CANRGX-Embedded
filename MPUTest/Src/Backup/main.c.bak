@@ -217,11 +217,7 @@ int main(void)
   buff[15] = '\n'; // This character is added so that serial.readline() can be used on the PC side
 
   // Receive time
-  if(HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100) != HAL_OK){
-	  /* For some reason, the PC did not send the time after the last
-	   * message was sent. Handle this here. */
-	  // TODO (not urgent; unlikely to happen)
-  }
+  HAL_UART_Receive(&huart2, (uint8_t*)buff, 15, 100);
 
   // This is the received subseconds (millis and micros) in float form.
   // We may lose some precision by doing it this way, but this step will
@@ -282,7 +278,6 @@ int main(void)
 	  HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BCD);
 	  HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BCD);
 
-	  // TODO: pack data to transmit into buff here
 	  *ptrHours = BCDToA(theTime.Hours) >> 8;
 	  *(ptrHours + 1) = BCDToA(theTime.Hours) & 0xFF;
 	  *ptrMinutes = BCDToA(theTime.Minutes) >> 8;
