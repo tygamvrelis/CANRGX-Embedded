@@ -77,13 +77,13 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.pwr_plts=self.pwr_ax.plot(self.data_time, self.pwr_buf)
         self.pwr_ax.set_ylabel('Power Setting')
         self.pwr_ax.set_xlabel('MCU Tick Time (millisec)')
-        self.pwr_ax.set_ylim((0,100))
+        self.pwr_ax.set_ylim((-105,105))
         self.pwr_ax.legend(['Mag A' , 'Mag B' , 'TEC A', 'TEC B'],loc='best')
 
         self.tmp_plts=self.tmp_ax.plot(self.data_time, self.tmp_buf)
         self.tmp_ax.set_ylabel('Temperature Sensor')
         self.tmp_ax.set_xlabel('MCU Tick Time (millisec)')
-        self.tmp_ax.set_ylim((0,1500))
+        self.tmp_ax.set_ylim((5,70))
         self.tmp_ax.legend(['A','B','C','D','E','F'],loc='best')
 
     def new_data_slot(self, new_tic, new_imu, new_pwr, new_tmp):
@@ -103,7 +103,7 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.mag_vec[roll_step:]=new_imu[:,3:6]
         self.mag_nrm[roll_step:]=np.linalg.norm(self.mag_vec[roll_step:],ord=2,axis=1)
         self.pwr_buf[roll_step:]=new_pwr
-        self.tmp_buf[roll_step:]=new_tmp
+        self.tmp_buf[roll_step:] =(new_tmp.astype(np.float32) / 4096.0 * 3.3 - 0.4) / 0.0195
 
         self.update_figure()
 

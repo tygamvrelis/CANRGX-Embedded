@@ -89,6 +89,20 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.manualStartButton.setText( "Manual Start")
         self.bottomHLayout.addWidget(self.manualStartButton)
         
+
+        self.errLabel = QtWidgets.QLabel(self.main_widget)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.errLabel.sizePolicy().hasHeightForWidth())
+        self.errLabel.setSizePolicy(sizePolicy)
+        self.errLabel.setObjectName("ERR label")
+        self.errLabel.setText("CLEAR")
+        self.bottomHLayout.addWidget(self.errLabel)
+        
+
         self.mainLayout.addLayout(self.bottomHLayout)
 
         # main_layout.addLayout(self.rowAvgDataLayout)
@@ -108,6 +122,8 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.log_thread.started.connect(self.listener.initialize)
         self.closing.connect(self.listener.close)
         #self.log_thread.finished.connect(qApp.quit)
+        self.listener.frame_error.connect(self.update_error)
+
         self.log_thread.start()
         
         self.main_widget.setFocus()
@@ -122,6 +138,12 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
             self.dataCanvas.new_data_slot
         )
         
+    def update_error(self, set_error):
+        if set_error:
+            self.errLabel.setText("ERROR")
+        else:
+            self.errLabel.setText("CLEAR")
+
     def fileQuit(self):
         # Close action for the Quit button in menubar.
         self.close()
