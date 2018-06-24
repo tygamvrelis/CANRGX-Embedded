@@ -735,7 +735,6 @@ void StartTempTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	  // TODO: vTaskDelayUntil may not be needed in this thread
 	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS)); // Service this task every TEMP_CYCLE_MS milliseconds
 
 	  Temp_Scan_Start();

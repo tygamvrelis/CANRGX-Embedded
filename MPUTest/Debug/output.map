@@ -10196,7 +10196,7 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
                 0x000012e2       0x22 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
 OUTPUT(MPUTest.elf elf32-littlearm)
 
-.debug_info     0x00000000    0x3e26d
+.debug_info     0x00000000    0x3e26c
  .debug_info    0x00000000     0x1b3a Drivers/MPU9250/MPU9250.o
  .debug_info    0x00001b3a     0x122e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
  .debug_info    0x00002d68     0x15da Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
@@ -10226,16 +10226,16 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_info    0x0002b30d     0x3764 Src/freertos.o
  .debug_info    0x0002ea71      0xd43 Src/gpio.o
  .debug_info    0x0002f7b4     0x17f3 Src/i2c.o
- .debug_info    0x00030fa7     0x2e9b Src/main.o
- .debug_info    0x00033e42     0x1008 Src/rtc.o
- .debug_info    0x00034e4a     0x1285 Src/spi.o
- .debug_info    0x000360cf      0xc93 Src/stm32f4xx_hal_msp.o
- .debug_info    0x00036d62     0x1427 Src/stm32f4xx_hal_timebase_TIM.o
- .debug_info    0x00038189     0x1519 Src/stm32f4xx_it.o
- .debug_info    0x000396a2      0xd64 Src/system_stm32f4xx.o
- .debug_info    0x0003a406     0x2811 Src/tim.o
- .debug_info    0x0003cc17     0x15af Src/usart.o
- .debug_info    0x0003e1c6       0xa7 startup/startup_stm32f446xx.o
+ .debug_info    0x00030fa7     0x2e9a Src/main.o
+ .debug_info    0x00033e41     0x1008 Src/rtc.o
+ .debug_info    0x00034e49     0x1285 Src/spi.o
+ .debug_info    0x000360ce      0xc93 Src/stm32f4xx_hal_msp.o
+ .debug_info    0x00036d61     0x1427 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_info    0x00038188     0x1519 Src/stm32f4xx_it.o
+ .debug_info    0x000396a1      0xd64 Src/system_stm32f4xx.o
+ .debug_info    0x0003a405     0x2811 Src/tim.o
+ .debug_info    0x0003cc16     0x15af Src/usart.o
+ .debug_info    0x0003e1c5       0xa7 startup/startup_stm32f446xx.o
 
 .debug_abbrev   0x00000000     0x6f96
  .debug_abbrev  0x00000000      0x37f Drivers/MPU9250/MPU9250.o

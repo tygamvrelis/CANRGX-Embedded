@@ -123,7 +123,7 @@ int MPU9250Init(MPU9250_t* myMPU){
 	return 1;
 }
 
-// TODO
+// Use with caution
 int runtimeResetIMU(osSemaphoreId sem){
 	/* Hard reset of the accelerometers & gyroscope module. Safe to call
 	 * with FreeRTOS running.
@@ -175,7 +175,7 @@ int runtimeResetIMU(osSemaphoreId sem){
 	return 1;
 }
 
-// TODO
+// Use with caution
 int runtimeResetMagnetometer(osSemaphoreId sem){
 	/* Soft reset of the magnetometer.
 	 *

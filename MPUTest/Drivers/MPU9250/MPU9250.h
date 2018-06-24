@@ -124,15 +124,18 @@ extern const float g;
 /********************************* Functions *********************************/
 int MPU9250Init(MPU9250_t* myMPU);
 
-int runtimeResetIMU(osSemaphoreId sem);
-int runtimeResetMagnetometer(osSemaphoreId sem);
-void generateClocks(I2C_HandleTypeDef* hi2c, uint8_t numClocks, uint8_t sendStopBits); // Use with caution
-
+// These 3 are the only ones that should really be used during runtime once the
+// scheduler has started.
 int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 
 int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 int magnetometerWrite(uint8_t addr, uint8_t data);
+
+int runtimeResetIMU(osSemaphoreId sem); // Use with caution
+int runtimeResetMagnetometer(osSemaphoreId sem); // Use with caution
+void generateClocks(I2C_HandleTypeDef* hi2c, uint8_t numClocks, uint8_t sendStopBits); // Use with caution
+
 
 #endif /* MPU9250_H_ */
