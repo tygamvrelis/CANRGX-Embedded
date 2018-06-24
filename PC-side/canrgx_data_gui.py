@@ -162,7 +162,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     
     
     def manual_start_button_callback(self,checked):
-        self.request_manual_start.emit(int(self.runNumberSpinBox.value))
+        self.request_manual_start.emit(int(self.runNumberSpinBox.value()))
 
     def manual_stop_button_callback(self, checked):
         self.request_manual_stop.emit()
