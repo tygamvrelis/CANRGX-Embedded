@@ -94,9 +94,6 @@ osStaticMessageQDef_t xMPUToTXQueueControlBlock;
 osMessageQId xControlToTXQueueHandle;
 uint8_t xControlToTXQueueBuffer[ 1 * sizeof( controlData_t ) ];
 osStaticMessageQDef_t xControlToTXQueueControlBlock;
-osMessageQId xControlCommandQueueHandle;
-uint8_t xControlCommandQueueBuffer[ 1 * sizeof( uint32_t ) ];
-osStaticMessageQDef_t xControlCommandQueueControlBlock;
 osMessageQId xTemperatureToTXQueueHandle;
 uint8_t xTemperatureToTXQueueBuffer[ 1 * sizeof( temperatureData_t ) ];
 osStaticMessageQDef_t xTemperatureToTXQueueControlBlock;
@@ -292,10 +289,6 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of xControlToTXQueue */
   osMessageQStaticDef(xControlToTXQueue, 1, controlData_t, xControlToTXQueueBuffer, &xControlToTXQueueControlBlock);
   xControlToTXQueueHandle = osMessageCreate(osMessageQ(xControlToTXQueue), NULL);
-
-  /* definition and creation of xControlCommandQueue */
-  osMessageQStaticDef(xControlCommandQueue, 1, uint32_t, xControlCommandQueueBuffer, &xControlCommandQueueControlBlock);
-  xControlCommandQueueHandle = osMessageCreate(osMessageQ(xControlCommandQueue), NULL);
 
   /* definition and creation of xTemperatureToTXQueue */
   osMessageQStaticDef(xTemperatureToTXQueue, 1, temperatureData_t, xTemperatureToTXQueueBuffer, &xTemperatureToTXQueueControlBlock);
@@ -607,8 +600,8 @@ void StartTxTask(void const * argument)
 void StartMPU9250Task(void const * argument)
 {
   /* USER CODE BEGIN StartMPU9250Task */
-  int8_t accelStatus = 1;
-  int8_t magStatus = 1;
+  int8_t accelStatus;
+  int8_t magStatus;
 
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();

@@ -93,10 +93,10 @@
 #define Magnet_2A_GPIO_Port GPIOB
 #define Magnet_2B_Pin GPIO_PIN_1
 #define Magnet_2B_GPIO_Port GPIOB
-#define TEC_Top_Pin GPIO_PIN_14
-#define TEC_Top_GPIO_Port GPIOB
-#define TEC_Bot_Pin GPIO_PIN_15
-#define TEC_Bot_GPIO_Port GPIOB
+#define TEC_Right_Pin GPIO_PIN_14
+#define TEC_Right_GPIO_Port GPIOB
+#define TEC_Left_Pin GPIO_PIN_15
+#define TEC_Left_GPIO_Port GPIOB
 #define MPU_SDA_Pin GPIO_PIN_9
 #define MPU_SDA_GPIO_Port GPIOC
 #define MPU_SCL_Pin GPIO_PIN_8

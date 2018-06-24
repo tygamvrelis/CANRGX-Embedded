@@ -3077,8 +3077,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAddr
   if(hi2c->State == HAL_I2C_STATE_READY)
   {
     /* Wait until BUSY flag is reset */
-    //count = I2C_TIMEOUT_BUSY_FLAG * (SystemCoreClock /25U /1000U);
-	count = I2C_TIMEOUT_BUSY_FLAG * (SystemCoreClock /25U /1000U /1000U);
+    count = I2C_TIMEOUT_BUSY_FLAG * (SystemCoreClock /25U /1000U);
     do
     {
       if(count-- == 0U)
