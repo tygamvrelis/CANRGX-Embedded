@@ -164,19 +164,21 @@ extern osSemaphoreId semTxHandle;
 extern osSemaphoreId semRxHandle;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (huart->Instance == USART2 && semTxHandle != NULL){
     	// Check USART instance
-    	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
     	xSemaphoreGiveFromISR(semTxHandle, &xHigherPriorityTaskWoken);
     }
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (huart->Instance == USART2 && semTxHandle != NULL){
     	// Check USART instance
-    	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
     	xSemaphoreGiveFromISR(semRxHandle, &xHigherPriorityTaskWoken);
     }
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 //#define IO_RX_BUFFER_SIZE 256

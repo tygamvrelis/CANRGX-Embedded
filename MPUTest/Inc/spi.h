@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
+  * File Name          : SPI.h
+  * Description        : This file provides code for the configuration
+  *                      of the SPI instances.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -46,93 +46,46 @@
   *
   ******************************************************************************
   */
-
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#ifndef __spi_H
+#define __spi_H
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "main.h"
 
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
-/* Private define ------------------------------------------------------------*/
-#define TEC_PWM_PERIOD 18000
-#define MPU9250_CYCLE_MS 2
-#define CONTROL_CYCLE_MS 2
-#define TEMP_CYCLE_MS 10
-#define MAGNET_PWM_PERIOD 18000
-
-#define B1_Pin GPIO_PIN_13
-#define B1_GPIO_Port GPIOC
-#define Temp3A_Pin GPIO_PIN_0
-#define Temp3A_GPIO_Port GPIOC
-#define Temp3B_Pin GPIO_PIN_3
-#define Temp3B_GPIO_Port GPIOC
-#define Temp1A_Pin GPIO_PIN_0
-#define Temp1A_GPIO_Port GPIOA
-#define Temp1B_Pin GPIO_PIN_1
-#define Temp1B_GPIO_Port GPIOA
-#define USART_TX_Pin GPIO_PIN_2
-#define USART_TX_GPIO_Port GPIOA
-#define USART_RX_Pin GPIO_PIN_3
-#define USART_RX_GPIO_Port GPIOA
-#define LD2_Pin GPIO_PIN_5
-#define LD2_GPIO_Port GPIOA
-#define Magnet_1A_Pin GPIO_PIN_6
-#define Magnet_1A_GPIO_Port GPIOA
-#define Magnet_1B_Pin GPIO_PIN_7
-#define Magnet_1B_GPIO_Port GPIOA
-#define Temp2A_Pin GPIO_PIN_4
-#define Temp2A_GPIO_Port GPIOC
-#define Temp2B_Pin GPIO_PIN_5
-#define Temp2B_GPIO_Port GPIOC
-#define Magnet_2A_Pin GPIO_PIN_0
-#define Magnet_2A_GPIO_Port GPIOB
-#define Magnet_2B_Pin GPIO_PIN_1
-#define Magnet_2B_GPIO_Port GPIOB
-#define TEC_Right_Pin GPIO_PIN_14
-#define TEC_Right_GPIO_Port GPIOB
-#define TEC_Left_Pin GPIO_PIN_15
-#define TEC_Left_GPIO_Port GPIOB
-#define MPU_SDA_Pin GPIO_PIN_9
-#define MPU_SDA_GPIO_Port GPIOC
-#define MPU_SCL_Pin GPIO_PIN_8
-#define MPU_SCL_GPIO_Port GPIOA
-#define TMS_Pin GPIO_PIN_13
-#define TMS_GPIO_Port GPIOA
-#define TCK_Pin GPIO_PIN_14
-#define TCK_GPIO_Port GPIOA
-#define SWO_Pin GPIO_PIN_3
-#define SWO_GPIO_Port GPIOB
-#define MAG_SCL_Pin GPIO_PIN_6
-#define MAG_SCL_GPIO_Port GPIOB
-#define MAG_SDA_Pin GPIO_PIN_7
-#define MAG_SDA_GPIO_Port GPIOB
-
-/* ########################## Assert Selection ############################## */
-/**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
-  */
-/* #define USE_FULL_ASSERT    1U */
+extern SPI_HandleTypeDef hspi2;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-void _Error_Handler(char *, int);
+extern void _Error_Handler(char *, int);
 
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+void MX_SPI2_Init(void);
+
+/* USER CODE BEGIN Prototypes */
+
+/* USER CODE END Prototypes */
+
 #ifdef __cplusplus
 }
 #endif
+#endif /*__ spi_H */
 
-#endif /* __MAIN_H__ */
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

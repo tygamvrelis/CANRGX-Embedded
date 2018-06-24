@@ -54,6 +54,7 @@
 #include "dma.h"
 #include "i2c.h"
 #include "rtc.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -124,6 +125,8 @@ int main(void)
   MX_TIM12_Init();
   MX_USART2_UART_Init();
   MX_TIM10_Init();
+  MX_SPI2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
   MANUAL_MX_RTC_Init(); // Fix HAL bug where RTC is not initialized in the generated code
@@ -150,16 +153,17 @@ int main(void)
       if(mpuInitStatus == 1){
     	  break;
       }
-      else if(mpuInitStatus > -10){
+      else if(mpuInitStatus > -8){
     	  /* This is the case if there is a problem with the IMU module.
     	   * Try hard-resetting the IMU module. */
     	  uint8_t dataToWrite = 0x80;
 		  HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
       }
-      else if(mpuInitStatus <= -10){
+      else if(mpuInitStatus <= -8){
     	  /* This is the case if there is a problem with the magnetometer.
     	   * Try software-resetting the magnetometer. */
-    	  magnetometerWrite(CNTL2, 1);
+    	  uint8_t dataToWrite = 1;
+    	  HAL_I2C_Mem_Write(&hi2c3, MPU9250_MAG_ADDR, CNTL2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
       }
       if(i == 2){
     	  /* When the microcontroller program starts up, it is not guaranteed that
@@ -169,13 +173,15 @@ int main(void)
 		   * bus to get locked when the slave is asserting an ACK and then the master
 		   * clock drops out. The solution is to send some clock pulses to transition the
 		   * state of the slave that's freezing the bus. */
-    	  generateClocks(10, 0); // Generate 10 clock periods
+    	  generateClocks(&hi2c3, 10, 0); // Generate 10 clock periods for accelerometer
+    	  generateClocks(&hi2c1, 10, 0); // Generate 10 clock periods for magnetometer
       }
       if(i == 3){
     	  /* There is a silicon bug in some ST MCUs where a filter in the I2C module
     	   * randomly asserts the busy flag. The function below follows certain procedures
     	   * presented in an errata document to alleviate the issue. */
-    	  generateClocks(1, 1); // Send 1 stop bit
+    	  generateClocks(&hi2c3, 1, 1); // Send 1 stop bit
+    	  generateClocks(&hi2c1, 1, 1); // Send 1 stop bit
       }
       HAL_Delay(10);
   }
