@@ -443,10 +443,12 @@ void StartControlTask(void const * argument)
 		}
 
 		/********** Tell transmit task that new data is ready **********/
-		controlData.mag1Power = (int16_t)(magnet1Info.dutyCycle * 100);
-		controlData.mag2Power = (int16_t)(magnet2Info.dutyCycle * 100);
-		controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 100);
-		controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 100);
+		// Here, we multiply the duty cycle by 100 * 100 so that we capture the
+		// integer part and the fractional part (to 2 decimal places)
+		controlData.mag1Power = (int16_t)(magnet1Info.dutyCycle * 10000);
+		controlData.mag2Power = (int16_t)(magnet2Info.dutyCycle * 10000);
+		controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 10000);
+		controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 10000);
 		xQueueSend(xTXDataQueueHandle, &txDataControl, 1);
 	}
   /* USER CODE END StartControlTask */

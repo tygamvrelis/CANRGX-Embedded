@@ -90,8 +90,10 @@ def main():
             
             # Print data every so often
             if(numReceptions % 100 == 0):
+                print(datetime.now().strftime('%H.%M.%S.%f'))
                 for key in parsedNavPacket.keys():
                     print(str(key) + ": " + str(parsedNavPacket[key]))
+                print('\n')
 
 if __name__ == "__main__":
     main()

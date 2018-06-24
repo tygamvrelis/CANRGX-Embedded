@@ -10575,7 +10575,7 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_macro   0x0002ae69      0x390 Src/tim.o
  .debug_macro   0x0002b1f9      0x447 Src/usart.o
 
-.debug_line     0x00000000    0x20f87
+.debug_line     0x00000000    0x20f89
  .debug_line    0x00000000      0xd73 Drivers/MPU9250/MPU9250.o
  .debug_line    0x00000d73      0xb36 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
  .debug_line    0x000018a9      0xdcf Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
@@ -10602,19 +10602,19 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_line    0x000162e5      0xc61 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
  .debug_line    0x00016f46      0xdcc Src/adc.o
  .debug_line    0x00017d12      0x95a Src/dma.o
- .debug_line    0x0001866c      0xf0f Src/freertos.o
- .debug_line    0x0001957b      0x960 Src/gpio.o
- .debug_line    0x00019edb      0xcc6 Src/i2c.o
- .debug_line    0x0001aba1      0xe5d Src/main.o
- .debug_line    0x0001b9fe      0x9c3 Src/rtc.o
- .debug_line    0x0001c3c1      0x9a4 Src/spi.o
- .debug_line    0x0001cd65      0x95b Src/stm32f4xx_hal_msp.o
- .debug_line    0x0001d6c0      0x98e Src/stm32f4xx_hal_timebase_TIM.o
- .debug_line    0x0001e04e      0xc85 Src/stm32f4xx_it.o
- .debug_line    0x0001ecd3      0x986 Src/system_stm32f4xx.o
- .debug_line    0x0001f659      0xc2f Src/tim.o
- .debug_line    0x00020288      0xc7d Src/usart.o
- .debug_line    0x00020f05       0x82 startup/startup_stm32f446xx.o
+ .debug_line    0x0001866c      0xf11 Src/freertos.o
+ .debug_line    0x0001957d      0x960 Src/gpio.o
+ .debug_line    0x00019edd      0xcc6 Src/i2c.o
+ .debug_line    0x0001aba3      0xe5d Src/main.o
+ .debug_line    0x0001ba00      0x9c3 Src/rtc.o
+ .debug_line    0x0001c3c3      0x9a4 Src/spi.o
+ .debug_line    0x0001cd67      0x95b Src/stm32f4xx_hal_msp.o
+ .debug_line    0x0001d6c2      0x98e Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_line    0x0001e050      0xc85 Src/stm32f4xx_it.o
+ .debug_line    0x0001ecd5      0x986 Src/system_stm32f4xx.o
+ .debug_line    0x0001f65b      0xc2f Src/tim.o
+ .debug_line    0x0002028a      0xc7d Src/usart.o
+ .debug_line    0x00020f07       0x82 startup/startup_stm32f446xx.o
 
 .debug_str      0x00000000    0xe292b
  .debug_str     0x00000000    0xd8287 Drivers/MPU9250/MPU9250.o
