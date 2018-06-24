@@ -631,6 +631,9 @@ void StartMPU9250Task(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+	// TODO: if MPU sensor fails a few consecutive cycles, we can decrease
+	// its sampling rate by 100 times until it works again so that we don't
+	// slow down the system
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS)); // Service this task every MPU9250_CYCLE_MS milliseconds
 
     /* Acceleration */
