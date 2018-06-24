@@ -628,13 +628,10 @@ void StartMPU9250Task(void const * argument)
   /* Initial state is sensing no event, and no command to transmit */
   enum flightEvents_e sensedEvent = NONE;
 
-  MPUFilterType azFilter, ayFilter, axFilter, hzFilter, hyFilter, hxFilter;
+  MPUFilterType azFilter, ayFilter, axFilter;
   MPUFilter_init(&axFilter);
   MPUFilter_init(&ayFilter);
   MPUFilter_init(&azFilter);
-  MPUFilter_init(&hxFilter);
-  MPUFilter_init(&hyFilter);
-  MPUFilter_init(&hzFilter);
 
   /* Infinite loop */
   for(;;)
@@ -671,16 +668,6 @@ void StartMPU9250Task(void const * argument)
 	/* Magnetometer */
 	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
 	if(magStatus == 1){
-    	/***** Filter the signals along each axis *****/
-    	MPUFilter_writeInput(&hxFilter, myMPU9250.hx);
-    	myMPU9250.hx = MPUFilter_readOutput(&hxFilter);
-
-    	MPUFilter_writeInput(&hyFilter, myMPU9250.hy);
-    	myMPU9250.hy = MPUFilter_readOutput(&hyFilter);
-
-    	MPUFilter_writeInput(&hzFilter, myMPU9250.hz);
-    	myMPU9250.hz = MPUFilter_readOutput(&hzFilter);
-
 		magnetometerData.hx = myMPU9250.hx;
 		magnetometerData.hy = myMPU9250.hy;
 		magnetometerData.hz = myMPU9250.hz;
