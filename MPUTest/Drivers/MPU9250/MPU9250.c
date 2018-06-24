@@ -22,7 +22,6 @@ const float g = 9.807; // Acceleration due to gravity on Earth
 /********************************** Private *********************************/
 // Any data transfer will wait up to 1 ms on a semaphore before timing out
 static const TickType_t MAX_SEM_WAIT = 1;
-static int magnetometerWrite_IT(uint8_t addr, uint8_t data, osSemaphoreId sem);
 
 
 
@@ -99,22 +98,25 @@ int MPU9250Init(MPU9250_t* myMPU){
 
 	/********** Configure magnetometer **********/
 	// Check that correct device ID is read
-	magnetometerRead(WIA, 1, buff);
-	magnetometerRead(WIA, 1, buff); // For some read, reading didn't always work the very first time
+	if(HAL_I2C_Mem_Read(&hi2c1, MPU9250_MAG_ADDR, WIA, I2C_MEMADD_SIZE_8BIT, buff, 1, 100) != HAL_OK){
+		return -8;
+	}
 	if(buff[0] != 0x48){
-		return -10;
+		return -9;
 	}
 
 	// Reset
-	if(magnetometerWrite(CNTL2, 0x01) != 1){
-		return -11;
+	dataToWrite = 0x01;
+	if(HAL_I2C_Mem_Write(&hi2c1, MPU9250_MAG_ADDR, CNTL2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+		return -10;
 	}
 
 	HAL_Delay(10); // Resetting might take some time
 
 	// Enable continuous measurement
-	if(magnetometerWrite(CNTL1, 0x16) != 1){
-		return -12;
+	dataToWrite = 0x16;
+	if(HAL_I2C_Mem_Write(&hi2c1, MPU9250_MAG_ADDR, CNTL1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100) != HAL_OK){
+		return -11;
 	}
 
 	/* Return success */
@@ -188,21 +190,21 @@ int runtimeResetMagnetometer(osSemaphoreId sem){
 	 * 	  sem, handle for the semaphore to take while transferring data
 	 *
 	 * Returns:
-	 *    1 if successful, -1 otherwise
+	 *    1 if successful, otherwise a negative error code
 	 */
 
-	int status;
-
 	// Reset
-	status = magnetometerWrite_IT(CNTL2, 0x01, sem);
-	if(status != 1){
-		return status;
+	uint8_t dataToWrite = 0x01;
+	HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_MAG_ADDR, CNTL2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite));
+	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
+		return -1;
 	}
 
 	// Enable continuous measurement
-	status = magnetometerWrite_IT(CNTL1, 0x16, sem);
-	if(status != 1){
-		return 2 * status;
+	dataToWrite = 0x16;
+	HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_MAG_ADDR, CNTL1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite));
+	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
+		return -2;
 	}
 
 	return 1;
@@ -309,27 +311,9 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	 */
 
     uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
-	int16_t temp;
+    int16_t temp;
 
-	uint8_t dataToWrite[3];
-	dataToWrite[0] = MPU9250_MAG_ADDR | 0x80; // slave addr | read
-	dataToWrite[1] = MPU9250_MAG_X_ADDR_L; // Address within magnetometer to read from
-	dataToWrite[2] = 0x80 | 7; // Enable | transfer numBytes bytes
-
-	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, dataToWrite, sizeof(dataToWrite)) != HAL_OK){
-		myMPU9250.hx = NAN;
-		myMPU9250.hy = NAN;
-		myMPU9250.hz = NAN;
-		return -1;
-	}
-	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
-		myMPU9250.hx = NAN;
-		myMPU9250.hy = NAN;
-		myMPU9250.hz = NAN;
-		return -2;
-	}
-
-	if(HAL_I2C_Mem_Read_DMA(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, mpu_buff, 7) != HAL_OK){
+	if(HAL_I2C_Mem_Read_DMA(&hi2c1, MPU9250_MAG_ADDR, MPU9250_MAG_X_ADDR_L, I2C_MEMADD_SIZE_8BIT, mpu_buff, sizeof(mpu_buff)) != HAL_OK){
 		myMPU9250.hx = NAN;
 		myMPU9250.hy = NAN;
 		myMPU9250.hz = NAN;
@@ -354,101 +338,6 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 
 	return 1;
 }
-
-int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff){
-	/* Reads from the magnetometer and stores the results in a buffer.
-	 *
-	 * Arguments: addr, the magnetometer register address to start reading from
-	 * 			  numBytes, the number of sequential bytes to read
-	 * 			  buff, the buffer to store the read data
-	 *
-	 * Returns: 1 if successful, otherwise a negative error code
-	 */
-
-	uint8_t dataToWrite = MPU9250_MAG_ADDR | 0x80; // slave addr | read
-	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
-		return -1;
-	}
-
-	dataToWrite = addr;
-	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
-		return -2;
-	}
-
-	dataToWrite = 0x80 | numBytes; // Enable | transfer numBytes bytes
-	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
-		return -3;
-	}
-
-	if(HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, EXT_SENS_DATA_00, I2C_MEMADD_SIZE_8BIT, buff, numBytes, 100) != HAL_OK){
-		return -4;
-	}
-
-	return 1;
-}
-
-int magnetometerWrite(uint8_t addr, uint8_t data){
-	/* Write data to magnetometer.
-	 *
-	 * Arguments: addr, the magnetometer register address to write to
-	 * 			  data, the data to write to the aforementioned address
-	 *
-	 * Returns: 1 if successful, otherwise a negative error code
-	 */
-
-	uint8_t dataToWrite = MPU9250_MAG_ADDR;
-	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
-		return -1;
-	}
-
-	dataToWrite = addr;
-	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_REG, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
-		return -2;
-	}
-
-	dataToWrite = data;
-	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_DO, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
-		return -3;
-	}
-
-	dataToWrite = 0x80 | 1; // Enable | transfer 1 byte
-	if(HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_CTRL, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1, 100) != HAL_OK){
-		return -4;
-	}
-
-	return 1;
-}
-
-static int magnetometerWrite_IT(uint8_t addr, uint8_t data, osSemaphoreId sem){
-	/* Write data to magnetometer.
-	 *
-	 * Arguments: addr, the magnetometer register address to write to
-	 * 			  data, the data to write to the aforementioned address
-	 * 			  sem, handle for the semaphore to take while transferring data
-	 *
-	 * Returns: 1 if successful, otherwise a negative error code
-	 */
-
-	uint8_t dataToWrite = data;
-	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_DO, I2C_MEMADD_SIZE_8BIT, &dataToWrite, 1) != HAL_OK){
-		return -1;
-	}
-	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
-		return -2;
-	}
-
-	uint8_t arrData[3] = {MPU9250_MAG_ADDR, addr, 0x80 | 1};
-	if(HAL_I2C_Mem_Write_IT(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, I2C_SLV0_ADDR, I2C_MEMADD_SIZE_8BIT, arrData, sizeof(arrData)) != HAL_OK){
-		return -3;
-	}
-	if(xSemaphoreTake(sem, MAX_SEM_WAIT) != pdTRUE){
-		return -4;
-	}
-
-	return 1;
-}
-
-
 
 
 // Note: The following 2 functions are used as a workaround for an issue where the BUSY flag of the

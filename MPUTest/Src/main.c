@@ -153,16 +153,17 @@ int main(void)
       if(mpuInitStatus == 1){
     	  break;
       }
-      else if(mpuInitStatus > -10){
+      else if(mpuInitStatus > -8){
     	  /* This is the case if there is a problem with the IMU module.
     	   * Try hard-resetting the IMU module. */
     	  uint8_t dataToWrite = 0x80;
 		  HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
       }
-      else if(mpuInitStatus <= -10){
+      else if(mpuInitStatus <= -8){
     	  /* This is the case if there is a problem with the magnetometer.
     	   * Try software-resetting the magnetometer. */
-    	  magnetometerWrite(CNTL2, 1);
+    	  uint8_t dataToWrite = 1;
+    	  HAL_I2C_Mem_Write(&hi2c3, MPU9250_MAG_ADDR, CNTL2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
       }
       if(i == 2){
     	  /* When the microcontroller program starts up, it is not guaranteed that

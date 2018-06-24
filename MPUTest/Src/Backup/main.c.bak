@@ -54,6 +54,7 @@
 #include "dma.h"
 #include "i2c.h"
 #include "rtc.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -124,6 +125,8 @@ int main(void)
   MX_TIM12_Init();
   MX_USART2_UART_Init();
   MX_TIM10_Init();
+  MX_SPI2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
   MANUAL_MX_RTC_Init(); // Fix HAL bug where RTC is not initialized in the generated code
