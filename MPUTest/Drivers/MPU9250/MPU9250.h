@@ -30,7 +30,7 @@
 #define MPU9250_ACCEL_AND_GYRO_ADDR 0x68 << 1 // pg. 32 of datasheet. Also, this is shifted
 											  // 1 bit to the left because that's what ST's
 											  // HAL libraries require...apparently...
-#define MPU9250_MAG_ADDR 0x0C // pg. 24 of datasheet
+#define MPU9250_MAG_ADDR 0x0C << 1// pg. 24 of datasheet
 
 
 // Register addresses for configuration stuff
@@ -126,7 +126,7 @@ int MPU9250Init(MPU9250_t* myMPU);
 
 int runtimeResetIMU(osSemaphoreId sem);
 int runtimeResetMagnetometer(osSemaphoreId sem);
-void generateClocks(uint8_t numClocks, uint8_t sendStopBits); // Use with caution
+void generateClocks(I2C_HandleTypeDef* hi2c, uint8_t numClocks, uint8_t sendStopBits); // Use with caution
 
 int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);

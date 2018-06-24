@@ -370,7 +370,7 @@ static uint8_t wait_for_gpio_state_timeout(GPIO_TypeDef* port, uint16_t pin, GPI
     return ret;
 }
 
-void generateClocks(uint8_t numClocks, uint8_t sendStopBits){
+void generateClocks(I2C_HandleTypeDef* hi2c, uint8_t numClocks, uint8_t sendStopBits){
 	/* This function big-bangs the I2C master clock
 	 *
 	 * https://electronics.stackexchange.com/questions/267972/i2c-busy-flag-strange-behaviour/281046#281046
@@ -391,8 +391,18 @@ void generateClocks(uint8_t numClocks, uint8_t sendStopBits){
 		GPIO_TypeDef*       sdaPort;
 		uint16_t            sclPin;
 		GPIO_TypeDef*       sclPort;
-	}i2cmodule = {&hi2c3, MPU_SDA_Pin, MPU_SDA_GPIO_Port, MPU_SCL_Pin, MPU_SCL_GPIO_Port};
-	static struct I2C_Module* i2c = &i2cmodule;
+	}i2c3module = {&hi2c3, MPU_SDA_Pin, MPU_SDA_GPIO_Port, MPU_SCL_Pin, MPU_SCL_GPIO_Port};
+
+	static struct I2C_Module i2c1module = {&hi2c1, MAG_SDA_Pin, MAG_SDA_GPIO_Port, MAG_SCL_Pin, MAG_SCL_GPIO_Port};
+
+	struct I2C_Module* i2c = NULL;
+	if(hi2c == &hi2c1){
+		 i2c = &i2c1module;
+	}
+	else{
+	     i2c = &i2c3module;
+	}
+
 	static uint8_t timeout = 1;
 
 	GPIO_InitTypeDef GPIO_InitStructure;

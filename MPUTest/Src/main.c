@@ -173,13 +173,15 @@ int main(void)
 		   * bus to get locked when the slave is asserting an ACK and then the master
 		   * clock drops out. The solution is to send some clock pulses to transition the
 		   * state of the slave that's freezing the bus. */
-    	  generateClocks(10, 0); // Generate 10 clock periods
+    	  generateClocks(&hi2c3, 10, 0); // Generate 10 clock periods for accelerometer
+    	  generateClocks(&hi2c1, 10, 0); // Generate 10 clock periods for magnetometer
       }
       if(i == 3){
     	  /* There is a silicon bug in some ST MCUs where a filter in the I2C module
     	   * randomly asserts the busy flag. The function below follows certain procedures
     	   * presented in an errata document to alleviate the issue. */
-    	  generateClocks(1, 1); // Send 1 stop bit
+    	  generateClocks(&hi2c3, 1, 1); // Send 1 stop bit
+    	  generateClocks(&hi2c1, 1, 1); // Send 1 stop bit
       }
       HAL_Delay(10);
   }
