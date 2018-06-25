@@ -432,8 +432,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		ADC_processed[j] >>= 6;
 	}
 
-	BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	xSemaphoreGiveFromISR(semTemperatureHandle, &xHigherPriorityTaskWoken);
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 int Temp_Scan_Start(void){

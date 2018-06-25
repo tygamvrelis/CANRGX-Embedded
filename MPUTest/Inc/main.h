@@ -107,6 +107,10 @@
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define MAG_SCL_Pin GPIO_PIN_6
+#define MAG_SCL_GPIO_Port GPIOB
+#define MAG_SDA_Pin GPIO_PIN_7
+#define MAG_SDA_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**

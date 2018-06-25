@@ -62,7 +62,7 @@ def main():
         logString("Log created at " + str(os.getcwd()) + '\\' + data_root, f)
         # The aircraft data is broadcast as a UDP packet on port 5124.
         # The host computer must have an IP address as follows: 132.246.192.[25..50]
-        bind_ip = '127.0.0.1' #'134.246.192.255'
+        bind_ip = '' # All addresses
         bind_port = 5124
     
         # Create a socket for receiving
@@ -90,8 +90,10 @@ def main():
             
             # Print data every so often
             if(numReceptions % 100 == 0):
+                print(datetime.now().strftime('%H.%M.%S.%f'))
                 for key in parsedNavPacket.keys():
                     print(str(key) + ": " + str(parsedNavPacket[key]))
+                print('\n')
 
 if __name__ == "__main__":
     main()
