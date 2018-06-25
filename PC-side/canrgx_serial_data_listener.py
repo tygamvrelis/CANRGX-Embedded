@@ -152,6 +152,10 @@ class CANRGXSerialDataListener(QtCore.QObject):
     def execute_manual_stop(self):
         self.sendToMCU("XX\n")
 
+    def execute_manual_reset(self):
+        self.sendToMCU("RST\n")
+
+
 def show_initialization():
     print("Initialized!!!!")
 

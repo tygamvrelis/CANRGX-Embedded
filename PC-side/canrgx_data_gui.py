@@ -104,6 +104,19 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.bottomHLayout.addWidget(self.manualStopButton)
         self.manualStopButton.clicked.connect(self.manual_stop_button_callback)
 
+        self.manualResetButton = QtWidgets.QPushButton(self.main_widget)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.manualResetButton.sizePolicy().hasHeightForWidth())
+        self.manualResetButton.setObjectName("manualResetButton")
+        self.manualResetButton.setText("Manual Reset")
+        self.bottomHLayout.addWidget(self.manualResetButton)
+        self.manualResetButton.clicked.connect(self.manual_reset_button_callback)
+
+
         self.errLabel = QtWidgets.QLabel(self.main_widget)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -164,6 +177,10 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     def manual_start_button_callback(self,checked):
         self.request_manual_start.emit(int(self.runNumberSpinBox.value()))
 
+    def manual_reset_button_callback(self,checked):
+        self.request_manual_reset.emit(int(self.runNumberSpinBox.value()))
+
+    
     def manual_stop_button_callback(self, checked):
         self.request_manual_stop.emit()
 
