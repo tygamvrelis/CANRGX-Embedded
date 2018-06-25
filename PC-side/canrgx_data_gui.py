@@ -29,6 +29,8 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     closing=QtCore.pyqtSignal()
     request_manual_start = QtCore.pyqtSignal(int)
     request_manual_stop = QtCore.pyqtSignal()
+    request_manual_reset = QtCore.pyqtSignal()
+
 
     def __init__(self):
 
@@ -152,7 +154,9 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.listener.frame_error.connect(self.update_error)
         self.request_manual_start.connect(self.listener.execute_manual_start)
         self.request_manual_stop.connect(self.listener.execute_manual_stop)
-        
+        self.request_manual_stop.connect(self.listener.execute_manual_reset)
+
+
         self.log_thread.start()
         
         self.main_widget.setFocus()
@@ -177,7 +181,8 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.request_manual_start.emit(int(self.runNumberSpinBox.value()))
 
     def manual_reset_button_callback(self,checked):
-        self.request_manual_reset.emit(int(self.runNumberSpinBox.value()))
+        print("Manual Reset")
+        self.request_manual_reset.emit()
 
     
     def manual_stop_button_callback(self, checked):
