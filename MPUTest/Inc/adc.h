@@ -72,6 +72,12 @@ extern volatile uint16_t ADC2_buff[2 * ADC_DATA_N];
 extern volatile uint16_t ADC3_buff[2 * ADC_DATA_N];
 extern volatile uint32_t ADC_processed[6]; // Processed results
 
+typedef enum ADCIdx{
+	IDX_ADC1,
+	IDX_ADC2,
+	IDX_ADC3
+}ADCIdx_e;
+
 enum tempSensors{
 	TEMP1,
 	TEMP2,

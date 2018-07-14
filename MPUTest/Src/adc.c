@@ -429,18 +429,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-extern osSemaphoreId semTemperatureHandle;
+extern osThreadId TempTaskHandle;
 
 volatile uint16_t ADC1_buff[2 * ADC_DATA_N];
 volatile uint16_t ADC2_buff[2 * ADC_DATA_N];
 volatile uint16_t ADC3_buff[2 * ADC_DATA_N];
 volatile uint32_t ADC_processed[6];
-
-typedef enum ADCIdx{
-	IDX_ADC1,
-	IDX_ADC2,
-	IDX_ADC3
-}ADCIdx_e;
 
 typedef enum bufferState{
 	STATE_HALF_FULL,
@@ -449,35 +443,37 @@ typedef enum bufferState{
 
 inline ADCIdx_e setUpADCProcessing(
 	ADC_HandleTypeDef* hadc,
-	uint16_t* adc_buff,
-	uint32_t* adc_processed
+	volatile uint16_t* adc_buff,
+	volatile uint32_t* adc_processed
 )
 {
-	uint32_t clearValue = 0;
 	if(hadc == &hadc1){
-		memcpy(&ADC_processed[0], clearValue, sizeof(uint32_t));
+		ADC_processed[0] = 0;
+		ADC_processed[1] = 0;
 		adc_buff = ADC1_buff;
 		adc_processed = &ADC_processed[0];
 		return IDX_ADC1;
 	}
 	else if(hadc == &hadc2){
-		memcpy(&ADC_processed[2], clearValue, sizeof(uint32_t));
+		ADC_processed[2] = 0;
+		ADC_processed[3] = 0;
 		adc_buff = ADC2_buff;
 		adc_processed = &ADC_processed[2];
 		return IDX_ADC2;
 	}
 	else{
-		memcpy(&ADC_processed[4], clearValue, sizeof(uint32_t));
+		ADC_processed[4] = 0;
+		ADC_processed[5] = 0;
 		adc_buff = ADC3_buff;
 		adc_processed = &ADC_processed[4];
 		return IDX_ADC3;
 	}
 }
 
-inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
-	uint16_t* adc_buff = NULL;
-	uint32_t* adc_processed = NULL;
-	ADCIdx_e adcIdx = setUpADCProcessing(hadc, &adc_buff, &adc_processed);
+inline ADCIdx_e processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
+	volatile uint16_t* adc_buff = NULL;
+	volatile uint32_t* adc_processed = NULL;
+	ADCIdx_e adcIdx = setUpADCProcessing(hadc, adc_buff, adc_processed);
 
 	uint8_t start = 0;
 	uint8_t end = ADC_DATA_N / 2;
@@ -493,6 +489,8 @@ inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
 
 	*adc_processed >>= 6;
 	*(adc_processed + 1) >>= 6;
+
+	return adcIdx;
 }
 
 /**
@@ -501,10 +499,10 @@ inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
  */
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	processADC(hadc, STATE_HALF_FULL);
+	ADCIdx_e adcIdx = processADC(hadc, STATE_HALF_FULL);
 
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xSemaphoreGiveFromISR(semTemperatureHandle, &xHigherPriorityTaskWoken);
+	xTaskNotifyFromISR(TempTaskHandle, adcIdx, eSetBits, &xHigherPriorityTaskWoken);
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -514,25 +512,30 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
  */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	processADC(hadc, STATE_FULL);
+	ADCIdx_e adcIdx = processADC(hadc, STATE_FULL);
 
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xSemaphoreGiveFromISR(semTemperatureHandle, &xHigherPriorityTaskWoken);
+	xTaskNotifyFromISR(TempTaskHandle, adcIdx, eSetBits, &xHigherPriorityTaskWoken);
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 int Temp_Scan_Start(void){
-	/* Initializes the ADC1 peripheral (in CubeMX, this should be configured
-	 * to sweep all 6 temperature sensor channels). Uses DMA to write to a large
-	 * buffer.
+	/* Initializes ADC1, ADC2, and ADC3 to use DMA to transfer sample data to
+	 * buffers.
 	 *
 	 * Arguments: None
 	 *
-	 * Returns: 1 if successful, -1 otherwise
+	 * Returns: 1 if successful, otherwise a negative error code
 	 */
 
-	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff, ADC_DATA_N) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC1_buff, 2 * ADC_DATA_N) != HAL_OK){
 	    return -1;
+	}
+	if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2_buff, 2 * ADC_DATA_N) != HAL_OK){
+	    return -2;
+	}
+	if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC3_buff, 2 * ADC_DATA_N) != HAL_OK){
+	    return -3;
 	}
 
 	return 1;
@@ -543,11 +546,17 @@ int Temp_Scan_Stop(void){
 	 *
 	 * Arguments: none
 	 *
-	 * Returns: 1 if successful, -1 otherwise
+	 * Returns: 1 if successful, otherwise a negative error code
 	 */
 
 	if(HAL_ADC_Stop_DMA(&hadc1) != HAL_OK){
 	    return -1;
+	}
+	if(HAL_ADC_Stop_DMA(&hadc2) != HAL_OK){
+	    return -2;
+	}
+	if(HAL_ADC_Stop_DMA(&hadc3) != HAL_OK){
+	    return -3;
 	}
 
 	return 1;
