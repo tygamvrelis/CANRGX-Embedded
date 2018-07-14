@@ -709,8 +709,8 @@ void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
   const char MANUAL_OVERRIDE_START_CHAR = 'S';
-  const char MANUAL_OVERRIDE_STOP_CHAR = 'X';
-  const char RESET_CHAR = 'E';
+  const char MANUAL_OVERRIDE_STOP_SEQ[] = {'X', 'X'};
+  const char RESET_SEQ[] = {'R', 'S'};
 
   uint8_t buffer[3]; // buffer[0] == control character, buffer[1] == accompanying data, buffer[2] == '\n'
 
@@ -723,11 +723,27 @@ void StartRxTask(void const * argument)
 			 // Manual override for starting experiment
 			 xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'), eSetBits);
 		 }
-		 else if(buffer[0] == MANUAL_OVERRIDE_STOP_CHAR){
+		 else if(buffer[0] == MANUAL_OVERRIDE_STOP_SEQ[0] &&
+				 buffer[1] == MANUAL_OVERRIDE_STOP_SEQ[1])
+		 {
 			 // Manual override for stopping experiment
 			 xTaskNotify(ControlTaskHandle, MANUAL_OVERRIDE_STOP_BITMASK, eSetBits);
 		 }
-		 else if(buffer[0] == RESET_CHAR){
+		 else if(buffer[0] == RESET_SEQ[0] &&
+				 buffer[1] == RESET_SEQ[1])
+		 {
+			 // TODO: shut down safely, i.e., let all I/O transactions
+			 // finish so that we can start up properly again without
+			 // getting hung up
+			 // Do nothing while a UART transaction is ongoing
+			 while(hi2c1.State != HAL_I2C_STATE_RESET)
+			 {
+
+			 }
+			 while(huart2.gState != HAL_UART_STATE_READY)
+			 {
+
+			 }
 			 // Full system reset
 			 NVIC_SystemReset();
 		 }
