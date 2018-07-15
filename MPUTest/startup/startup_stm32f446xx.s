@@ -132,6 +132,7 @@ Default_Handler:
   other bits. */
   uxtb r2, r2
 Infinite_Loop:
+  b  HardFault_Handler
   b  Infinite_Loop
   .size  Default_Handler, .-Default_Handler
 

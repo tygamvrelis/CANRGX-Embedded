@@ -80,7 +80,7 @@ osThreadId TxTaskHandle;
 uint32_t DataLogTaskBuffer[ 512 ];
 osStaticThreadDef_t DataLogTaskControlBlock;
 osThreadId MPU9250TaskHandle;
-uint32_t MPU9250TaskBuffer[ 512 ];
+uint32_t MPU9250TaskBuffer[ 1024 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
 osThreadId RxTaskHandle;
 uint32_t rxTaskBuffer[ 512 ];
@@ -249,7 +249,7 @@ void MX_FREERTOS_Init(void) {
   TxTaskHandle = osThreadCreate(osThread(TxTask), NULL);
 
   /* definition and creation of MPU9250Task */
-  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityNormal, 0, 512, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
+  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityNormal, 0, 1024, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
   MPU9250TaskHandle = osThreadCreate(osThread(MPU9250Task), NULL);
 
   /* definition and creation of RxTask */
@@ -452,150 +452,171 @@ void StartControlTask(void const * argument)
 void StartTxTask(void const * argument)
 {
   /* USER CODE BEGIN StartTxTask */
-  /********** For intertask communication **********/
-  uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
+    /********** For intertask communication **********/
+    uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
 
-  TXData_t receivedData;
-  accelerometerData_t* accelerometerDataPtr = NULL;
-  magnetometerData_t* magnetometerDataPtr = NULL;
-  controlData_t* controlDataPtr = NULL;
-  temperatureData_t* temperatureDataPtr = NULL;
+    TXData_t receivedData;
+    accelerometerData_t* accelerometerDataPtr = NULL;
+    magnetometerData_t* magnetometerDataPtr = NULL;
+    controlData_t* controlDataPtr = NULL;
+    temperatureData_t* temperatureDataPtr = NULL;
 
-  /********** Local vars used for packet **********/
-  uint8_t buffer[50] = {0};
+    /********** Local vars used for packet **********/
+    uint8_t buffer[50] = {0};
 
-  // Dummy bits to indicate packet start
-  buffer[0] = 0xFF;
-  buffer[1] = 0xFF;
+    // Dummy bits to indicate packet start
+    buffer[0] = 0xFF;
+    buffer[1] = 0xFF;
 
-  // Addresses in buffer for each datum
-  uint8_t* tickStart = &buffer[2];
-  uint8_t* accelX = &buffer[6];
-  uint8_t* accelY = &buffer[10];
-  uint8_t* accelZ = &buffer[14];
-  uint8_t* magX = &buffer[18];
-  uint8_t* magY = &buffer[22];
-  uint8_t* magZ = &buffer[26];
-  uint8_t* mag1Power = &buffer[30];
-  uint8_t* mag2Power = &buffer[32];
-  uint8_t* tec1Power = &buffer[34];
-  uint8_t* tec2Power = &buffer[36];
-  uint8_t* temp1a = &buffer[38];
-  uint8_t* temp1b = &buffer[40];
-  uint8_t* temp2a = &buffer[42];
-  uint8_t* temp2b = &buffer[44];
-  uint8_t* temp3a = &buffer[46];
-  uint8_t* temp3b = &buffer[48];
+    // Addresses in buffer for each datum
+    uint8_t* tickStart = &buffer[2];
+    uint8_t* accelX = &buffer[6];
+    uint8_t* accelY = &buffer[10];
+    uint8_t* accelZ = &buffer[14];
+    uint8_t* magX = &buffer[18];
+    uint8_t* magY = &buffer[22];
+    uint8_t* magZ = &buffer[26];
+    uint8_t* mag1Power = &buffer[30];
+    uint8_t* mag2Power = &buffer[32];
+    uint8_t* tec1Power = &buffer[34];
+    uint8_t* tec2Power = &buffer[36];
+    uint8_t* temp1a = &buffer[38];
+    uint8_t* temp1b = &buffer[40];
+    uint8_t* temp2a = &buffer[42];
+    uint8_t* temp2b = &buffer[44];
+    uint8_t* temp3a = &buffer[46];
+    uint8_t* temp3b = &buffer[48];
 
-  TickType_t xLastWakeTime;
-  xLastWakeTime = xTaskGetTickCount();
+    /********** For packet timing management **********/
+    BaseType_t status;
+    TickType_t xLastWakeTime, cycleStartTick;
+    xLastWakeTime = xTaskGetTickCount();
+    cycleStartTick = xTaskGetTickCount();
 
-  /* Infinite loop */
-  for(;;)
-  {
-	  /********** Wait for something to transmit **********/
-	  while(xQueueReceive(xTXDataQueueHandle, &receivedData, portMAX_DELAY) != pdTRUE);
+    // Infinite loop
+    for(;;)
+    {
+        // Trigger this thread every 1 ms. This way, we are guaranteed to meet
+        // the 3 ms deadline
+        vTaskDelay(pdMS_TO_TICKS(1));
 
-	  switch(receivedData.type){
-		  case accelerometer_t:
-			  accelerometerDataPtr = (accelerometerData_t*)receivedData.data;
+        // Wait for something to transmit
+        do{
+            status = xQueueReceive(xTXDataQueueHandle, &receivedData, 0);
 
-			  if(accelerometerDataPtr == NULL){break;}
+            if(status == pdTRUE){
+                switch(receivedData.type){
+                    case accelerometer_t:
+                        accelerometerDataPtr = (accelerometerData_t*)receivedData.data;
 
-			  /* Update task flags to indicate MPU task has been received from */
-			  taskFlags = taskFlags | 0b00000001;
+                        if(accelerometerDataPtr == NULL){break;}
 
-			  /* Copy data to buffer */
-			  memcpy(accelX, &(accelerometerDataPtr -> ax), sizeof(float));
-			  memcpy(accelY, &(accelerometerDataPtr -> ay), sizeof(float));
-			  memcpy(accelZ, &(accelerometerDataPtr -> az), sizeof(float));
+                        // Update task flags to indicate MPU task has been received from
+                        taskFlags = taskFlags | 0b00000001;
 
-			  break;
-		  case magnetometer_t:
-			  magnetometerDataPtr = (magnetometerData_t*)receivedData.data;
+                        // Copy data to buffer
+                        memcpy(accelX, &(accelerometerDataPtr -> ax), sizeof(float));
+                        memcpy(accelY, &(accelerometerDataPtr -> ay), sizeof(float));
+                        memcpy(accelZ, &(accelerometerDataPtr -> az), sizeof(float));
 
-			  if(magnetometerDataPtr == NULL){break;}
+                        break;
+                    case magnetometer_t:
+                        magnetometerDataPtr = (magnetometerData_t*)receivedData.data;
 
-			  /* Update task flags to indicate MPU task has been received from */
-			  taskFlags = taskFlags | 0b00000010;
+                        if(magnetometerDataPtr == NULL){break;}
 
-			  memcpy(magX, &(magnetometerDataPtr -> hx), sizeof(float));
-			  memcpy(magY, &(magnetometerDataPtr -> hy), sizeof(float));
-			  memcpy(magZ, &(magnetometerDataPtr -> hz), sizeof(float));
+                        // Update task flags to indicate MPU task has been received from
+                        taskFlags = taskFlags | 0b00000010;
 
-			  break;
-		  case control_t:
-			  controlDataPtr = (controlData_t*)receivedData.data;
+                        memcpy(magX, &(magnetometerDataPtr -> hx), sizeof(float));
+                        memcpy(magY, &(magnetometerDataPtr -> hy), sizeof(float));
+                        memcpy(magZ, &(magnetometerDataPtr -> hz), sizeof(float));
 
-			  if(controlDataPtr == NULL){break;}
+                        break;
+                    case control_t:
+                        controlDataPtr = (controlData_t*)receivedData.data;
 
-			  /* Update task flags to indicate control task has been received from */
-			  taskFlags = taskFlags | 0b00000100;
+                        if(controlDataPtr == NULL){break;}
 
-			  /* Copy data to buffer */
-			  int16_t mag1data = controlDataPtr -> mag1Power;
-			  int16_t mag2data = controlDataPtr -> mag2Power;
-			  uint16_t tec1data = controlDataPtr -> tec1Power;
-			  uint16_t tec2data = controlDataPtr -> tec2Power;
-			  memcpy(mag1Power, &mag1data, sizeof(int16_t));
-			  memcpy(mag2Power, &mag2data, sizeof(int16_t));
-			  memcpy(tec1Power, &tec1data, sizeof(uint16_t));
-			  memcpy(tec2Power, &tec2data, sizeof(uint16_t));
+                        // Update task flags to indicate control task has been received from
+                        taskFlags = taskFlags | 0b00000100;
 
-			  break;
-		  case temperature_t:
-			  temperatureDataPtr = (temperatureData_t*)receivedData.data;
+                        // Copy data to buffer
+                        int16_t mag1data = controlDataPtr -> mag1Power;
+                        int16_t mag2data = controlDataPtr -> mag2Power;
+                        uint16_t tec1data = controlDataPtr -> tec1Power;
+                        uint16_t tec2data = controlDataPtr -> tec2Power;
+                        memcpy(mag1Power, &mag1data, sizeof(int16_t));
+                        memcpy(mag2Power, &mag2data, sizeof(int16_t));
+                        memcpy(tec1Power, &tec1data, sizeof(uint16_t));
+                        memcpy(tec2Power, &tec2data, sizeof(uint16_t));
 
-			  if(temperatureDataPtr == NULL){break;}
+                        break;
+                    case temperature_t:
+                        temperatureDataPtr = (temperatureData_t*)receivedData.data;
 
-			  /* Update task flags to indicate temperature task has been received from */
-			  taskFlags = taskFlags | 0b00001000;
+                        if(temperatureDataPtr == NULL){break;}
 
-			  /* Copy data to buffer */
-			  uint16_t temp1adata = temperatureDataPtr -> temp1a;
-			  uint16_t temp1bdata = temperatureDataPtr -> temp1b;
-			  uint16_t temp2adata = temperatureDataPtr -> temp2a;
-			  uint16_t temp2bdata = temperatureDataPtr -> temp2b;
-			  uint16_t temp3adata = temperatureDataPtr -> temp3a;
-			  uint16_t temp3bdata = temperatureDataPtr -> temp3b;
-			  memcpy(temp1a, &temp1adata, sizeof(uint16_t));
-			  memcpy(temp1b, &temp1bdata, sizeof(uint16_t));
-			  memcpy(temp2a, &temp2adata, sizeof(uint16_t));
-			  memcpy(temp2b, &temp2bdata, sizeof(uint16_t));
-			  memcpy(temp3a, &temp3adata, sizeof(uint16_t));
-			  memcpy(temp3b, &temp3bdata, sizeof(uint16_t));
+                        // Update task flags to indicate temperature task has been received from
+                        taskFlags = taskFlags | 0b00001000;
 
-			  break;
-		  default:
-			  break;
-	  }
+                        // Copy data to buffer
+                        uint16_t temp1adata = temperatureDataPtr -> temp1a;
+                        uint16_t temp1bdata = temperatureDataPtr -> temp1b;
+                        uint16_t temp2adata = temperatureDataPtr -> temp2a;
+                        uint16_t temp2bdata = temperatureDataPtr -> temp2b;
+                        uint16_t temp3adata = temperatureDataPtr -> temp3a;
+                        uint16_t temp3bdata = temperatureDataPtr -> temp3b;
+                        memcpy(temp1a, &temp1adata, sizeof(uint16_t));
+                        memcpy(temp1b, &temp1bdata, sizeof(uint16_t));
+                        memcpy(temp2a, &temp2adata, sizeof(uint16_t));
+                        memcpy(temp2b, &temp2bdata, sizeof(uint16_t));
+                        memcpy(temp3a, &temp3adata, sizeof(uint16_t));
+                        memcpy(temp3b, &temp3bdata, sizeof(uint16_t));
 
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }while(status == pdTRUE);
 
-	  /********** This runs when the first 2 data acquisition tasks have responded or timed out **********/
-	  if((taskFlags & 0b00000111) == 0b00000111){
-		  // Send packets every 3 milliseconds. At a symbol rate of 230400, it takes 2.17 ms
-		  // to send 50 bytes. To ease the data analysis process, this has been rounded up to
-		  // 3 ms so that it will be easier to "line up" data with the FreeRTOS tick.
-		  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
+        // This runs when:
+        //    1. the control & MPU9250 threads have responded
+        //    2. the timeout has elapsed
+        if((taskFlags & 0b00000111) == 0b00000111 ||
+           xTaskGetTickCount() - cycleStartTick >= pdMS_TO_TICKS(3)
+        )
+        {
+            // Send packets every 3 milliseconds. At a symbol rate of 230400, it takes 2.17 ms
+            // to send 50 bytes. To ease the data analysis process, this has been rounded up to
+            // 3 ms so that it will be easier to "line up" data with the FreeRTOS tick.
+            vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
 
-		  /* Obligatory packing */
-		  TickType_t curTick = xTaskGetTickCount();
-		  memcpy(tickStart, &curTick, sizeof(TickType_t));
+            // Clear task flags
+            taskFlags = 0x00;
 
-		  /* Block for 87 microseconds, the time for 2 bytes to be transmitted via
-		   * UART. This idle time guarantees interpacket delay, thus reducing
-		   * the probability of a framing error. Time out after 1 ms. */
-		  HAL_TIM_Base_Start_IT(&htim10);
-		  xTaskNotifyWait(UINT32_MAX, UINT32_MAX, NULL, 1);
+            // Get the tick at which we are starting the next cycle, for timeout
+            // purposes
+            cycleStartTick = xTaskGetTickCount();
 
-		  /* Transmit */
-		  HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
-		  xSemaphoreTake(semTxHandle, portMAX_DELAY);
+            // Pack the tick at which we are sending this packet
+            TickType_t curTick = xTaskGetTickCount();
+            memcpy(tickStart, &curTick, sizeof(TickType_t));
 
-		  /* Clear activation flags */
-		  taskFlags = 0x00;
-	  }
-  }
+            // Block for 87 microseconds, the time for 2 bytes to be transmitted
+            // via UART. This idle time guarantees interpacket delay, thus
+            // reducing the probability of a framing error. Time out after 1 ms.
+            HAL_TIM_Base_Start_IT(&htim10);
+            xTaskNotifyWait(UINT32_MAX, UINT32_MAX, NULL, 1);
+
+            // Transmit
+            HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
+
+            // Wait until transmit is done
+            xSemaphoreTake(semTxHandle, portMAX_DELAY);
+        }
+    }
   /* USER CODE END StartTxTask */
 }
 
@@ -649,27 +670,25 @@ void StartMPU9250Task(void const * argument)
     	myMPU9250.az = MPUFilter_readOutput(&azFilter);
 
     	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
-    	accelerometerData.ax = myMPU9250.ax;
-    	accelerometerData.ay = myMPU9250.ay;
-    	accelerometerData.az = myMPU9250.az;
     }
     else{
     	/* The accelerometer was not able to be read from properly, handle this here. */
     	generateClocks(&hi2c3, 1, 1);
     	myMPU9250.A = NAN;
     }
+    accelerometerData.ax = myMPU9250.ax;
+    accelerometerData.ay = myMPU9250.ay;
+    accelerometerData.az = myMPU9250.az;
 
 	/* Magnetometer */
 	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
-	if(magStatus == 1){
-		magnetometerData.hx = myMPU9250.hx;
-		magnetometerData.hy = myMPU9250.hy;
-		magnetometerData.hz = myMPU9250.hz;
-	}
-	else{
+	if(magStatus != 1){
 		/* The magnetometer was not able to be read from properly, handle this here. */
 		generateClocks(&hi2c1, 1, 1);
 	}
+    magnetometerData.hx = myMPU9250.hx;
+    magnetometerData.hy = myMPU9250.hy;
+    magnetometerData.hz = myMPU9250.hz;
 
 	/********** Tell transmit task that new data is ready **********/
 	xQueueSend(xTXDataQueueHandle, &txDataAccel, 1);
