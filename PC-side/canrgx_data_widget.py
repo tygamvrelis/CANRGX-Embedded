@@ -103,8 +103,8 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.mag_vec[roll_step:]=new_imu[:,3:6]
         self.mag_nrm[roll_step:]=np.linalg.norm(self.mag_vec[roll_step:],ord=2,axis=1)
         self.pwr_buf[roll_step:]=new_pwr
-        #self.tmp_buf[roll_step:] =(new_tmp.astype(np.float32) / 4096.0 * 3.3 - 0.4) / 0.0195
-        self.tmp_buf[roll_step:] = new_tmp
+        self.tmp_buf[roll_step:] =(new_tmp.astype(np.float32) / 4096.0 * 3.3 - 0.4) / 0.0195
+        #self.tmp_buf[roll_step:] = new_tmp
 
         self.update_figure()
 

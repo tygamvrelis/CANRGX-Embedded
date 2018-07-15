@@ -141,14 +141,14 @@ void MX_ADC2_Init(void)
   hadc2.Instance = ADC2;
   hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc2.Init.ScanConvMode = DISABLE;
-  hadc2.Init.ContinuousConvMode = DISABLE;
+  hadc2.Init.ScanConvMode = ENABLE;
+  hadc2.Init.ContinuousConvMode = ENABLE;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.NbrOfConversion = 2;
-  hadc2.Init.DMAContinuousRequests = DISABLE;
+  hadc2.Init.DMAContinuousRequests = ENABLE;
   hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc2) != HAL_OK)
   {
@@ -185,14 +185,14 @@ void MX_ADC3_Init(void)
   hadc3.Instance = ADC3;
   hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc3.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc3.Init.ScanConvMode = DISABLE;
-  hadc3.Init.ContinuousConvMode = DISABLE;
+  hadc3.Init.ScanConvMode = ENABLE;
+  hadc3.Init.ContinuousConvMode = ENABLE;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
   hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc3.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc3.Init.NbrOfConversion = 2;
-  hadc3.Init.DMAContinuousRequests = DISABLE;
+  hadc3.Init.DMAContinuousRequests = ENABLE;
   hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc3) != HAL_OK)
   {
@@ -300,7 +300,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc2.Init.MemInc = DMA_MINC_ENABLE;
     hdma_adc2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc2.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-    hdma_adc2.Init.Mode = DMA_NORMAL;
+    hdma_adc2.Init.Mode = DMA_CIRCULAR;
     hdma_adc2.Init.Priority = DMA_PRIORITY_LOW;
     hdma_adc2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
@@ -340,7 +340,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc3.Init.MemInc = DMA_MINC_ENABLE;
     hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-    hdma_adc3.Init.Mode = DMA_NORMAL;
+    hdma_adc3.Init.Mode = DMA_CIRCULAR;
     hdma_adc3.Init.Priority = DMA_PRIORITY_LOW;
     hdma_adc3.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_adc3) != HAL_OK)
@@ -431,10 +431,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 /* USER CODE BEGIN 1 */
 #define ADC_DATA_N 64 // 64 array elements per channel
 
-volatile uint16_t ADC1_buff[2 * ADC_DATA_N];
-volatile uint16_t ADC2_buff[2 * ADC_DATA_N];
-volatile uint16_t ADC3_buff[2 * ADC_DATA_N];
-uint32_t ADC_processed[6];
+volatile uint32_t ADC_buff[3][ADC_DATA_N];
+uint16_t ADC_processed[6];
 
 typedef enum bufferState{
 	STATE_HALF_FULL,
@@ -453,21 +451,21 @@ typedef enum bufferState{
  */
 inline void setUpADCProcessing(
 	ADC_HandleTypeDef* hadc,
-	volatile uint16_t* adc_buff,
-	uint32_t* adc_processed
+	volatile uint32_t** adc_buff,
+	uint16_t** adc_processed
 )
 {
 	if(hadc == &hadc1){
-		adc_buff = ADC1_buff;
-		adc_processed = &ADC_processed[0];
+		*adc_buff = ADC_buff[0];
+		*adc_processed = &ADC_processed[0];
 	}
 	else if(hadc == &hadc2){
-		adc_buff = ADC2_buff;
-		adc_processed = &ADC_processed[2];;
+		*adc_buff = ADC_buff[1];
+		*adc_processed = &ADC_processed[2];
 	}
 	else{
-		adc_buff = ADC3_buff;
-		adc_processed = &ADC_processed[4];
+		*adc_buff = ADC_buff[2];
+		*adc_processed = &ADC_processed[4];
 	}
 }
 
@@ -481,25 +479,25 @@ inline void setUpADCProcessing(
  */
 inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
 	uint32_t  accumulate[2] = {0};
-	volatile uint16_t* adc_raw_data_ptr = NULL;
-	uint32_t* adc_output_ptr = NULL;
+	volatile uint32_t* adc_raw_data_ptr = NULL; // Beginning of buffer
+	uint16_t* adc_output_ptr = NULL;
 
-	setUpADCProcessing(hadc, adc_raw_data_ptr, adc_output_ptr);
+	setUpADCProcessing(hadc, &adc_raw_data_ptr, &adc_output_ptr);
 
-	uint8_t start = 0;
-	uint8_t end = ADC_DATA_N / 2;
 	if(buffState == STATE_FULL){
-		start = ADC_DATA_N / 2;
-		end = ADC_DATA_N;
+		adc_raw_data_ptr += ADC_DATA_N / 2; // Middle of buffer
 	}
 
-	for(uint8_t i = start; i < end; i++){
-		*accumulate += adc_raw_data_ptr[i * 2];
-		*(accumulate + 1) += adc_raw_data_ptr[i * 2 + 1];
+	uint32_t raw_data;
+	for(uint8_t i = 0; i < ADC_DATA_N / 2; i++){
+		raw_data = *(adc_raw_data_ptr);
+		*accumulate += raw_data & 0xFFFF;
+		*(accumulate + 1) += (raw_data >> 16) & 0xFFFF ;
+		adc_raw_data_ptr++;
 	}
 
-	*adc_output_ptr = *accumulate >> 6;
-	*(adc_output_ptr + 1) = *(accumulate + 1) >> 6;
+	*adc_output_ptr = (uint16_t)(*accumulate >> 5);
+	*(adc_output_ptr + 1) = (uint16_t)(*(accumulate + 1) >> 5);
 }
 
 /**
@@ -529,13 +527,16 @@ int Temp_Scan_Start(void){
 	 * Returns: 1 if successful, otherwise a negative error code
 	 */
 
-	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC1_buff, 2 * ADC_DATA_N) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff[0], 2 * ADC_DATA_N) != HAL_OK){
 	    return -1;
 	}
-	if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC2_buff, 2 * ADC_DATA_N) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC_buff[1], 2 * ADC_DATA_N) != HAL_OK){
+		HAL_ADC_Stop_DMA(&hadc1);
 	    return -2;
 	}
-	if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC3_buff, 2 * ADC_DATA_N) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC_buff[2], 2 * ADC_DATA_N) != HAL_OK){
+		HAL_ADC_Stop_DMA(&hadc1);
+		HAL_ADC_Stop_DMA(&hadc2);
 	    return -3;
 	}
 
