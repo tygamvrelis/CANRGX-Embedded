@@ -726,18 +726,11 @@ void StartRxTask(void const * argument)
 		 else if(buffer[0] == RESET_SEQ[0] &&
 				 buffer[1] == RESET_SEQ[1])
 		 {
-			 // TODO: shut down safely, i.e., let all I/O transactions
-			 // finish so that we can start up properly again without
+			 // Shut down safely, i.e., let I/O transactions with IMU sensor
+			 // finish so that we can start up properly after a reset without
 			 // getting hung up
-			 // Do nothing while a UART transaction is ongoing
-			 while(hi2c1.State != HAL_I2C_STATE_RESET)
-			 {
+			 while(hi2c1.State != HAL_I2C_STATE_RESET){ continue; }
 
-			 }
-			 while(huart2.gState != HAL_UART_STATE_READY)
-			 {
-
-			 }
 			 // Full system reset
 			 NVIC_SystemReset();
 		 }
@@ -766,7 +759,7 @@ void StartTempTask(void const * argument)
   for(;;)
   {
 	  // Service this task every TEMP_CYCLE_MS milliseconds
-	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS / 2));
+	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS));
 
 	  temperatureData.thermocouple1 = ADC_processed[TEMP1];
 	  temperatureData.thermocouple2 = ADC_processed[TEMP2];
