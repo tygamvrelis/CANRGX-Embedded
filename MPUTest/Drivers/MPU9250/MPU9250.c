@@ -35,16 +35,16 @@ int MPU9250Init(MPU9250_t* myMPU){
 	 * Returns: 1 if successful, returns a negative error code otherwise
 	 */
 
-	myMPU -> az = -1.0;
-	myMPU -> ay = -1.0;
-	myMPU -> ax = -1.0;
-	myMPU -> A = -1.0;
-	myMPU -> vz = -1.0;
-	myMPU -> vy = -1.0;
-	myMPU -> vx = -1.0;
-	myMPU -> hx = -1.0;
-	myMPU -> hy = -1.0;
-	myMPU -> hz = -1.0;
+	myMPU -> az = NAN;
+	myMPU -> ay = NAN;
+	myMPU -> ax = NAN;
+	myMPU -> A = NAN;
+	myMPU -> vz = NAN;
+	myMPU -> vy = NAN;
+	myMPU -> vx = NAN;
+	myMPU -> hx = NAN;
+	myMPU -> hy = NAN;
+	myMPU -> hz = NAN;
 
 
 
