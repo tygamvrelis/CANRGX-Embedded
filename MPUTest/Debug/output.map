@@ -8951,59 +8951,58 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
                 0x08008ab0      0x1b0 Src/freertos.o
                 0x08008ab0                StartMPU9250Task
  .text.StartRxTask
-                0x08008c60       0xa8 Src/freertos.o
+                0x08008c60       0xac Src/freertos.o
                 0x08008c60                StartRxTask
  .text.StartTempTask
-                0x08008d08       0x68 Src/freertos.o
-                0x08008d08                StartTempTask
+                0x08008d0c       0x68 Src/freertos.o
+                0x08008d0c                StartTempTask
  .text.tmrLEDCallback
-                0x08008d70       0x10 Src/freertos.o
-                0x08008d70                tmrLEDCallback
+                0x08008d74       0x10 Src/freertos.o
+                0x08008d74                tmrLEDCallback
  .text.configureTimerForRunTimeStats
-                0x08008d80        0x2 Src/freertos.o
-                0x08008d80                configureTimerForRunTimeStats
+                0x08008d84        0x2 Src/freertos.o
+                0x08008d84                configureTimerForRunTimeStats
  .text.getRunTimeCounterValue
-                0x08008d82        0x4 Src/freertos.o
-                0x08008d82                getRunTimeCounterValue
- *fill*         0x08008d86        0x2 
+                0x08008d86        0x4 Src/freertos.o
+                0x08008d86                getRunTimeCounterValue
+ *fill*         0x08008d8a        0x2 
  .text.vApplicationGetIdleTaskMemory
-                0x08008d88       0x14 Src/freertos.o
-                0x08008d88                vApplicationGetIdleTaskMemory
+                0x08008d8c       0x14 Src/freertos.o
+                0x08008d8c                vApplicationGetIdleTaskMemory
  .text.vApplicationGetTimerTaskMemory
-                0x08008d9c       0x20 Src/freertos.o
-                0x08008d9c                vApplicationGetTimerTaskMemory
+                0x08008da0       0x20 Src/freertos.o
+                0x08008da0                vApplicationGetTimerTaskMemory
  .text.MX_FREERTOS_Init
-                0x08008dbc      0x16c Src/freertos.o
-                0x08008dbc                MX_FREERTOS_Init
+                0x08008dc0      0x16c Src/freertos.o
+                0x08008dc0                MX_FREERTOS_Init
  .text.MX_GPIO_Init
-                0x08008f28       0xa0 Src/gpio.o
-                0x08008f28                MX_GPIO_Init
+                0x08008f2c       0xa0 Src/gpio.o
+                0x08008f2c                MX_GPIO_Init
  .text.MX_I2C1_Init
-                0x08008fc8       0x44 Src/i2c.o
-                0x08008fc8                MX_I2C1_Init
+                0x08008fcc       0x44 Src/i2c.o
+                0x08008fcc                MX_I2C1_Init
  .text.MX_I2C3_Init
-                0x0800900c       0x44 Src/i2c.o
-                0x0800900c                MX_I2C3_Init
+                0x08009010       0x44 Src/i2c.o
+                0x08009010                MX_I2C3_Init
  .text.HAL_I2C_MspInit
-                0x08009050      0x160 Src/i2c.o
-                0x08009050                HAL_I2C_MspInit
+                0x08009054      0x160 Src/i2c.o
+                0x08009054                HAL_I2C_MspInit
  .text.HAL_I2C_MemRxCpltCallback
-                0x080091b0       0x58 Src/i2c.o
-                0x080091b0                HAL_I2C_MemRxCpltCallback
+                0x080091b4       0x58 Src/i2c.o
+                0x080091b4                HAL_I2C_MemRxCpltCallback
  .text.HAL_I2C_MemTxCpltCallback
-                0x08009208       0x58 Src/i2c.o
-                0x08009208                HAL_I2C_MemTxCpltCallback
+                0x0800920c       0x58 Src/i2c.o
+                0x0800920c                HAL_I2C_MemTxCpltCallback
  .text.HAL_TIM_PeriodElapsedCallback
-                0x08009260       0x18 Src/main.o
-                0x08009260                HAL_TIM_PeriodElapsedCallback
+                0x08009264       0x18 Src/main.o
+                0x08009264                HAL_TIM_PeriodElapsedCallback
  .text._Error_Handler
-                0x08009278        0x2 Src/main.o
-                0x08009278                _Error_Handler
- *fill*         0x0800927a        0x2 
+                0x0800927c        0x2 Src/main.o
+                0x0800927c                _Error_Handler
+ *fill*         0x0800927e        0x2 
  .text.SystemClock_Config
-                0x0800927c       0xf8 Src/main.o
-                0x0800927c                SystemClock_Config
- *fill*         0x08009374        0x4 
+                0x08009280       0xf8 Src/main.o
+                0x08009280                SystemClock_Config
  .text.main     0x08009378      0x4e0 Src/main.o
                 0x08009378                main
  .text.MX_RTC_Init
