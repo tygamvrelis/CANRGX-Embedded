@@ -84,7 +84,7 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.tmp_ax.set_ylabel('Temperature Sensor')
         self.tmp_ax.set_xlabel('MCU Tick Time (millisec)')
         self.tmp_ax.set_ylim((5,70))
-        self.tmp_ax.legend(['A','B','C','D','E','F'],loc='best')
+        self.tmp_ax.legend(['1A','1B','2A','2B','3A','3B'],loc='best')
 
     def new_data_slot(self, new_tic, new_imu, new_pwr, new_tmp):
         roll_step=-np.shape(new_tic)[0]

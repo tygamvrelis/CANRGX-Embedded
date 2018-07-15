@@ -69,12 +69,12 @@ extern ADC_HandleTypeDef hadc3;
 extern uint16_t ADC_processed[6]; // Processed results
 
 enum tempSensors{
-	TEMP1,
-	TEMP2,
-	TEMP3,
-	TEMP4,
-	TEMP5,
-	TEMP6
+	TEMP1A,
+	TEMP1B,
+	TEMP2A,
+	TEMP2B,
+	TEMP3A,
+	TEMP3B
 };
 /* USER CODE END Private defines */
 

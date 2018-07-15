@@ -451,7 +451,7 @@ typedef enum bufferState{
  */
 inline void setUpADCProcessing(
 	ADC_HandleTypeDef* hadc,
-	volatile uint16_t** adc_buff,
+	volatile uint32_t** adc_buff,
 	uint16_t** adc_processed
 )
 {
@@ -479,7 +479,7 @@ inline void setUpADCProcessing(
  */
 inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
 	uint32_t  accumulate[2] = {0};
-	volatile uint16_t* adc_raw_data_ptr = NULL; // Beginning of buffer
+	volatile uint32_t* adc_raw_data_ptr = NULL; // Beginning of buffer
 	uint16_t* adc_output_ptr = NULL;
 
 	setUpADCProcessing(hadc, &adc_raw_data_ptr, &adc_output_ptr);
@@ -489,15 +489,15 @@ inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
 	}
 
 	uint32_t raw_data;
-	for(uint8_t i = 0; i < ADC_DATA_N; i++){
+	for(uint8_t i = 0; i < ADC_DATA_N / 2; i++){
 		raw_data = *(adc_raw_data_ptr);
 		*accumulate += raw_data & 0xFFFF;
 		*(accumulate + 1) += (raw_data >> 16) & 0xFFFF ;
 		adc_raw_data_ptr++;
 	}
 
-	*adc_output_ptr = (uint16_t)(*accumulate >> 6);
-	*(adc_output_ptr + 1) = (uint16_t)(*(accumulate + 1) >> 6);
+	*adc_output_ptr = (uint16_t)(*accumulate >> 5);
+	*(adc_output_ptr + 1) = (uint16_t)(*(accumulate + 1) >> 5);
 }
 
 /**
@@ -518,23 +518,20 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	processADC(hadc, STATE_FULL);
 }
 
+/**
+ * @brief  Initializes ADC1, ADC2, and ADC3 to use DMA to transfer sample data
+ *         to buffers.
+ * @return 1 if successful, otherwise a negative error code
+ */
 int Temp_Scan_Start(void){
-	/* Initializes ADC1, ADC2, and ADC3 to use DMA to transfer sample data to
-	 * buffers.
-	 *
-	 * Arguments: None
-	 *
-	 * Returns: 1 if successful, otherwise a negative error code
-	 */
-
-	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff[0], ADC_DATA_N) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff[0], 2 * ADC_DATA_N) != HAL_OK){
 	    return -1;
 	}
-	if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC_buff[1], ADC_DATA_N) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC_buff[1], 2 * ADC_DATA_N) != HAL_OK){
 		HAL_ADC_Stop_DMA(&hadc1);
 	    return -2;
 	}
-	if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC_buff[2], ADC_DATA_N) != HAL_OK){
+	if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC_buff[2], 2 * ADC_DATA_N) != HAL_OK){
 		HAL_ADC_Stop_DMA(&hadc1);
 		HAL_ADC_Stop_DMA(&hadc2);
 	    return -3;
@@ -543,14 +540,11 @@ int Temp_Scan_Start(void){
 	return 1;
 }
 
+/**
+ * @brief  Stops ADC peripherals used for sensing temperature.
+ * @return 1 if successful, otherwise a negative error code
+ */
 int Temp_Scan_Stop(void){
-	/* Stops ADC peripheral used for sensing temperature.
-	 *
-	 * Arguments: none
-	 *
-	 * Returns: 1 if successful, otherwise a negative error code
-	 */
-
 	if(HAL_ADC_Stop_DMA(&hadc1) != HAL_OK){
 	    return -1;
 	}
