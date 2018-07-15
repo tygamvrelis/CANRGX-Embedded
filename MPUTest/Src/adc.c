@@ -451,7 +451,7 @@ typedef enum bufferState{
  * @param adc_processed Is assigned the address of the output destination for
  *        the processed data corresponding to hadc
  */
-inline ADCIdx_e setUpADCProcessing(
+inline void setUpADCProcessing(
 	ADC_HandleTypeDef* hadc,
 	volatile uint16_t* adc_buff,
 	uint32_t* adc_processed
@@ -460,17 +460,14 @@ inline ADCIdx_e setUpADCProcessing(
 	if(hadc == &hadc1){
 		adc_buff = ADC1_buff;
 		adc_processed = &ADC_processed[0];
-		return IDX_ADC1;
 	}
 	else if(hadc == &hadc2){
 		adc_buff = ADC2_buff;
-		adc_processed = &ADC_processed[2];
-		return IDX_ADC2;
+		adc_processed = &ADC_processed[2];;
 	}
 	else{
 		adc_buff = ADC3_buff;
 		adc_processed = &ADC_processed[4];
-		return IDX_ADC3;
 	}
 }
 

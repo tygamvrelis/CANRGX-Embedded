@@ -68,12 +68,6 @@ extern ADC_HandleTypeDef hadc3;
 /* USER CODE BEGIN Private defines */
 extern uint32_t ADC_processed[6]; // Processed results
 
-typedef enum ADCIdx{
-	IDX_ADC1,
-	IDX_ADC2,
-	IDX_ADC3
-}ADCIdx_e;
-
 enum tempSensors{
 	TEMP1,
 	TEMP2,
