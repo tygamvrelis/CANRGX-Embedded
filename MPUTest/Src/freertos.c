@@ -676,15 +676,15 @@ void StartMPU9250Task(void const * argument)
 	xQueueSend(xTXDataQueueHandle, &txDataMag, 1);
 
 	/********** Use the acceleration magnitude to update state **********/
-	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing
-//	if(myMPU9250.A < 0.981 && sensedEvent == NONE){
+//	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing
+	if(myMPU9250.A < 0.981 && sensedEvent == NONE){
 		sensedEvent = REDUCEDGRAVITY;
 
 		// Notify task to start experiment
 		xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MPU(sensedEvent), eSetBits);
 	}
-	else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing
-//	else if(myMPU9250.A > 3.13 && sensedEvent == REDUCEDGRAVITY){
+//	else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing
+	else if(myMPU9250.A > 3.13 && sensedEvent == REDUCEDGRAVITY){
 		sensedEvent = NONE;
 
 		// Notify task to stop experiment
