@@ -729,7 +729,7 @@ void StartRxTask(void const * argument)
 			 // Shut down safely, i.e., let I/O transactions with IMU sensor
 			 // finish so that we can start up properly after a reset without
 			 // getting hung up
-			 while(hi2c1.State != HAL_I2C_STATE_RESET){ continue; }
+			 while(hi2c1.State != HAL_I2C_STATE_READY){ continue; }
 
 			 // Full system reset
 			 NVIC_SystemReset();
