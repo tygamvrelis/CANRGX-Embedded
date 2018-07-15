@@ -80,7 +80,7 @@ osThreadId TxTaskHandle;
 uint32_t DataLogTaskBuffer[ 512 ];
 osStaticThreadDef_t DataLogTaskControlBlock;
 osThreadId MPU9250TaskHandle;
-uint32_t MPU9250TaskBuffer[ 512 ];
+uint32_t MPU9250TaskBuffer[ 1024 ];
 osStaticThreadDef_t MPU9250TaskControlBlock;
 osThreadId RxTaskHandle;
 uint32_t rxTaskBuffer[ 512 ];
@@ -249,7 +249,7 @@ void MX_FREERTOS_Init(void) {
   TxTaskHandle = osThreadCreate(osThread(TxTask), NULL);
 
   /* definition and creation of MPU9250Task */
-  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityNormal, 0, 512, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
+  osThreadStaticDef(MPU9250Task, StartMPU9250Task, osPriorityNormal, 0, 1024, MPU9250TaskBuffer, &MPU9250TaskControlBlock);
   MPU9250TaskHandle = osThreadCreate(osThread(MPU9250Task), NULL);
 
   /* definition and creation of RxTask */
@@ -451,7 +451,7 @@ void StartControlTask(void const * argument)
 /* StartTxTask function */
 void StartTxTask(void const * argument)
 {
-    /* USER CODE BEGIN StartTxTask */
+  /* USER CODE BEGIN StartTxTask */
     /********** For intertask communication **********/
     uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
 
@@ -609,7 +609,7 @@ void StartTxTask(void const * argument)
             cycleStartTick = xTaskGetTickCount();
         }
     }
-    /* USER CODE END StartTxTask */
+  /* USER CODE END StartTxTask */
 }
 
 /* StartMPU9250Task function */
