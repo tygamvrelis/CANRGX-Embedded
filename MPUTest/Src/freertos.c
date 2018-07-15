@@ -760,54 +760,20 @@ void StartTempTask(void const * argument)
   txDataTemperature.type = temperature_t;
   txDataTemperature.data = &temperatureData;
 
-  TickType_t curTick;
-
-  uint32_t notification;
-  uint8_t dataFlags = 0;
-
-  BaseType_t status;
+  Temp_Scan_Start();
 
   /* Infinite loop */
   for(;;)
   {
 	  // Service this task every TEMP_CYCLE_MS milliseconds
-	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS));
+	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS / 2));
 
-	  Temp_Scan_Start();
-
-	  curTick = xTaskGetTickCount();
-	  do{
-		  status = xTaskNotifyWait(0, UINT32_MAX, &notification, 2);
-		  if((status == pdTRUE) && (notification <= IDX_ADC3)){
-			  switch(notification){
-				  case IDX_ADC1:
-					  dataFlags |= 1;
-					  temperatureData.thermocouple1 = ADC_processed[TEMP1];
-					  temperatureData.thermocouple2 = ADC_processed[TEMP2];
-					  break;
-				  case IDX_ADC2:
-					  dataFlags |= 1 << 1;
-					  temperatureData.thermocouple3 = ADC_processed[TEMP3];
-					  temperatureData.thermocouple4 = ADC_processed[TEMP4];
-					  break;
-				  case IDX_ADC3:
-					  dataFlags |= 1 << 2;
-					  temperatureData.thermocouple5 = ADC_processed[TEMP5];
-					  temperatureData.thermocouple6 = ADC_processed[TEMP6];
-					  break;
-			  }
-		  }
-
-		  // If something gets messed up and we end up being in this do-while
-		  // loop for more than TEMP_CYCLE_MS - 1 milliseconds, then we break
-		  // out of the loop so that the application as a whole can continue
-		  // with whatever data was collected
-		  if(xTaskGetTickCount() - curTick > TEMP_CYCLE_MS - 1){
-			  break;
-		  }
-	  }while(dataFlags != 0b111);
-
-	  Temp_Scan_Stop();
+	  temperatureData.thermocouple1 = ADC_processed[TEMP1];
+	  temperatureData.thermocouple2 = ADC_processed[TEMP2];
+	  temperatureData.thermocouple3 = ADC_processed[TEMP3];
+	  temperatureData.thermocouple4 = ADC_processed[TEMP4];
+	  temperatureData.thermocouple5 = ADC_processed[TEMP5];
+	  temperatureData.thermocouple6 = ADC_processed[TEMP6];
 
       xQueueSend(xTXDataQueueHandle, &txDataTemperature, 1);
   }

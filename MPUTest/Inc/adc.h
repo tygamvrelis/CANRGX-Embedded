@@ -66,11 +66,7 @@ extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
 
 /* USER CODE BEGIN Private defines */
-#define ADC_DATA_N 64 // 64 array elements per channel
-extern volatile uint16_t ADC1_buff[2 * ADC_DATA_N];
-extern volatile uint16_t ADC2_buff[2 * ADC_DATA_N];
-extern volatile uint16_t ADC3_buff[2 * ADC_DATA_N];
-extern volatile uint32_t ADC_processed[6]; // Processed results
+extern uint32_t ADC_processed[6]; // Processed results
 
 typedef enum ADCIdx{
 	IDX_ADC1,

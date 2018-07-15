@@ -429,51 +429,65 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-extern osThreadId TempTaskHandle;
+#define ADC_DATA_N 64 // 64 array elements per channel
 
 volatile uint16_t ADC1_buff[2 * ADC_DATA_N];
 volatile uint16_t ADC2_buff[2 * ADC_DATA_N];
 volatile uint16_t ADC3_buff[2 * ADC_DATA_N];
-volatile uint32_t ADC_processed[6];
+uint32_t ADC_processed[6];
 
 typedef enum bufferState{
 	STATE_HALF_FULL,
 	STATE_FULL
 }bufferState_e;
 
+/**
+ * @brief Given an ADC_HandleTypeDef pointer, this function returns the
+ *        associated raw data buffer and the processed data destination
+ *        by reference.
+ * @param hadc Pointer to the data structure containing all ADC configuration
+ *        data
+ * @param adc_buff Is assigned the address of the raw data buffer for hadc
+ * @param adc_processed Is assigned the address of the output destination for
+ *        the processed data corresponding to hadc
+ */
 inline ADCIdx_e setUpADCProcessing(
 	ADC_HandleTypeDef* hadc,
 	volatile uint16_t* adc_buff,
-	volatile uint32_t* adc_processed
+	uint32_t* adc_processed
 )
 {
 	if(hadc == &hadc1){
-		ADC_processed[0] = 0;
-		ADC_processed[1] = 0;
 		adc_buff = ADC1_buff;
 		adc_processed = &ADC_processed[0];
 		return IDX_ADC1;
 	}
 	else if(hadc == &hadc2){
-		ADC_processed[2] = 0;
-		ADC_processed[3] = 0;
 		adc_buff = ADC2_buff;
 		adc_processed = &ADC_processed[2];
 		return IDX_ADC2;
 	}
 	else{
-		ADC_processed[4] = 0;
-		ADC_processed[5] = 0;
 		adc_buff = ADC3_buff;
 		adc_processed = &ADC_processed[4];
 		return IDX_ADC3;
 	}
 }
 
-inline ADCIdx_e processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
-	volatile uint16_t* adc_buff = NULL;
-	volatile uint32_t* adc_processed = NULL;
-	ADCIdx_e adcIdx = setUpADCProcessing(hadc, adc_buff, adc_processed);
+/**
+ * @brief Processes the raw ADC data by block averaging the samples from a
+ *        specified half of the raw data buffer
+ * @param hadc Pointer to the data structure containing all ADC configuration
+ *        data
+ * @param buffState Indicates whether the processing is to occur on the first
+ *        or second half of the samples in the raw data buffer
+ */
+inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
+	uint32_t  accumulate[2] = {0};
+	volatile uint16_t* adc_raw_data_ptr = NULL;
+	uint32_t* adc_output_ptr = NULL;
+
+	setUpADCProcessing(hadc, adc_raw_data_ptr, adc_output_ptr);
 
 	uint8_t start = 0;
 	uint8_t end = ADC_DATA_N / 2;
@@ -483,14 +497,12 @@ inline ADCIdx_e processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
 	}
 
 	for(uint8_t i = start; i < end; i++){
-		*adc_processed += adc_buff[i * 2];
-		*(adc_processed + 1) += adc_buff[i * 2 + 1];
+		*accumulate += adc_raw_data_ptr[i * 2];
+		*(accumulate + 1) += adc_raw_data_ptr[i * 2 + 1];
 	}
 
-	*adc_processed >>= 6;
-	*(adc_processed + 1) >>= 6;
-
-	return adcIdx;
+	*adc_output_ptr = *accumulate >> 6;
+	*(adc_output_ptr + 1) = *(accumulate + 1) >> 6;
 }
 
 /**
@@ -499,11 +511,7 @@ inline ADCIdx_e processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
  */
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	ADCIdx_e adcIdx = processADC(hadc, STATE_HALF_FULL);
-
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xTaskNotifyFromISR(TempTaskHandle, adcIdx, eSetBits, &xHigherPriorityTaskWoken);
-	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	processADC(hadc, STATE_HALF_FULL);
 }
 
 /**
@@ -512,11 +520,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
  */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	ADCIdx_e adcIdx = processADC(hadc, STATE_FULL);
-
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xTaskNotifyFromISR(TempTaskHandle, adcIdx, eSetBits, &xHigherPriorityTaskWoken);
-	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	processADC(hadc, STATE_FULL);
 }
 
 int Temp_Scan_Start(void){
