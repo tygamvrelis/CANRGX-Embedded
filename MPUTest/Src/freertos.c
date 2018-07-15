@@ -99,8 +99,6 @@ osSemaphoreId semTxHandle;
 osStaticSemaphoreDef_t semTxControlBlock;
 osSemaphoreId semRxHandle;
 osStaticSemaphoreDef_t semRxControlBlock;
-osSemaphoreId semTemperatureHandle;
-osStaticSemaphoreDef_t semTemperatureControlBlock;
 
 /* USER CODE BEGIN Variables */
 //#define ADC_DATA_N 12
@@ -222,10 +220,6 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of semRx */
   osSemaphoreStaticDef(semRx, &semRxControlBlock);
   semRxHandle = osSemaphoreCreate(osSemaphore(semRx), 1);
-
-  /* definition and creation of semTemperature */
-  osSemaphoreStaticDef(semTemperature, &semTemperatureControlBlock);
-  semTemperatureHandle = osSemaphoreCreate(osSemaphore(semTemperature), 1);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -486,12 +480,12 @@ void StartTxTask(void const * argument)
   uint8_t* mag2Power = &buffer[32];
   uint8_t* tec1Power = &buffer[34];
   uint8_t* tec2Power = &buffer[36];
-  uint8_t* thermocouple1 = &buffer[38];
-  uint8_t* thermocouple2 = &buffer[40];
-  uint8_t* thermocouple3 = &buffer[42];
-  uint8_t* thermocouple4 = &buffer[44];
-  uint8_t* thermocouple5 = &buffer[46];
-  uint8_t* thermocouple6 = &buffer[48];
+  uint8_t* temp1a = &buffer[38];
+  uint8_t* temp1b = &buffer[40];
+  uint8_t* temp2a = &buffer[42];
+  uint8_t* temp2b = &buffer[44];
+  uint8_t* temp3a = &buffer[46];
+  uint8_t* temp3b = &buffer[48];
 
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
@@ -558,18 +552,18 @@ void StartTxTask(void const * argument)
 			  taskFlags = taskFlags | 0b00001000;
 
 			  /* Copy data to buffer */
-			  uint16_t thermocouple1data = temperatureDataPtr -> thermocouple1;
-			  uint16_t thermocouple2data = temperatureDataPtr -> thermocouple2;
-			  uint16_t thermocouple3data = temperatureDataPtr -> thermocouple3;
-			  uint16_t thermocouple4data = temperatureDataPtr -> thermocouple4;
-			  uint16_t thermocouple5data = temperatureDataPtr -> thermocouple5;
-			  uint16_t thermocouple6data = temperatureDataPtr -> thermocouple6;
-			  memcpy(thermocouple1, &thermocouple1data, sizeof(uint16_t));
-			  memcpy(thermocouple2, &thermocouple2data, sizeof(uint16_t));
-			  memcpy(thermocouple3, &thermocouple3data, sizeof(uint16_t));
-			  memcpy(thermocouple4, &thermocouple4data, sizeof(uint16_t));
-			  memcpy(thermocouple5, &thermocouple5data, sizeof(uint16_t));
-			  memcpy(thermocouple6, &thermocouple6data, sizeof(uint16_t));
+			  uint16_t temp1adata = temperatureDataPtr -> temp1a;
+			  uint16_t temp1bdata = temperatureDataPtr -> temp1b;
+			  uint16_t temp2adata = temperatureDataPtr -> temp2a;
+			  uint16_t temp2bdata = temperatureDataPtr -> temp2b;
+			  uint16_t temp3adata = temperatureDataPtr -> temp3a;
+			  uint16_t temp3bdata = temperatureDataPtr -> temp3b;
+			  memcpy(temp1a, &temp1adata, sizeof(uint16_t));
+			  memcpy(temp1b, &temp1bdata, sizeof(uint16_t));
+			  memcpy(temp2a, &temp2adata, sizeof(uint16_t));
+			  memcpy(temp2b, &temp2bdata, sizeof(uint16_t));
+			  memcpy(temp3a, &temp3adata, sizeof(uint16_t));
+			  memcpy(temp3b, &temp3bdata, sizeof(uint16_t));
 
 			  break;
 		  default:
@@ -709,8 +703,8 @@ void StartRxTask(void const * argument)
 {
   /* USER CODE BEGIN StartRxTask */
   const char MANUAL_OVERRIDE_START_CHAR = 'S';
-  const char MANUAL_OVERRIDE_STOP_CHAR = 'X';
-  const char RESET_CHAR = 'E';
+  const char MANUAL_OVERRIDE_STOP_SEQ[] = {'X', 'X'};
+  const char RESET_SEQ[] = {'R', 'S'};
 
   uint8_t buffer[3]; // buffer[0] == control character, buffer[1] == accompanying data, buffer[2] == '\n'
 
@@ -723,11 +717,20 @@ void StartRxTask(void const * argument)
 			 // Manual override for starting experiment
 			 xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'), eSetBits);
 		 }
-		 else if(buffer[0] == MANUAL_OVERRIDE_STOP_CHAR){
+		 else if(buffer[0] == MANUAL_OVERRIDE_STOP_SEQ[0] &&
+				 buffer[1] == MANUAL_OVERRIDE_STOP_SEQ[1])
+		 {
 			 // Manual override for stopping experiment
 			 xTaskNotify(ControlTaskHandle, MANUAL_OVERRIDE_STOP_BITMASK, eSetBits);
 		 }
-		 else if(buffer[0] == RESET_CHAR){
+		 else if(buffer[0] == RESET_SEQ[0] &&
+				 buffer[1] == RESET_SEQ[1])
+		 {
+			 // Shut down safely, i.e., let I/O transactions with IMU sensor
+			 // finish so that we can start up properly after a reset without
+			 // getting hung up
+			 while(hi2c1.State != HAL_I2C_STATE_RESET){ continue; }
+
 			 // Full system reset
 			 NVIC_SystemReset();
 		 }
@@ -750,21 +753,20 @@ void StartTempTask(void const * argument)
   txDataTemperature.type = temperature_t;
   txDataTemperature.data = &temperatureData;
 
+  Temp_Scan_Start();
+
   /* Infinite loop */
   for(;;)
   {
-	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS)); // Service this task every TEMP_CYCLE_MS milliseconds
+	  // Service this task every TEMP_CYCLE_MS milliseconds
+	  vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS));
 
-	  Temp_Scan_Start();
-	  xSemaphoreTake(semTemperatureHandle, TEMP_CYCLE_MS - 2);
-	  Temp_Scan_Stop();
-
-	  temperatureData.thermocouple1 = ADC_processed[TEMP1];
-	  temperatureData.thermocouple2 = ADC_processed[TEMP2];
-	  temperatureData.thermocouple3 = ADC_processed[TEMP3];
-	  temperatureData.thermocouple4 = ADC_processed[TEMP4];
-	  temperatureData.thermocouple5 = ADC_processed[TEMP5];
-	  temperatureData.thermocouple6 = ADC_processed[TEMP6];
+	  temperatureData.temp1a = ADC_processed[TEMP1A];
+	  temperatureData.temp1b = ADC_processed[TEMP1B];
+	  temperatureData.temp2a = ADC_processed[TEMP2A];
+	  temperatureData.temp2b = ADC_processed[TEMP2B];
+	  temperatureData.temp3a = ADC_processed[TEMP3A];
+	  temperatureData.temp3b = ADC_processed[TEMP3B];
 
       xQueueSend(xTXDataQueueHandle, &txDataTemperature, 1);
   }

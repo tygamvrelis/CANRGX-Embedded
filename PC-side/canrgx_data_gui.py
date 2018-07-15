@@ -154,7 +154,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.listener.frame_error.connect(self.update_error)
         self.request_manual_start.connect(self.listener.execute_manual_start)
         self.request_manual_stop.connect(self.listener.execute_manual_stop)
-        self.request_manual_stop.connect(self.listener.execute_manual_reset)
+        self.request_manual_reset.connect(self.listener.execute_manual_reset)
 
 
         self.log_thread.start()

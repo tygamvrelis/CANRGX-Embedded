@@ -66,17 +66,15 @@ extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
 
 /* USER CODE BEGIN Private defines */
-#define ADC_DATA_N 6 * 64 // 6 channels, 64 array elements per channel
-extern volatile uint16_t ADC_buff[ADC_DATA_N]; // Large buffer
-extern volatile uint32_t ADC_processed[6]; // Processed results
+extern uint16_t ADC_processed[6]; // Processed results
 
 enum tempSensors{
-	TEMP1,
-	TEMP2,
-	TEMP3,
-	TEMP4,
-	TEMP5,
-	TEMP6
+	TEMP1A,
+	TEMP1B,
+	TEMP2A,
+	TEMP2B,
+	TEMP3A,
+	TEMP3B
 };
 /* USER CODE END Private defines */
 

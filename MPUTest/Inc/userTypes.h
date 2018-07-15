@@ -37,12 +37,12 @@ typedef struct{
 }controlData_t;
 
 typedef struct{
-    uint16_t thermocouple1;
-    uint16_t thermocouple2;
-    uint16_t thermocouple3;
-    uint16_t thermocouple4;
-    uint16_t thermocouple5;
-    uint16_t thermocouple6;
+    uint16_t temp1a;
+    uint16_t temp1b;
+    uint16_t temp2a;
+    uint16_t temp2b;
+    uint16_t temp3a;
+    uint16_t temp3b;
 }temperatureData_t;
 
 #endif /* __USER_TYPES_H__ */
