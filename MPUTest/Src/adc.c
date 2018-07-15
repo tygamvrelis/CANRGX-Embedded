@@ -518,15 +518,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	processADC(hadc, STATE_FULL);
 }
 
+/**
+ * @brief  Initializes ADC1, ADC2, and ADC3 to use DMA to transfer sample data
+ *         to buffers.
+ * @return 1 if successful, otherwise a negative error code
+ */
 int Temp_Scan_Start(void){
-	/* Initializes ADC1, ADC2, and ADC3 to use DMA to transfer sample data to
-	 * buffers.
-	 *
-	 * Arguments: None
-	 *
-	 * Returns: 1 if successful, otherwise a negative error code
-	 */
-
 	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff[0], 2 * ADC_DATA_N) != HAL_OK){
 	    return -1;
 	}
@@ -543,14 +540,11 @@ int Temp_Scan_Start(void){
 	return 1;
 }
 
+/**
+ * @brief  Stops ADC peripherals used for sensing temperature.
+ * @return 1 if successful, otherwise a negative error code
+ */
 int Temp_Scan_Stop(void){
-	/* Stops ADC peripheral used for sensing temperature.
-	 *
-	 * Arguments: none
-	 *
-	 * Returns: 1 if successful, otherwise a negative error code
-	 */
-
 	if(HAL_ADC_Stop_DMA(&hadc1) != HAL_OK){
 	    return -1;
 	}
