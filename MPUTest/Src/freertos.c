@@ -745,14 +745,28 @@ void StartRxTask(void const * argument)
 		 else if(buffer[0] == RESET_SEQ[0] &&
 				 buffer[1] == RESET_SEQ[1])
 		 {
-			 // Shut down safely, i.e., let I/O transactions with IMU sensor
+			 // Try to shut down safely, i.e. let I/O transactions with the IMU
 			 // finish so that we can start up properly after a reset without
-			 // getting hung up
+			 // getting hung. Here, we check the state of the I2C module for
+		     // the accelerometer and the module for the magnetometer. Ideally,
+		     // we will reset when both are in the "ready" state. If one (or
+		     // both) are not "ready", then the routine below will make two
+		     // more attempts over a 2 ms period before forcing a reset. I2C
+		     // transactions in this system should not take longer than 2 ms.
+		     uint8_t i = 2;
 			 while(hi2c1.State != HAL_I2C_STATE_READY ||
 			       hi2c3.State != HAL_I2C_STATE_READY
 			 )
 			 {
-			     continue; // TODO: only check this for up to 2 ms
+			     if(i == 0){ break; }
+
+			     // This thread is the highest priority, and since we are going
+			     // to do a full system reset anyway, there is no need to
+			     // allow other threads to run while we do these I2C module
+			     // checks. Thus, we use a (blocking) HAL_Delay
+			     HAL_Delay(1);
+
+			     i--;
 			 }
 
 			 // Full system reset
