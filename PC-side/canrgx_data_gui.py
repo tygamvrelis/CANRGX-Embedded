@@ -221,6 +221,23 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
             CANRGX FAM team (UofT EngSci) experiment. It is written with numpy,
             scipy, matplotlib, and PyQt5, by Hanzhen Lin. """)
 
+    def updateNumDisp( self, new_tic, new_imu, new_pwr, new_tmp):
+        acc_norm = np.linalg.norm(new_imu[:, 0:3], ord=2, axis=1)
+        mag_norm = np.linalg.norm(new_imu[:, 3:6], ord=2, axis=1)
+        acc_z = new_imu[:, 3]
+
+        acc_norm = np.nanmean(acc_norm)
+        mag_norm = np.nanmean(mag_norm)
+        acc_z = np.nanmean(acc_z)
+
+        tmp = (new_tmp.astype(np.float32) / 4096.0 * 3.3 - 0.4) / 0.0195
+        tmp = np.nanmean(tmp,axis=0)
+
+        self.accNrmNum.display(acc_norm)
+        self.magNrmNum.display(mag_norm)
+        self.accZaxNum.display(acc_z)
+
+
     def setupNumDisp(self):
         self.numDispLayout = QtWidgets.QGridLayout()
         self.numDispLayout.setObjectName("numDispLayout")
