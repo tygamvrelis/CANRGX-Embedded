@@ -173,6 +173,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.listener.canrgx_log.update_data.connect(
             self.dataCanvas.new_data_slot
         )
+        self.listener.canrgx_log.update_data.connect(self.updateNumDisp)
         
     def update_error(self, set_error):
         if set_error:
