@@ -231,12 +231,21 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         mag_norm = np.nanmean(mag_norm)
         acc_z = np.nanmean(acc_z)
 
-        tmp = (new_tmp.astype(np.float32) / 4096.0 * 3.3 - 0.4) / 0.0195
-        tmp = np.nanmean(tmp,axis=0)
+        tmp = (new_tmp.astype(np.float64) / 4096.0 * 3.3 - 0.4) / 0.0195
+        tmp = np.mean(tmp,axis=0)
 
         self.accNrmNum.display(acc_norm)
         self.magNrmNum.display(mag_norm)
         self.accZaxNum.display(acc_z)
+
+        self.tmpANum.display(tmp[0])
+        self.tmpBNum.display(tmp[1])
+        self.tmpCNum.display(tmp[2])
+        self.tmpDNum.display(tmp[3])
+        self.tmpENum.display(tmp[4])
+        self.tmpFNum.display(tmp[5])
+
+
 
 
     def setupNumDisp(self):
@@ -263,7 +272,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.accZaxLabel = QtWidgets.QLabel(self.main_widget)
         self.accZaxLabel.setObjectName("accZaxLabel")
-        self.accZaxLabel.setText("Acc. Norm:")
+        self.accZaxLabel.setText("Acc. Z-ax:")
         self.accZaxLabel.setFont(font)
         self.accZaxLabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.accZaxLabel, 2, 0, 1, 1)
@@ -278,7 +287,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.magNrmLabel = QtWidgets.QLabel(self.main_widget)
         self.magNrmLabel.setObjectName("magNrmLabel")
-        self.magNrmLabel.setText("Acc. Norm:")
+        self.magNrmLabel.setText("Mag. Norm:")
         self.magNrmLabel.setFont(font)
         self.magNrmLabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.magNrmLabel, 3, 0, 1, 1)
@@ -293,7 +302,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpALabel = QtWidgets.QLabel(self.main_widget)
         self.tmpALabel.setObjectName("tmpALabel")
-        self.tmpALabel.setText("Acc. Norm:")
+        self.tmpALabel.setText("Temp A:")
         self.tmpALabel.setFont(font)
         self.tmpALabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpALabel, 4, 0, 1, 1)
@@ -308,7 +317,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpBLabel = QtWidgets.QLabel(self.main_widget)
         self.tmpBLabel.setObjectName("tmpBLabel")
-        self.tmpBLabel.setText("Acc. Norm:")
+        self.tmpBLabel.setText("Temp B:")
         self.tmpBLabel.setFont(font)
         self.tmpBLabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpBLabel, 5, 0, 1, 1)
@@ -320,6 +329,66 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.tmpBNum.setMinimumHeight(32)
         self.tmpBNum.setObjectName("tmpBNum")
         self.numDispLayout.addWidget(self.tmpBNum, 5, 1, 1, 1)
+
+        self.tmpCLabel = QtWidgets.QLabel(self.main_widget)
+        self.tmpCLabel.setObjectName("tmpCLabel")
+        self.tmpCLabel.setText("Temp C:")
+        self.tmpCLabel.setFont(font)
+        self.tmpCLabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.tmpCLabel, 6, 0, 1, 1)
+        self.tmpCNum = QtWidgets.QLCDNumber(self.main_widget)
+        self.tmpCNum.setSmallDecimalPoint(False)
+        self.tmpCNum.display(1.23)
+        self.tmpCNum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.tmpCNum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tmpCNum.setMinimumHeight(32)
+        self.tmpCNum.setObjectName("tmpCNum")
+        self.numDispLayout.addWidget(self.tmpCNum, 6, 1, 1, 1)
+
+        self.tmpDLabel = QtWidgets.QLabel(self.main_widget)
+        self.tmpDLabel.setObjectName("tmpDLabel")
+        self.tmpDLabel.setText("Temp D:")
+        self.tmpDLabel.setFont(font)
+        self.tmpDLabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.tmpDLabel, 7, 0, 1, 1)
+        self.tmpDNum = QtWidgets.QLCDNumber(self.main_widget)
+        self.tmpDNum.setSmallDecimalPoint(False)
+        self.tmpDNum.display(1.23)
+        self.tmpDNum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.tmpDNum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tmpDNum.setMinimumHeight(32)
+        self.tmpDNum.setObjectName("tmpDNum")
+        self.numDispLayout.addWidget(self.tmpDNum, 7, 1, 1, 1)
+
+        self.tmpELabel = QtWidgets.QLabel(self.main_widget)
+        self.tmpELabel.setObjectName("tmpELabel")
+        self.tmpELabel.setText("Temp E:")
+        self.tmpELabel.setFont(font)
+        self.tmpELabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.tmpELabel, 8, 0, 1, 1)
+        self.tmpENum = QtWidgets.QLCDNumber(self.main_widget)
+        self.tmpENum.setSmallDecimalPoint(False)
+        self.tmpENum.display(1.23)
+        self.tmpENum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.tmpENum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tmpENum.setMinimumHeight(32)
+        self.tmpENum.setObjectName("tmpENum")
+        self.numDispLayout.addWidget(self.tmpENum, 8, 1, 1, 1)
+
+        self.tmpFLabel = QtWidgets.QLabel(self.main_widget)
+        self.tmpFLabel.setObjectName("tmpFLabel")
+        self.tmpFLabel.setText("Temp F:")
+        self.tmpFLabel.setFont(font)
+        self.tmpFLabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.tmpFLabel, 9, 0, 1, 1)
+        self.tmpFNum = QtWidgets.QLCDNumber(self.main_widget)
+        self.tmpFNum.setSmallDecimalPoint(False)
+        self.tmpFNum.display(1.23)
+        self.tmpFNum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.tmpFNum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tmpFNum.setMinimumHeight(32)
+        self.tmpFNum.setObjectName("tmpFNum")
+        self.numDispLayout.addWidget(self.tmpFNum, 9, 1, 1, 1)
 
         self.mainLayout.addLayout(self.numDispLayout)
 
