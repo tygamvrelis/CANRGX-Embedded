@@ -26,6 +26,7 @@ class CANRGXPlotCanvas(FigureCanvas):
         # Initialize various components and flags for the widget
         
         fig = Figure(figsize=(width, height), dpi=dpi)
+        fig.set_tight_layout(True)
         self.acc_ax = fig.add_subplot(2, 2, 1)
         self.mag_ax = fig.add_subplot(2, 2, 2)
         self.pwr_ax = fig.add_subplot(2, 2, 3)
@@ -64,27 +65,27 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.acc_ax.set_ylabel('Accelerometer reading (m/s^2)')
         self.acc_ax.set_xlabel('MCU Tick Time (millisec)')
         self.acc_ax.set_ylim((-10,10))
-        self.acc_ax.legend(['norm','x','y','z'],loc='best')
+        self.acc_ax.legend(['norm','x','y','z'],loc='upper right',fontsize='xx-small',frameon=False)
 
         self.mag_plt_n=self.mag_ax.plot(self.data_time, self.mag_nrm,'k',label='norm')[0]
         self.mag_plt_v=self.mag_ax.plot(self.data_time, self.mag_vec, label='vec')
         self.mag_ax.set_ylabel('Magnetometer reading (G)')
         self.mag_ax.set_xlabel('MCU Tick Time (millisec)')
         self.mag_ax.set_ylim((-60,60))
-        self.acc_ax.legend(['norm','x','y','z'],loc='best')
+        self.mag_ax.legend(['norm','x','y','z'],loc='upper right',fontsize='xx-small',frameon=False)
 
 
         self.pwr_plts=self.pwr_ax.plot(self.data_time, self.pwr_buf)
         self.pwr_ax.set_ylabel('Power Setting')
         self.pwr_ax.set_xlabel('MCU Tick Time (millisec)')
         self.pwr_ax.set_ylim((-105,105))
-        self.pwr_ax.legend(['Mag A' , 'Mag B' , 'TEC A', 'TEC B'],loc='best')
+        self.pwr_ax.legend(['Mag A' , 'Mag B' , 'TEC A', 'TEC B'],loc='upper right',fontsize='xx-small',frameon=False)
 
         self.tmp_plts=self.tmp_ax.plot(self.data_time, self.tmp_buf)
         self.tmp_ax.set_ylabel('Temperature Sensor')
         self.tmp_ax.set_xlabel('MCU Tick Time (millisec)')
         self.tmp_ax.set_ylim((5,70))
-        self.tmp_ax.legend(['1A','1B','2A','2B','3A','3B'],loc='best')
+        self.tmp_ax.legend(['1A','1B','2A','2B','3A','3B'],loc='upper right',fontsize='xx-small',frameon=False)
 
     def new_data_slot(self, new_tic, new_imu, new_pwr, new_tmp):
         roll_step=-np.shape(new_tic)[0]
