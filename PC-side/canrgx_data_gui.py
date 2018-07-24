@@ -11,7 +11,7 @@ import sys
 import os
 import argparse
 # Make sure that we are using QT5
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QObject, QTimer, QThread
 
 import numpy as np
@@ -51,9 +51,12 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.main_widget = QtWidgets.QWidget(self)
 
-        self.mainLayout = QtWidgets.QVBoxLayout(self.main_widget)
+        self.mainLayout = QtWidgets.QHBoxLayout(self.main_widget)
+        
+        
+        self.graphVLayout=QtWidgets.QVBoxLayout()
         self.dataCanvas = CANRGXPlotCanvas()
-        self.mainLayout.addWidget(self.dataCanvas)
+        self.graphVLayout.addWidget(self.dataCanvas)
 
 
         self.plotToolBar = NavigationToolBar(
@@ -130,8 +133,91 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.bottomHLayout.addWidget(self.errLabel)
         
 
-        self.mainLayout.addLayout(self.bottomHLayout)
+        self.graphVLayout.addLayout(self.bottomHLayout)
+        self.mainLayout.addLayout(self.graphVLayout)
 
+        self.numDispLayout = QtWidgets.QGridLayout()
+        self.numDispLayout.setObjectName("numDispLayout")
+        font = QtGui.QFont()
+        font.setFamily("Agency FB")
+        font.setPointSize(12)
+
+        self.accNrmLabel = QtWidgets.QLabel(self.main_widget)
+        self.accNrmLabel.setObjectName("accNrmLabel")
+        self.accNrmLabel.setText("Acc. Norm:")
+        self.accNrmLabel.setFont(font)
+        self.accNrmLabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.accNrmLabel, 1, 0, 1, 1)
+        self.accNrmNum = QtWidgets.QLCDNumber(self.main_widget)
+        self.accNrmNum.setSmallDecimalPoint(False)
+        self.accNrmNum.display(1.23)
+        self.accNrmNum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.accNrmNum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.accNrmNum.setMinimumHeight(32)
+        self.accNrmNum.setObjectName("accNrmNum")
+        self.numDispLayout.addWidget(self.accNrmNum, 1, 1, 1, 1)
+
+        self.accZaxLabel = QtWidgets.QLabel(self.main_widget)
+        self.accZaxLabel.setObjectName("accZaxLabel")
+        self.accZaxLabel.setText("Acc. Norm:")
+        self.accZaxLabel.setFont(font)
+        self.accZaxLabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.accZaxLabel, 2, 0, 1, 1)
+        self.accZaxNum = QtWidgets.QLCDNumber(self.main_widget)
+        self.accZaxNum.setSmallDecimalPoint(False)
+        self.accZaxNum.display(1.23)
+        self.accZaxNum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.accZaxNum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.accZaxNum.setMinimumHeight(32)
+        self.accZaxNum.setObjectName("accZaxNum")
+        self.numDispLayout.addWidget(self.accZaxNum, 2, 1, 1, 1)
+
+        self.magNrmLabel = QtWidgets.QLabel(self.main_widget)
+        self.magNrmLabel.setObjectName("magNrmLabel")
+        self.magNrmLabel.setText("Acc. Norm:")
+        self.magNrmLabel.setFont(font)
+        self.magNrmLabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.magNrmLabel, 3, 0, 1, 1)
+        self.magNrmNum = QtWidgets.QLCDNumber(self.main_widget)
+        self.magNrmNum.setSmallDecimalPoint(False)
+        self.magNrmNum.display(1.23)
+        self.magNrmNum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.magNrmNum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.magNrmNum.setMinimumHeight(32)
+        self.magNrmNum.setObjectName("magNrmNum")
+        self.numDispLayout.addWidget(self.magNrmNum, 3, 1, 1, 1)
+
+        self.tmpALabel = QtWidgets.QLabel(self.main_widget)
+        self.tmpALabel.setObjectName("tmpALabel")
+        self.tmpALabel.setText("Acc. Norm:")
+        self.tmpALabel.setFont(font)
+        self.tmpALabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.tmpALabel, 4, 0, 1, 1)
+        self.tmpANum = QtWidgets.QLCDNumber(self.main_widget)
+        self.tmpANum.setSmallDecimalPoint(False)
+        self.tmpANum.display(1.23)
+        self.tmpANum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.tmpANum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tmpANum.setMinimumHeight(32)
+        self.tmpANum.setObjectName("tmpANum")
+        self.numDispLayout.addWidget(self.tmpANum, 4, 1, 1, 1)
+
+        self.tmpBLabel = QtWidgets.QLabel(self.main_widget)
+        self.tmpBLabel.setObjectName("tmpBLabel")
+        self.tmpBLabel.setText("Acc. Norm:")
+        self.tmpBLabel.setFont(font)
+        self.tmpBLabel.setScaledContents(True)
+        self.numDispLayout.addWidget(self.tmpBLabel, 5, 0, 1, 1)
+        self.tmpBNum = QtWidgets.QLCDNumber(self.main_widget)
+        self.tmpBNum.setSmallDecimalPoint(False)
+        self.tmpBNum.display(1.23)
+        self.tmpBNum.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.tmpBNum.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tmpBNum.setMinimumHeight(32)
+        self.tmpBNum.setObjectName("tmpBNum")
+        self.numDispLayout.addWidget(self.tmpBNum, 5, 1, 1, 1)
+
+        self.mainLayout.addLayout(self.numDispLayout)
         # main_layout.addLayout(self.rowAvgDataLayout)
         print("Setup Graphic")
         print("Main Thread ID:", int( QThread.currentThreadId()))

@@ -21,19 +21,21 @@ from matplotlib.figure import Figure
 class CANRGXPlotCanvas(FigureCanvas):
     """Inhereit the FigureCanvas from matplotlib (Qt5 backend version), which is ultimately a QWdiget"""
 
-    def __init__(self, parent=None, width=10, height=8, dpi=160, data_n=300):
+    def __init__(self, parent=None, width=16, height=12, dpi=160, data_n=300):
         # Initialize various components and flags for the widget
         
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        fig.set_tight_layout(True)
-        self.acc_ax = fig.add_subplot(2, 2, 1)
-        self.mag_ax = fig.add_subplot(2, 2, 2)
-        self.pwr_ax = fig.add_subplot(2, 2, 3)
-        self.tmp_ax = fig.add_subplot(2, 2, 4)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        #fig.subplots_adjust(left = 0.0, bottom = 0.0, right = 1.0, top = 1.0, wspace = 0.0, hspace = 0.0)
+        self.fig.set_tight_layout(True)
+        
+        self.acc_ax = self.fig.add_subplot(2, 2, 1)
+        self.mag_ax = self.fig.add_subplot(2, 2, 2)
+        self.pwr_ax = self.fig.add_subplot(2, 2, 3)
+        self.tmp_ax = self.fig.add_subplot(2, 2, 4)
         
         self.axes=[self.acc_ax,self.mag_ax,self.pwr_ax,self.tmp_ax]
 
-        FigureCanvas.__init__(self, fig)
+        FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
         assert data_n>100
@@ -85,6 +87,9 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.tmp_ax.set_xlabel('MCU Tick Time (millisec)')
         self.tmp_ax.set_ylim((5,70))
         self.tmp_ax.legend(['1A','1B','2A','2B','3A','3B'],loc='upper right',fontsize='xx-small',frameon=False)
+
+        self.fig.subplots_adjust(left=0.0, bottom=0.0, right=1.0,
+                            top=1.0, wspace=0.0, hspace=0.0)
 
     def new_data_slot(self, new_tic, new_imu, new_pwr, new_tmp):
         roll_step=-np.shape(new_tic)[0]
