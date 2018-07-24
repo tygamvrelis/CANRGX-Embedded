@@ -21,10 +21,11 @@ from PyQt5.QtCore import QObject, QTimer, QThread
 
 class CANRGXSerialDataListener(QtCore.QObject):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,ser_port='COM3'):
         super(CANRGXSerialDataListener, self).__init__(parent)
         # self.initialize()
         self.update_slot=[]
+        self.ser_port=ser_port
         
 
     issue_encountered = QtCore.pyqtSignal()
@@ -52,7 +53,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.logString("Log created at " + str(os.getcwd()) + '\\' + data_root)
         self.canrgx_log = canrgx_log_files(data_root)
 
-        self.ser = serial.Serial('COM12', 230400, timeout=100)
+        self.ser = serial.Serial(self.ser_port, 230400, timeout=100)
         time.sleep(0.100) # A 100 ms delay typically can help with some serial
                           # port issues
         self.logString("Opened port " + self.ser.name)

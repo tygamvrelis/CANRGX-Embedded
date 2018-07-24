@@ -9,7 +9,7 @@ Created on Wed Jul  5 16:18:28 2017
 from __future__ import unicode_literals
 import sys
 import os
-import argparse
+import click
 # Make sure that we are using QT5
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QObject, QTimer, QThread
@@ -30,7 +30,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     request_manual_reset = QtCore.pyqtSignal()
 
 
-    def __init__(self):
+    def __init__(self,ser_port=None):
 
         # Initialize the main application window and put various components on it.
         # Pretty routine code. Long, tiedious but trivial, just putting components in place.
@@ -145,8 +145,11 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.log_thread = QtCore.QThread()
         #print("Log Thread", self.log_thread)
-        self.listener = CANRGXSerialDataListener()
-        
+        if ser_port is None:
+            self.listener = CANRGXSerialDataListener()
+        else:
+            self.listener = CANRGXSerialDataListener(ser_port=ser_port)
+
         self.listener.moveToThread(self.log_thread)
 
         self.listener.initialized.connect(self.hook_update)
@@ -393,14 +396,20 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.mainLayout.addLayout(self.numDispLayout)
 
 # Use python click
-if __name__ == '__main__':
+@click.command()
+@click.option('--ser_port', default='COM3', help='Serial Port Name')
+def main_gui(ser_port):
     # Main program runs from here. Standard Qt start procedure.
     qApp = QtWidgets.QApplication(sys.argv)
     qApp.setWindowIcon(QtGui.QIcon("FAM.jpg"))
-    aw = CANRGXMainWindow()
+    aw = CANRGXMainWindow(ser_port)
     aw.show()
     sys.exit(qApp.exec_())
     # qApp.exec_()
+
+
+if __name__ == '__main__':
+    main_gui()
 '''
 TODO:
 More convenient setting of parameters - Moreorless done for commandline.
