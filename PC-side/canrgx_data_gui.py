@@ -15,8 +15,6 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject, QTimer, QThread
 
 import numpy as np
-from numpy import arange, sin, pi, random
-import peakutils
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolBar
 from canrgx_data_widget import CANRGXPlotCanvas
 from canrgx_serial_data_listener import CANRGXSerialDataListener
