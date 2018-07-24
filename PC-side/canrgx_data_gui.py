@@ -396,6 +396,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 if __name__ == '__main__':
     # Main program runs from here. Standard Qt start procedure.
     qApp = QtWidgets.QApplication(sys.argv)
+    qApp.setWindowIcon(QtGui.QIcon("FAM.jpg"))
     aw = CANRGXMainWindow()
     aw.show()
     sys.exit(qApp.exec_())
