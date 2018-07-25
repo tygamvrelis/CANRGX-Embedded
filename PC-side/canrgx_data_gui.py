@@ -228,7 +228,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
     def updateNumDisp( self, new_tic, new_imu, new_pwr, new_tmp):
         acc_norm = np.linalg.norm(new_imu[:, 0:3], ord=2, axis=1)
         mag_norm = np.linalg.norm(new_imu[:, 3:6], ord=2, axis=1)
-        acc_z = new_imu[:, 3]
+        acc_z = new_imu[:, 2]
 
         acc_norm = np.nanmean(acc_norm)
         mag_norm = np.nanmean(mag_norm)
@@ -237,9 +237,9 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         tmp = (new_tmp.astype(np.float64) / 4096.0 * 3.3 - 0.4) / 0.0195
         tmp = np.mean(tmp,axis=0)
 
-        self.accNrmNum.display(acc_norm)
-        self.magNrmNum.display(mag_norm)
-        self.accZaxNum.display(acc_z)
+        self.accNrmNum.display(float(acc_norm))
+        self.magNrmNum.display(float(mag_norm))
+        self.accZaxNum.display(float(acc_z))
 
         self.tmpANum.display(tmp[0])
         self.tmpBNum.display(tmp[1])
@@ -397,7 +397,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
 # Use python click
 @click.command()
-@click.option('--ser_port', default='COM3', help='Serial Port Name')
+@click.option('--ser_port', default='COM4', help='Serial Port Name')
 def main_gui(ser_port):
     # Main program runs from here. Standard Qt start procedure.
     qApp = QtWidgets.QApplication(sys.argv)
