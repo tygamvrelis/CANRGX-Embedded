@@ -26,7 +26,7 @@ class CANRGXPlotCanvas(FigureCanvas):
         
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         #fig.subplots_adjust(left = 0.0, bottom = 0.0, right = 1.0, top = 1.0, wspace = 0.0, hspace = 0.0)
-        self.fig.set_tight_layout(True)
+        #self.fig.set_tight_layout(True)
         
         self.acc_ax = self.fig.add_subplot(2, 2, 1)
         self.mag_ax = self.fig.add_subplot(2, 2, 2)
@@ -87,9 +87,15 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.tmp_ax.set_xlabel('MCU Tick Time (millisec)')
         self.tmp_ax.set_ylim((5,70))
         self.tmp_ax.legend(['1A','1B','2A','2B','3A','3B'],loc='upper right',fontsize='xx-small',frameon=False)
+        self.fig.subplots_adjust(left=0.075, bottom=0.1, right=0.975, top=0.975, wspace=0.15, hspace=0.25)
 
-        self.fig.subplots_adjust(left=0.0, bottom=0.0, right=1.0,
-                            top=1.0, wspace=0.0, hspace=0.0)
+    def resizeEvent(self, event):
+        #self.fig.tight_layout()
+        #self.fig.tight_layout()
+        #self.fig.tight_layout()
+        
+        # emit our resize events
+        super().resizeEvent(event)
 
     def new_data_slot(self, new_tic, new_imu, new_pwr, new_tmp):
         roll_step=-np.shape(new_tic)[0]
