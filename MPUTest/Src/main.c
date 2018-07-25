@@ -266,10 +266,24 @@ int main(void)
 	  HAL_RTCEx_SetSynchroShift(&hrtc, RTC_SHIFTADD1S_SET, ticksToAdvance);
   }
 
+  /*************************************************************************
+   *                 Blink LED for camera synchronization                  *
+   *************************************************************************/
+
+  // Turn on LED here
+  // HAL_GPIO_WritePin(CAMERA_LED_PORT, CAMERA_LED_PIN, GPIO_PIN_SET);
+
   HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
   	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
   	  	  	  	   // 1500 ms is necessary because after setting the RTC shift register,
-                   // it takes about a second or so for it to work again properly.
+                   // it takes about a second or so for it to work again properly.`
+
+  // TODO: Turn off LED here
+  // HAL_GPIO_WritePin(CAMERA_LED_PORT, CAMERA_LED_PIN, GPIO_PIN_RESET);
+
+  /*************************************************************************
+   *         Send back time, triggering GUI to start data display          *
+   *************************************************************************/
 
   // Load transmit buffer with fresh time
   do{
