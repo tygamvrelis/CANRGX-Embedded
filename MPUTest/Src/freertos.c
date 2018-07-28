@@ -65,6 +65,9 @@
 #include "../Drivers/MPU9250/MPU9250.h"
 #include "userTypes.h"
 
+#include "App/App_Control.h"
+#include "App/App_MPU9250.h"
+
 
 /* USER CODE END Includes */
 
@@ -140,30 +143,8 @@ __weak unsigned long getRunTimeCounterValue(void)
 return 0;
 }
 
-// Events and states
-enum flightEvents_e{
-	NONE,
-	REDUCEDGRAVITY,
-};
-
-enum controllerStates_e{
-	IDLE,
-	EXPERIMENT1,
-	EXPERIMENT2,
-	EXPERIMENT3,
-	EXPERIMENT4
-};
-
-// Task notification-related things
-#define MANUAL_OVERRIDE_START_BITMASK 0x80000000
-#define MANUAL_OVERRIDE_STOP_BITMASK 0x08000000
-#define MPU_BITMASK 0x00800000
-
 inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
     return MANUAL_OVERRIDE_START_BITMASK | x;
-}
-inline uint32_t NOTIFY_FROM_MPU(uint32_t x){
-    return MPU_BITMASK | x;
 }
 
 // LED blink for debugging (green LED, LD2)
@@ -171,14 +152,6 @@ inline void LED(){
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
 
-// Turning the heating wire on and off
-inline void HeatingWireOn(){
-    HAL_GPIO_WritePin(Heating_Wire_GPIO_Port, Heating_Wire_Pin, GPIO_PIN_SET);
-}
-
-inline void HeatingWireOff(){
-    HAL_GPIO_WritePin(Heating_Wire_GPIO_Port, Heating_Wire_Pin, GPIO_PIN_RESET);
-}
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -300,13 +273,6 @@ void StartDefaultTask(void const * argument) {
 /* StartControlTask function */
 void StartControlTask(void const * argument) {
     /* USER CODE BEGIN StartControlTask */
-    const float TEC_ON_DUTY_CYCLE = 0.85;
-
-    float TEC1DutyCycle = 0;
-    float TEC2DutyCycle = 0;
-    MagnetInfo_t magnet1Info = { MAGNET1, BRAKE, ACTIVE_HIGH, 0.0 };
-    MagnetInfo_t magnet2Info = { MAGNET2, BRAKE, ACTIVE_HIGH, 0.0 };
-
     TXData_t txDataControl;
     controlData_t controlData = { 0 };
 
@@ -316,159 +282,25 @@ void StartControlTask(void const * argument) {
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
-    TickType_t curTick;
     uint32_t notification;
 
-    /* Startup procedure */
-    enum flightEvents_e receivedEvent = NONE;
-    enum flightEvents_e currentEvent = NONE;
-    enum controllerStates_e controllerState = IDLE;
-    enum controllerStates_e nextControllerState = EXPERIMENT1;
-    bool manualOverrideStart = false;
-
-    TEC_stop();
-    HeatingWireOff();
-    setMagnet(&magnet1Info);
-    setMagnet(&magnet2Info);
+    controlInit();
 
     /* Infinite loop */
     for(;;)
     {
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
 
-		/********** Check for flight events **********/
+		// Check for flight events
 		if(xTaskNotifyWait(0, UINT32_MAX, &notification, pdMS_TO_TICKS(1)) == pdTRUE){
-
-			// One-time state update for the event. The cases towards the end have the highest
-			// priority if they occur, which is why they are if statements and not if-else
-			if((notification & MPU_BITMASK) == MPU_BITMASK){
-				// This is the case for when the MPU9250 senses an event. In this case, the
-				// task notification holds the value of the enumerated type flightEvents_e
-				// sent by the MPU9250 thread.
-				receivedEvent = notification & (~MPU_BITMASK);
-			}
-			if((notification & MANUAL_OVERRIDE_START_BITMASK) == MANUAL_OVERRIDE_START_BITMASK){
-				// This is the case for when a manual override START sequence is received. In
-				// this case, the task notification holds the number of the experiment to run.
-				receivedEvent = REDUCEDGRAVITY;
-				nextControllerState = notification & (~MANUAL_OVERRIDE_START_BITMASK);
-				manualOverrideStart = true;
-			}
-			if((notification & MANUAL_OVERRIDE_STOP_BITMASK) == MANUAL_OVERRIDE_STOP_BITMASK){
-				// This is the case for when a manual override STOP sequence is received
-				receivedEvent = NONE;
-			}
-
-			// Only handle the received event if it is different than the
-			// current event. That is, if the current event is NONE, then if
-			// we receive another "NONE" event, we should do nothing. The only
-			// exception is with manual override start, since it is possible
-			// that it may be desired to change the experiment number without
-			// pressing stop in between.
-			if(receivedEvent != currentEvent || manualOverrideStart)
-			{
-			    currentEvent = receivedEvent;
-			    manualOverrideStart = false;
-                switch(receivedEvent){
-                    case REDUCEDGRAVITY:
-                        controllerState = nextControllerState;
-
-                        TEC1DutyCycle = TEC_ON_DUTY_CYCLE;
-                        TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
-                        TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
-
-                        HeatingWireOn();
-
-                        magnet1Info.magnetState = PWM;
-                        magnet2Info.magnetState = PWM;
-
-                        // Make status LED blink at 10 Hz
-                        osTimerStop(tmrLEDBlinkHandle);
-                        osTimerStart(tmrLEDBlinkHandle, 50);
-                        break;
-                    case NONE:
-                        controllerState = IDLE;
-
-                        // The next controller state will increment until the last state,
-                        // at which point it will wrap around
-                        switch(nextControllerState){
-                            case IDLE:
-                            case EXPERIMENT1:
-                            case EXPERIMENT2:
-                            case EXPERIMENT3:
-                                nextControllerState++;
-                                break;
-                            case EXPERIMENT4:
-                                nextControllerState = EXPERIMENT1;
-                                break;
-                        }
-
-                        TEC1DutyCycle = 0;
-                        TEC2DutyCycle = 0;
-                        TEC_stop();
-
-                        HeatingWireOff();
-
-                        magnet1Info.magnetState = BRAKE;
-                        magnet2Info.magnetState = BRAKE;
-                        magnet1Info.dutyCycle = 0;
-                        magnet2Info.dutyCycle = 0;
-                        setMagnet(&magnet1Info);
-                        setMagnet(&magnet2Info);
-
-                        // Make status LED blink at 2 Hz
-                        osTimerStop(tmrLEDBlinkHandle);
-                        osTimerStart(tmrLEDBlinkHandle, 1000);
-                        break;
-                    default:
-                        break; // Should never reach here
-                }
-			}
+		    controlEventHandler(notification);
 		}
 
 		// Update PWM duty cycle for magnets
-		switch(controllerState){
-			case IDLE:
-				break;
-			case EXPERIMENT1:
-				curTick = xTaskGetTickCount();
-				magnet1Info.dutyCycle = sinf(0.002 * curTick);
-				magnet2Info.dutyCycle = sinf(0.002 * curTick);
-				setMagnet(&magnet1Info);
-				setMagnet(&magnet2Info);
-				break;
-			case EXPERIMENT2:
-				curTick = xTaskGetTickCount();
-				magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
-				magnet2Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
-				setMagnet(&magnet1Info);
-				setMagnet(&magnet2Info);
-				break;
-			case EXPERIMENT3:
-				curTick = xTaskGetTickCount();
-				magnet1Info.dutyCycle = sinf(0.002 * curTick);
-				magnet2Info.dutyCycle = cosf(0.002 * curTick);
-				setMagnet(&magnet1Info);
-				setMagnet(&magnet2Info);
-				break;
-			case EXPERIMENT4:
-				curTick = xTaskGetTickCount();
-				magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
-				magnet2Info.dutyCycle = (1.0 + cosf(0.002 * curTick)) / 2.0;
-				setMagnet(&magnet1Info);
-				setMagnet(&magnet2Info);
-				break;
-			default:
-				break; // Should never reach here
-		}
+		updateControlState();
 
-        /********** Tell transmit task that new data is ready **********/
-        // Here, we multiply the duty cycle by 100 * 100 so that we capture the
-        // integer part and the fractional part (to 2 decimal places)
-        controlData.mag1Power = (int16_t)(magnet1Info.dutyCycle * 10000);
-        controlData.mag2Power = (int16_t)(magnet2Info.dutyCycle * 10000);
-        controlData.tec1Power = (uint16_t)(TEC1DutyCycle * 10000);
-        controlData.tec2Power = (uint16_t)(TEC2DutyCycle * 10000);
+        // Tell transmit task that new data is ready
+		updateControlData(&controlData);
         xQueueSend(xTXDataQueueHandle, &txDataControl, 1);
     }
     /* USER CODE END StartControlTask */
@@ -649,9 +481,6 @@ void StartTxTask(void const * argument)
 /* StartMPU9250Task function */
 void StartMPU9250Task(void const * argument) {
     /* USER CODE BEGIN StartMPU9250Task */
-    int8_t accelStatus;
-    int8_t magStatus;
-
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -665,9 +494,6 @@ void StartMPU9250Task(void const * argument) {
     txDataMag.type = magnetometer_t;
     txDataMag.data = &magnetometerData;
 
-    /* Initial state is sensing no event, and no command to transmit */
-    enum flightEvents_e sensedEvent = NONE;
-
     initAllMPU9250Filters();
 
     /* Infinite loop */
@@ -676,63 +502,16 @@ void StartMPU9250Task(void const * argument) {
         // Service this task every MPU9250_CYCLE_MS milliseconds
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS));
 
-        // Acceleration - Read ax, ay, az
-        accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle);
-        if(accelStatus == 1){
-            filterAccelMPU9250(&myMPU9250);
-            computeTotalAcceleration(&myMPU9250);
-        }
-        else{
-            // The accelerometer was not able to be read from properly,
-            // handle this here
-            generateClocks(&hi2c3, 1, 1);
-            myMPU9250.A = NAN;
-        }
-        accelerometerData.ax = myMPU9250.ax;
-        accelerometerData.ay = myMPU9250.ay;
-        accelerometerData.az = myMPU9250.az;
-
-        // Magnetometer - Read hx, hy, hz
-        magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle);
-        if(magStatus != 1){
-            // The magnetometer was not able to be read from properly,
-            // handle this here
-            generateClocks(&hi2c1, 1, 1);
-        }
-        magnetometerData.hx = myMPU9250.hx;
-        magnetometerData.hy = myMPU9250.hy;
-        magnetometerData.hz = myMPU9250.hz;
+        // Read from sensor
+        updateAccelReading(&accelerometerData, &myMPU9250);
+        updateMagReading(&magnetometerData, &myMPU9250);
 
         // Tell transmit task that new data is ready
         xQueueSend(xTXDataQueueHandle, &txDataAccel, 1);
         xQueueSend(xTXDataQueueHandle, &txDataMag, 1);
 
-        // Use the acceleration magnitude to update state
-        //	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing
-        if(myMPU9250.A < 0.981 && sensedEvent == NONE){
-            sensedEvent = REDUCEDGRAVITY;
-
-            // Notify task to start experiment
-            xTaskNotify(ControlTaskHandle,
-                        NOTIFY_FROM_MPU(sensedEvent),
-                        eSetBits
-            );
-        }
-        //	else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing
-        else if(myMPU9250.A > 3.13 && sensedEvent == REDUCEDGRAVITY){
-            sensedEvent = NONE;
-
-            // Notify task to stop experiment
-            xTaskNotify(ControlTaskHandle,
-                        NOTIFY_FROM_MPU(sensedEvent),
-                        eSetBits
-            );
-        }
-        else{
-            /* Will reach here when no transition between events is detected;
-             * i.e., when the same state (either NONE or REDUCEDGRAVITY) is
-             * detected in consecutive cycles */
-        }
+        // Send updates to control task if there is an event
+        MPU9250EventHandler(&myMPU9250);
     }
     /* USER CODE END StartMPU9250Task */
 }

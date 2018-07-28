@@ -2,6 +2,31 @@
 #ifndef __USER_TYPES_H__
 #define __USER_TYPES_H__
 
+// Events and states
+enum flightEvents_e{
+    NONE,
+    REDUCEDGRAVITY,
+};
+
+enum controllerStates_e{
+    IDLE,
+    EXPERIMENT1,
+    EXPERIMENT2,
+    EXPERIMENT3,
+    EXPERIMENT4
+};
+
+
+
+
+// Task notification-related things
+#define MANUAL_OVERRIDE_START_BITMASK 0x80000000
+#define MANUAL_OVERRIDE_STOP_BITMASK 0x08000000
+#define MPU_BITMASK 0x00800000
+
+
+
+
 typedef enum{
 	accelerometer_t,
 	magnetometer_t,
