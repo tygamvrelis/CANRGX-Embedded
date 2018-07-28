@@ -229,9 +229,6 @@ int main(void)
 		  aToUint((char*)(ptrSubseconds + 5)) * 0.000001
   	  };
 
-  // TODO: Compensate for the comm link delay
-  float linkDelay = 0.000502; // Estimate for number of seconds to send time info
-
   // Set RTC registers for hours, minutes, seconds (BCD)
   RTC_TimeTypeDef theTime;
   RTC_DateTypeDef theDate;

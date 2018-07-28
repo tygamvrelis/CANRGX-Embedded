@@ -339,7 +339,6 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 	return 1;
 }
 
-
 // Note: The following 2 functions are used as a workaround for an issue where the BUSY flag of the
 // I2C module is erroneously asserted in the hardware (a silicon bug, essentially). By checking the logs
 // for "nan", I have been able to see that this fix indeed will resolve I2C bus conflict. So it is useful to
