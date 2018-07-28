@@ -245,6 +245,8 @@ void HardFault_Handler( void ) __attribute__( ( naked ) );
 prvGetRegistersFromStack(). */
 void HardFault_Handler(void)
 {
+    NVIC_SystemReset(); // Comment this out if debugging
+
     __asm volatile
     (
         " tst lr, #4                                                \n"
