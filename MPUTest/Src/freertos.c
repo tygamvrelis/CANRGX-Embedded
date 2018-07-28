@@ -52,9 +52,8 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */     
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
+#include "main.h"
 #include "adc.h"
 #include "dma.h"
 #include "i2c.h"
@@ -62,7 +61,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "pid_contrl.h"
 #include "../Drivers/MPU9250/MPU9250.h"
 #include "userTypes.h"
 
@@ -101,10 +99,6 @@ osSemaphoreId semRxHandle;
 osStaticSemaphoreDef_t semRxControlBlock;
 
 /* USER CODE BEGIN Variables */
-//#define ADC_DATA_N 12
-//volatile uint16_t uhADC_results[ADC_DATA_N];
-
-QueueSetHandle_t xTxQueueSet;
 
 /* USER CODE END Variables */
 
@@ -145,15 +139,10 @@ __weak unsigned long getRunTimeCounterValue(void)
 return 0;
 }
 
-// LED blink for debugging (green LED, LD2)
-#define LED() HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5)
-
-// All flight events besides none are transitions
+// Events and states
 enum flightEvents_e{
 	NONE,
 	REDUCEDGRAVITY,
-	PULLUP,
-	PULLOUT
 };
 
 enum controllerStates_e{
@@ -164,11 +153,31 @@ enum controllerStates_e{
 	EXPERIMENT4
 };
 
+// Task notification-related things
 #define MANUAL_OVERRIDE_START_BITMASK 0x80000000
 #define MANUAL_OVERRIDE_STOP_BITMASK 0x08000000
 #define MPU_BITMASK 0x00800000
-#define NOTIFY_FROM_MANUAL_OVERRIDE_START(x) (MANUAL_OVERRIDE_START_BITMASK | (x))
-#define NOTIFY_FROM_MPU(x) (MPU_BITMASK | (x))
+
+inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
+    return MANUAL_OVERRIDE_START_BITMASK | x;
+}
+inline uint32_t NOTIFY_FROM_MPU(uint32_t x){
+    return MPU_BITMASK | x;
+}
+
+// LED blink for debugging (green LED, LD2)
+inline void LED(){
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+}
+
+// Turning the heating wire on and off
+inline void HeatingWireOn(){
+    HAL_GPIO_WritePin(Heating_Wire_GPIO_Port, Heating_Wire_Pin, GPIO_PIN_SET);
+}
+
+inline void HeatingWireOff(){
+    HAL_GPIO_WritePin(Heating_Wire_GPIO_Port, Heating_Wire_Pin, GPIO_PIN_RESET);
+}
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -356,6 +365,8 @@ void StartControlTask(void const * argument)
 					TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
 					TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
 
+					HeatingWireOn();
+
 					magnet1Info.magnetState = PWM;
 					magnet2Info.magnetState = PWM;
 
@@ -383,6 +394,8 @@ void StartControlTask(void const * argument)
 					TEC1DutyCycle = 0;
 					TEC2DutyCycle = 0;
 					TEC_stop();
+
+					HeatingWireOff();
 
 					magnet1Info.magnetState = COAST;
 					magnet2Info.magnetState = COAST;

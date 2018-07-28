@@ -271,15 +271,15 @@ int main(void)
    *************************************************************************/
 
   // Turn on LED here
-  // HAL_GPIO_WritePin(CAMERA_LED_PORT, CAMERA_LED_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(CAMERA_LED_GPIO_Port, CAMERA_LED_Pin, GPIO_PIN_SET);
 
   HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
   	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
   	  	  	  	   // 1500 ms is necessary because after setting the RTC shift register,
                    // it takes about a second or so for it to work again properly.`
 
-  // TODO: Turn off LED here
-  // HAL_GPIO_WritePin(CAMERA_LED_PORT, CAMERA_LED_PIN, GPIO_PIN_RESET);
+  // Turn off LED here
+  HAL_GPIO_WritePin(CAMERA_LED_GPIO_Port, CAMERA_LED_Pin, GPIO_PIN_RESET);
 
   /*************************************************************************
    *         Send back time, triggering GUI to start data display          *
