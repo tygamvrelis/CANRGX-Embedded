@@ -305,8 +305,8 @@ void StartControlTask(void const * argument)
 
 	float TEC1DutyCycle = 0;
 	float TEC2DutyCycle = 0;
-	MagnetInfo_t magnet1Info = {MAGNET1, COAST, ACTIVE_HIGH, 0.0};
-	MagnetInfo_t magnet2Info = {MAGNET2, COAST, ACTIVE_HIGH, 0.0};
+	MagnetInfo_t magnet1Info = {MAGNET1, BRAKE, ACTIVE_HIGH, 0.0};
+	MagnetInfo_t magnet2Info = {MAGNET2, BRAKE, ACTIVE_HIGH, 0.0};
 	setMagnet(&magnet1Info);
 	setMagnet(&magnet2Info);
 
@@ -397,8 +397,8 @@ void StartControlTask(void const * argument)
 
 					HeatingWireOff();
 
-					magnet1Info.magnetState = COAST;
-					magnet2Info.magnetState = COAST;
+					magnet1Info.magnetState = BRAKE;
+					magnet2Info.magnetState = BRAKE;
 					magnet1Info.dutyCycle = 0;
 					magnet2Info.dutyCycle = 0;
 					setMagnet(&magnet1Info);
@@ -634,166 +634,160 @@ void StartTxTask(void const * argument)
 }
 
 /* StartMPU9250Task function */
-void StartMPU9250Task(void const * argument)
-{
-  /* USER CODE BEGIN StartMPU9250Task */
-  int8_t accelStatus;
-  int8_t magStatus;
+void StartMPU9250Task(void const * argument) {
+    /* USER CODE BEGIN StartMPU9250Task */
+    int8_t accelStatus;
+    int8_t magStatus;
 
-  TickType_t xLastWakeTime;
-  xLastWakeTime = xTaskGetTickCount();
+    TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
 
-  TXData_t txDataAccel, txDataMag;
-  magnetometerData_t magnetometerData;
-  accelerometerData_t accelerometerData;
+    TXData_t txDataAccel, txDataMag;
+    magnetometerData_t magnetometerData;
+    accelerometerData_t accelerometerData;
 
-  txDataAccel.type = accelerometer_t;
-  txDataAccel.data = &accelerometerData;
+    txDataAccel.type = accelerometer_t;
+    txDataAccel.data = &accelerometerData;
 
-  txDataMag.type = magnetometer_t;
-  txDataMag.data = &magnetometerData;
+    txDataMag.type = magnetometer_t;
+    txDataMag.data = &magnetometerData;
 
-  /* Initial state is sensing no event, and no command to transmit */
-  enum flightEvents_e sensedEvent = NONE;
+    /* Initial state is sensing no event, and no command to transmit */
+    enum flightEvents_e sensedEvent = NONE;
 
-  MPUFilterType azFilter, ayFilter, axFilter;
-  MPUFilter_init(&axFilter);
-  MPUFilter_init(&ayFilter);
-  MPUFilter_init(&azFilter);
+    MPUFilterType azFilter, ayFilter, axFilter;
+    MPUFilter_init(&axFilter);
+    MPUFilter_init(&ayFilter);
+    MPUFilter_init(&azFilter);
 
-  /* Infinite loop */
-  for(;;)
-  {
-	// TODO: if MPU sensor fails a few consecutive cycles, we can decrease
-	// its sampling rate by 100 times until it works again so that we don't
-	// slow down the system
-    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS)); // Service this task every MPU9250_CYCLE_MS milliseconds
+    /* Infinite loop */
+    for (;;) {
+        // TODO: if MPU sensor fails a few consecutive cycles, we can decrease
+        // its sampling rate by 100 times until it works again so that we don't
+        // slow down the system
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS)); // Service this task every MPU9250_CYCLE_MS milliseconds
 
-    /* Acceleration */
-    accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
-    if(accelStatus == 1){
-    	/***** Filter the signals along each axis *****/
-    	MPUFilter_writeInput(&axFilter, myMPU9250.ax);
-    	myMPU9250.ax = MPUFilter_readOutput(&axFilter);
+        /* Acceleration */
+        accelStatus = accelReadDMA(&myMPU9250, semMPU9250Handle); // Read ax, ay, az
+        if (accelStatus == 1){
+            /***** Filter the signals along each axis *****/
+            MPUFilter_writeInput(&axFilter, myMPU9250.ax);
+            myMPU9250.ax = MPUFilter_readOutput(&axFilter);
 
-    	MPUFilter_writeInput(&ayFilter, myMPU9250.ay);
-    	myMPU9250.ay = MPUFilter_readOutput(&ayFilter);
+            MPUFilter_writeInput(&ayFilter, myMPU9250.ay);
+            myMPU9250.ay = MPUFilter_readOutput(&ayFilter);
 
-    	MPUFilter_writeInput(&azFilter, myMPU9250.az);
-    	myMPU9250.az = MPUFilter_readOutput(&azFilter);
+            MPUFilter_writeInput(&azFilter, myMPU9250.az);
+            myMPU9250.az = MPUFilter_readOutput(&azFilter);
 
-    	myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az + myMPU9250.ay * myMPU9250.ay + myMPU9250.ax * myMPU9250.ax);
-    }
-    else{
-    	/* The accelerometer was not able to be read from properly, handle this here. */
-    	generateClocks(&hi2c3, 1, 1);
-    	myMPU9250.A = NAN;
-    }
-    accelerometerData.ax = myMPU9250.ax;
-    accelerometerData.ay = myMPU9250.ay;
-    accelerometerData.az = myMPU9250.az;
+            myMPU9250.A = sqrt(myMPU9250.az * myMPU9250.az +
+                               myMPU9250.ay * myMPU9250.ay +
+                               myMPU9250.ax * myMPU9250.ax);
+        }
+        else{
+            /* The accelerometer was not able to be read from properly, handle this here. */
+            generateClocks(&hi2c3, 1, 1);
+            myMPU9250.A = NAN;
+        }
+        accelerometerData.ax = myMPU9250.ax;
+        accelerometerData.ay = myMPU9250.ay;
+        accelerometerData.az = myMPU9250.az;
 
-	/* Magnetometer */
-	magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
-	if(magStatus != 1){
-		/* The magnetometer was not able to be read from properly, handle this here. */
-		generateClocks(&hi2c1, 1, 1);
-	}
-    magnetometerData.hx = myMPU9250.hx;
-    magnetometerData.hy = myMPU9250.hy;
-    magnetometerData.hz = myMPU9250.hz;
+        /* Magnetometer */
+        magStatus = magFluxReadDMA(&myMPU9250, semMPU9250Handle); // Read hx, hy, hz
+        if (magStatus != 1){
+            /* The magnetometer was not able to be read from properly, handle this here. */
+            generateClocks(&hi2c1, 1, 1);
+        }
+        magnetometerData.hx = myMPU9250.hx;
+        magnetometerData.hy = myMPU9250.hy;
+        magnetometerData.hz = myMPU9250.hz;
 
-	/********** Tell transmit task that new data is ready **********/
-	xQueueSend(xTXDataQueueHandle, &txDataAccel, 1);
-	xQueueSend(xTXDataQueueHandle, &txDataMag, 1);
+        /********** Tell transmit task that new data is ready **********/
+        xQueueSend(xTXDataQueueHandle, &txDataAccel, 1);
+        xQueueSend(xTXDataQueueHandle, &txDataMag, 1);
 
-	/********** Use the acceleration magnitude to update state **********/
-//	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing
-	if(myMPU9250.A < 0.981 && sensedEvent == NONE){
-		sensedEvent = REDUCEDGRAVITY;
+        /********** Use the acceleration magnitude to update state **********/
+        //	if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing
+        if (myMPU9250.A < 0.981 && sensedEvent == NONE){
+            sensedEvent = REDUCEDGRAVITY;
 
-		// Notify task to start experiment
-		xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MPU(sensedEvent), eSetBits);
-	}
+            // Notify task to start experiment
+            xTaskNotify(ControlTaskHandle,
+                        NOTIFY_FROM_MPU(sensedEvent),
+                        eSetBits
+            );
+        }
 //	else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing
-	else if(myMPU9250.A > 3.13 && sensedEvent == REDUCEDGRAVITY){
-		sensedEvent = NONE;
+        else if (myMPU9250.A > 3.13 && sensedEvent == REDUCEDGRAVITY){
+            sensedEvent = NONE;
 
-		// Notify task to stop experiment
-		xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MPU(sensedEvent), eSetBits);
-	}
-	else{
-		/* Will reach here when no transition between events is detected; i.e., when the same state
-		 * (either NONE or REDUCEDGRAVITY) is detected in consecutive cycles */
-	}
-  }
-  /* USER CODE END StartMPU9250Task */
+            // Notify task to stop experiment
+            xTaskNotify(ControlTaskHandle,
+                        NOTIFY_FROM_MPU(sensedEvent),
+                        eSetBits
+            );
+        }
+        else{
+            /* Will reach here when no transition between events is detected; i.e., when the same state
+             * (either NONE or REDUCEDGRAVITY) is detected in consecutive cycles */
+        }
+    }
+    /* USER CODE END StartMPU9250Task */
 }
 
 /* StartRxTask function */
-void StartRxTask(void const * argument)
-{
-  /* USER CODE BEGIN StartRxTask */
-  const char MANUAL_OVERRIDE_START_CHAR = 'S';
-  const char MANUAL_OVERRIDE_STOP_SEQ[] = {'X', 'X'};
-  const char RESET_SEQ[] = {'R', 'S'};
+void StartRxTask(void const * argument) {
+    /* USER CODE BEGIN StartRxTask */
+    const char MANUAL_OVERRIDE_START_CHAR = 'S';
+    const char MANUAL_OVERRIDE_STOP_SEQ[] = { 'X', 'X' };
+    const char RESET_SEQ[] = { 'R', 'S' };
 
-  uint8_t buffer[3]; // buffer[0] == control character, buffer[1] == accompanying data, buffer[2] == '\n'
+    uint8_t buffer[3]; // buffer[0] == control character, buffer[1] == accompanying data, buffer[2] == '\n'
 
-  /* Infinite loop */
-  for(;;)
-  {
-	 HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
-	 if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
-		 if(buffer[0] == MANUAL_OVERRIDE_START_CHAR){
-			 // Manual override for starting experiment
-			 xTaskNotify(ControlTaskHandle, NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'), eSetBits);
-		 }
-		 else if(buffer[0] == MANUAL_OVERRIDE_STOP_SEQ[0] &&
-				 buffer[1] == MANUAL_OVERRIDE_STOP_SEQ[1])
-		 {
-			 // Manual override for stopping experiment
-			 xTaskNotify(ControlTaskHandle, MANUAL_OVERRIDE_STOP_BITMASK, eSetBits);
-		 }
-		 else if(buffer[0] == RESET_SEQ[0] &&
-				 buffer[1] == RESET_SEQ[1])
-		 {
-		     // Enter critical section; disable interrupts
-		     taskENTER_CRITICAL();
+    /* Infinite loop */
+    for (;;) {
+        HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
+        if (xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
+            if (buffer[0] == MANUAL_OVERRIDE_START_CHAR){
+                // Manual override for starting experiment
+                xTaskNotify(ControlTaskHandle,
+                            NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'),
+                            eSetBits
+                );
+            }
+            else if (buffer[0] == MANUAL_OVERRIDE_STOP_SEQ[0] &&
+                     buffer[1] == MANUAL_OVERRIDE_STOP_SEQ[1])
+            {
+                // Manual override for stopping experiment
+                xTaskNotify(ControlTaskHandle,
+                            MANUAL_OVERRIDE_STOP_BITMASK,
+                            eSetBits
+                );
+            }
+            else if (buffer[0] == RESET_SEQ[0] && buffer[1] == RESET_SEQ[1]){
+                // Enter critical section; disable interrupts
+                taskENTER_CRITICAL();
 
-			 // Try to shut down safely, i.e. let I/O transactions with the IMU
-			 // finish so that we can start up properly after a reset without
-			 // getting hung. Here, we check the state of the I2C module for
-		     // the accelerometer and the module for the magnetometer. Ideally,
-		     // we will reset when both are in the "ready" state. If one (or
-		     // both) are not "ready", then the routine below will make a
-		     // finite number of attempts over a short period before forcing a
-		     // reset. I2C transactions in this system should not take longer
-		     // than 2 ms, but a bit longer couldn't hurt.
-		     uint8_t numTriesRemaining = 4; // Wait up to 4 ms
-			 while(hi2c1.State != HAL_I2C_STATE_READY ||
-			       hi2c3.State != HAL_I2C_STATE_READY
-			 )
-			 {
-			     if(numTriesRemaining == 0){ break; }
+                // Brake the magnets and turn off the TECs
+                MagnetInfo_t magnet1Info = { MAGNET1, BRAKE, ACTIVE_HIGH, 0.0 };
+                MagnetInfo_t magnet2Info = { MAGNET2, BRAKE, ACTIVE_HIGH, 0.0 };
+                TEC_stop();
+                setMagnet(&magnet1Info);
+                setMagnet(&magnet2Info);
 
-			     // This thread is the highest priority, and since we are going
-			     // to do a full system reset anyway, there is no need to
-			     // allow other threads to run while we do these I2C module
-			     // checks. This is why we used taskENTER_CRITICAL() to disable
-			     // interrupts. Thus, we can use a (blocking) HAL_Delay.
-			     HAL_Delay(1);
+                // Wait 1 second for the magnetic field energy to start
+                // dissipating safely. This time is also sufficient to allow
+                // existing I2C transactions with the MPU9250 to finish.
+                HAL_Delay(1000);
 
-			     numTriesRemaining--;
-			 }
-
-			 // Full system reset
-			 NVIC_SystemReset();
-		 }
+                // Full system reset
+                NVIC_SystemReset();
+            }
 //		 LED(); // Debugging for RX
-	 }
-  }
-  /* USER CODE END StartRxTask */
+        }
+    }
+    /* USER CODE END StartRxTask */
 }
 
 /* StartTempTask function */
