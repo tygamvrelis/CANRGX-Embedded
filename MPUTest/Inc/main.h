@@ -69,8 +69,8 @@
 #define B1_GPIO_Port GPIOC
 #define Temp3A_Pin GPIO_PIN_0
 #define Temp3A_GPIO_Port GPIOC
-#define CAMERA_LED_Pin GPIO_PIN_1
-#define CAMERA_LED_GPIO_Port GPIOC
+#define Camera_LED_Pin GPIO_PIN_1
+#define Camera_LED_GPIO_Port GPIOC
 #define Temp3B_Pin GPIO_PIN_3
 #define Temp3B_GPIO_Port GPIOC
 #define Temp1A_Pin GPIO_PIN_0

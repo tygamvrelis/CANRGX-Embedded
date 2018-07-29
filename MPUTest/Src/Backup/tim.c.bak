@@ -85,7 +85,7 @@ inline void MAGNET_MAKE_PWM(GPIO_TypeDef* gpio, uint16_t magnet_pin){
 }
 
 typedef enum{
-	NONE,
+	CURRENT_NONE,
 	POSITIVE,
 	NEGATIVE
 }current_e;
@@ -368,7 +368,7 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 
 	/***** Non-PWM mode of operation *****/
 	if(magnetInfo -> magnetState == COAST){
-		current = NONE;
+		current = CURRENT_NONE;
 		if(magnetInfo -> magnet == MAGNET1){
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
@@ -388,7 +388,7 @@ int8_t setMagnet(MagnetInfo_t* magnetInfo){
 		return 1;
 	}
 	else if(magnetInfo -> magnetState == BRAKE){
-		current = NONE;
+		current = CURRENT_NONE;
 		if(magnetInfo -> magnet == MAGNET1){
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);

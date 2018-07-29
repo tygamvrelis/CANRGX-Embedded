@@ -20,6 +20,7 @@
 #include <math.h>
 
 #include "MPUFilter.h"
+#include "MPU9250_t.h"
 
 
 
@@ -98,21 +99,6 @@
 #define MPU9250_MAG_FULL_SCALE 4912.0 // microTeslas. See pg. 50 of the register map
 
 
-/*********************************** Types ************************************/
-// Stores data from the sensor in a global struct
-typedef struct{
-	float az; // Acceleration along z-axis
-	float ay; // Acceleration along y-axis
-	float ax; // Acceleration along x-axis
-	float A;  // ||a||
-	float vz; // Yaw rate (about z-axis)
-	float vy; // Pitch rate (about y-axis)
-	float vx; // Roll rate (about x-axis)
-	float hx; // Magnetic field along x
-	float hy; // Magnetic field along y
-	float hz; // Magnetic field along z
-}MPU9250_t;
-
 
 
 /*********************************** Globals *********************************/
@@ -131,6 +117,13 @@ int MPU9250Init(MPU9250_t* myMPU);
 int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
+
+inline void computeTotalAcceleration(MPU9250_t* myMPU9250){
+    myMPU9250->A = sqrt(myMPU9250->az * myMPU9250->az +
+                        myMPU9250->ay * myMPU9250->ay +
+                        myMPU9250->ax * myMPU9250->ax
+    );
+}
 
 int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
 int magnetometerWrite(uint8_t addr, uint8_t data);

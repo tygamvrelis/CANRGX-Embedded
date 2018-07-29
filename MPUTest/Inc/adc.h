@@ -66,16 +66,7 @@ extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
 
 /* USER CODE BEGIN Private defines */
-extern uint16_t ADC_processed[6]; // Processed results
 
-enum tempSensors{
-	TEMP1A,
-	TEMP1B,
-	TEMP2A,
-	TEMP2B,
-	TEMP3A,
-	TEMP3B
-};
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);
@@ -85,8 +76,7 @@ void MX_ADC2_Init(void);
 void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-int Temp_Scan_Start(void);
-int Temp_Scan_Stop(void);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

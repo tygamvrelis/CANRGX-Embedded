@@ -406,7 +406,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
 # Use python click
 @click.command()
-@click.option('--ser_port', default='COM4', help='Serial Port Name')
+@click.option('--ser_port', default='COM12', help='Serial Port Name')
 def main_gui(ser_port):
     # Main program runs from here. Standard Qt start procedure.
     qApp = QtWidgets.QApplication(sys.argv)
