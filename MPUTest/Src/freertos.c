@@ -70,6 +70,7 @@
 #include "App/App_CommTX.h"
 #include "App/App_MPU9250.h"
 #include "App/App_CommRX.h"
+#include "App/App_Temperature.h"
 
 
 /* USER CODE END Includes */
@@ -144,11 +145,6 @@ __weak void configureTimerForRunTimeStats(void)
 __weak unsigned long getRunTimeCounterValue(void)
 {
 return 0;
-}
-
-// LED blink for debugging (green LED, LD2)
-inline void LED(){
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
 
 /* USER CODE END 1 */
@@ -407,7 +403,7 @@ void StartRxTask(void const * argument)
 /* StartTempTask function */
 void StartTempTask(void const * argument)
 {
-  /* USER CODE BEGIN StartTempTask */
+    /* USER CODE BEGIN StartTempTask */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -425,24 +421,24 @@ void StartTempTask(void const * argument)
         // Service this task every TEMP_CYCLE_MS milliseconds
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS));
 
-        temperatureData.temp1a = ADC_processed[TEMP1A];
-        temperatureData.temp1b = ADC_processed[TEMP1B];
-        temperatureData.temp2a = ADC_processed[TEMP2A];
-        temperatureData.temp2b = ADC_processed[TEMP2B];
-        temperatureData.temp3a = ADC_processed[TEMP3A];
-        temperatureData.temp3b = ADC_processed[TEMP3B];
+        updateTemperatureData(&temperatureData);
 
         xQueueSend(xTXDataQueueHandle, &txDataTemperature, 1);
     }
-  /* USER CODE END StartTempTask */
+    /* USER CODE END StartTempTask */
 }
 
 /* tmrLEDCallback function */
+// LED blink for debugging (green LED, LD2)
+inline void LED(){
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+}
+
 void tmrLEDCallback(void const * argument)
 {
-  /* USER CODE BEGIN tmrLEDCallback */
+    /* USER CODE BEGIN tmrLEDCallback */
     LED();
-  /* USER CODE END tmrLEDCallback */
+    /* USER CODE END tmrLEDCallback */
 }
 
 /* USER CODE BEGIN Application */
