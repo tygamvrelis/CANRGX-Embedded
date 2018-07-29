@@ -72,7 +72,7 @@ class CANRGXPlotCanvas(FigureCanvas):
         self.mag_plt_v=self.mag_ax.plot(self.data_time, self.mag_vec, label='vec')
         self.mag_ax.set_ylabel('Magnetometer reading (G)')
         self.mag_ax.set_xlabel('MCU Tick Time (millisec)')
-        self.mag_ax.set_ylim((-60,60))
+        self.mag_ax.set_ylim((-200,200))
         self.mag_ax.legend(['norm','x','y','z'],loc='upper right',fontsize='xx-small',frameon=False)
 
 

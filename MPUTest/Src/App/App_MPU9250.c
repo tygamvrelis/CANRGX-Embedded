@@ -66,7 +66,7 @@ void MPU9250EventHandler(MPU9250_t* myMPU9250){
     static enum flightEvents_e sensedEvent = NONE;
 
     // Use the acceleration magnitude to update state
-    //  if(myMPU9250.az < 0.981 && sensedEvent == NONE){ // can use this line for testing
+//    if(myMPU9250->az < 0.981 && sensedEvent == NONE){ // can use this line for testing
     if(myMPU9250->A < 0.981 && sensedEvent == NONE){
         sensedEvent = REDUCEDGRAVITY;
 
@@ -76,7 +76,7 @@ void MPU9250EventHandler(MPU9250_t* myMPU9250){
                     eSetBits
         );
     }
-    //  else if(myMPU9250.az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing
+//    else if(myMPU9250->az > 3.13 && sensedEvent == REDUCEDGRAVITY){ // can use this line for testing
     else if(myMPU9250->A > 3.13 && sensedEvent == REDUCEDGRAVITY){
         sensedEvent = NONE;
 
