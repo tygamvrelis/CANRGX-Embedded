@@ -51,7 +51,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN Includes */     
 #include <stdbool.h>
 #include <math.h>
 #include "main.h"
@@ -259,20 +259,22 @@ void MX_FREERTOS_Init(void) {
 }
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument) {
+void StartDefaultTask(void const * argument)
+{
 
-    /* USER CODE BEGIN StartDefaultTask */
+  /* USER CODE BEGIN StartDefaultTask */
     /* Infinite loop */
     for(;;)
     {
 
     }
-    /* USER CODE END StartDefaultTask */
+  /* USER CODE END StartDefaultTask */
 }
 
 /* StartControlTask function */
-void StartControlTask(void const * argument) {
-    /* USER CODE BEGIN StartControlTask */
+void StartControlTask(void const * argument)
+{
+  /* USER CODE BEGIN StartControlTask */
     TXData_t txDataControl;
     controlData_t controlData = { 0 };
 
@@ -297,19 +299,19 @@ void StartControlTask(void const * argument) {
 		}
 
 		// Update PWM duty cycle for magnets
-		updateControlState();
+		updateControlSignals();
 
         // Tell transmit task that new data is ready
 		updateControlData(&controlData);
         xQueueSend(xTXDataQueueHandle, &txDataControl, 1);
     }
-    /* USER CODE END StartControlTask */
+  /* USER CODE END StartControlTask */
 }
 
 /* StartTxTask function */
 void StartTxTask(void const * argument)
 {
-    /* USER CODE BEGIN StartTxTask */
+  /* USER CODE BEGIN StartTxTask */
     /********** For intertask communication **********/
     uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
 
@@ -475,12 +477,13 @@ void StartTxTask(void const * argument)
             xSemaphoreTake(semTxHandle, portMAX_DELAY);
         }
     }
-    /* USER CODE END StartTxTask */
+  /* USER CODE END StartTxTask */
 }
 
 /* StartMPU9250Task function */
-void StartMPU9250Task(void const * argument) {
-    /* USER CODE BEGIN StartMPU9250Task */
+void StartMPU9250Task(void const * argument)
+{
+  /* USER CODE BEGIN StartMPU9250Task */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -513,12 +516,13 @@ void StartMPU9250Task(void const * argument) {
         // Send updates to control task if there is an event
         MPU9250EventHandler(&myMPU9250);
     }
-    /* USER CODE END StartMPU9250Task */
+  /* USER CODE END StartMPU9250Task */
 }
 
 /* StartRxTask function */
-void StartRxTask(void const * argument) {
-    /* USER CODE BEGIN StartRxTask */
+void StartRxTask(void const * argument)
+{
+  /* USER CODE BEGIN StartRxTask */
     const char MANUAL_OVERRIDE_START_CHAR = 'S';
     const char MANUAL_OVERRIDE_STOP_SEQ[] = { 'X', 'X' };
     const char RESET_SEQ[] = { 'R', 'S' };
@@ -576,12 +580,13 @@ void StartRxTask(void const * argument) {
 //		 LED(); // Debugging for RX
         }
     }
-    /* USER CODE END StartRxTask */
+  /* USER CODE END StartRxTask */
 }
 
 /* StartTempTask function */
-void StartTempTask(void const * argument) {
-    /* USER CODE BEGIN StartTempTask */
+void StartTempTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTempTask */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -608,14 +613,15 @@ void StartTempTask(void const * argument) {
 
         xQueueSend(xTXDataQueueHandle, &txDataTemperature, 1);
     }
-    /* USER CODE END StartTempTask */
+  /* USER CODE END StartTempTask */
 }
 
 /* tmrLEDCallback function */
-void tmrLEDCallback(void const * argument) {
-    /* USER CODE BEGIN tmrLEDCallback */
+void tmrLEDCallback(void const * argument)
+{
+  /* USER CODE BEGIN tmrLEDCallback */
     LED();
-    /* USER CODE END tmrLEDCallback */
+  /* USER CODE END tmrLEDCallback */
 }
 
 /* USER CODE BEGIN Application */

@@ -43,14 +43,6 @@ static TickType_t curTick;
 
 
 /***************************** Private Functions *****************************/
-static inline void HeatingWireOn(){
-    HAL_GPIO_WritePin(Heating_Wire_GPIO_Port, Heating_Wire_Pin, GPIO_PIN_SET);
-}
-
-static inline void HeatingWireOff(){
-    HAL_GPIO_WritePin(Heating_Wire_GPIO_Port, Heating_Wire_Pin, GPIO_PIN_RESET);
-}
-
 static void processReceivedEvent(uint32_t receivedEvent){
     switch(receivedEvent){
         case REDUCEDGRAVITY:
@@ -59,8 +51,6 @@ static void processReceivedEvent(uint32_t receivedEvent){
             TEC1DutyCycle = TEC_ON_DUTY_CYCLE;
             TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
             TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
-
-            HeatingWireOn();
 
             magnet1Info.magnetState = PWM;
             magnet2Info.magnetState = PWM;
@@ -89,8 +79,6 @@ static void processReceivedEvent(uint32_t receivedEvent){
             TEC1DutyCycle = 0;
             TEC2DutyCycle = 0;
             TEC_stop();
-
-            HeatingWireOff();
 
             magnet1Info.magnetState = BRAKE;
             magnet2Info.magnetState = BRAKE;
@@ -124,7 +112,6 @@ void controlInit(void){
     magnet2Info.dutyCycle = 0.0;
 
     TEC_stop();
-    HeatingWireOff();
     setMagnet(&magnet1Info);
     setMagnet(&magnet2Info);
 
@@ -172,7 +159,7 @@ void controlEventHandler(uint32_t notification){
     }
 }
 
-void updateControlState(void){
+void updateControlSignals(void){
     // Update PWM duty cycle for magnets
     switch(controllerState){
         case IDLE:

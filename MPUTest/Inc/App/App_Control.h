@@ -24,7 +24,7 @@
 /********************************* Functions *********************************/
 void controlInit(void);
 void controlEventHandler(uint32_t notification);
-void updateControlState(void);
+void updateControlSignals(void);
 void updateControlData(controlData_t* controlData);
 
 #endif /* APP_CONTROL_H_ */

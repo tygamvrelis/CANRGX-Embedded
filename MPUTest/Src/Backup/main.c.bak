@@ -229,9 +229,6 @@ int main(void)
 		  aToUint((char*)(ptrSubseconds + 5)) * 0.000001
   	  };
 
-  // TODO: Compensate for the comm link delay
-  float linkDelay = 0.000502; // Estimate for number of seconds to send time info
-
   // Set RTC registers for hours, minutes, seconds (BCD)
   RTC_TimeTypeDef theTime;
   RTC_DateTypeDef theDate;
@@ -271,7 +268,7 @@ int main(void)
    *************************************************************************/
 
   // Turn on LED here
-  HAL_GPIO_WritePin(CAMERA_LED_GPIO_Port, CAMERA_LED_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_SET);
 
   HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
   	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
@@ -279,7 +276,7 @@ int main(void)
                    // it takes about a second or so for it to work again properly.`
 
   // Turn off LED here
-  HAL_GPIO_WritePin(CAMERA_LED_GPIO_Port, CAMERA_LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_RESET);
 
   /*************************************************************************
    *         Send back time, triggering GUI to start data display          *
