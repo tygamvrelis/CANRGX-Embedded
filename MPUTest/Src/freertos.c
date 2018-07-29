@@ -345,7 +345,7 @@ void StartTxTask(void const * argument)
 /* StartMPU9250Task function */
 void StartMPU9250Task(void const * argument)
 {
-  /* USER CODE BEGIN StartMPU9250Task */
+    /* USER CODE BEGIN StartMPU9250Task */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -385,16 +385,15 @@ void StartMPU9250Task(void const * argument)
 void StartRxTask(void const * argument)
 {
     /* USER CODE BEGIN StartRxTask */
-    // TODO: Should we time-trigger this thread and clear the buffer
-    // every 100 ms or so? It is conceivable that somehow communication
-    // would get messed up and then the buffer would always be shifted.
-    /* Infinite loop */
     for(;;)
     {
         commRXInitReception();
 
-        if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
+        if(xSemaphoreTake(semRxHandle, pdMS_TO_TICKS(30)) == pdTRUE){
             commRXEventHandler();
+        }
+        else{
+            commRXCancelReception();
         }
     }
   /* USER CODE END StartRxTask */

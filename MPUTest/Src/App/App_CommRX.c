@@ -87,3 +87,6 @@ void commRXEventHandler(void){
     }
 }
 
+void commRXCancelReception(void){
+    HAL_UART_AbortReceive_IT(&huart2);
+}

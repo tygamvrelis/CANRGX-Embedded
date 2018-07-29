@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "cmsis_os.h"
+#include "usart.h"
 #include "userTypes.h"
 
 
