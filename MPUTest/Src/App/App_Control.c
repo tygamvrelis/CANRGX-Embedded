@@ -43,6 +43,251 @@ static TickType_t curTick;
 
 
 /***************************** Private Functions *****************************/
+static inline void MAGNET_MAKE_GPIO(GPIO_TypeDef* gpio, uint16_t magnet_pin){
+    /* Force PWM pin function to GPIO
+     *
+     * Arguments: port, pin
+     *
+     * Returns: none
+     */
+
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = magnet_pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(gpio, &GPIO_InitStruct);
+}
+
+static inline void MAGNET_MAKE_PWM(GPIO_TypeDef* gpio, uint16_t magnet_pin){
+    /* Force PWM pin function to PWM
+     *
+     * Arguments: port, pin
+     *
+     * Returns: none
+     */
+
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = magnet_pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+    HAL_GPIO_Init(gpio, &GPIO_InitStruct);
+}
+
+static int8_t setMagnet(MagnetInfo_t* magnetInfo){
+    /* Sets the state of the specified magnet to coast, break, or PWM in the direction
+     * selected by the duty cycle.
+     *
+     * Arguments: magnetInfo, pointer to a struct that contains the configuration
+     *            info for the magnet
+     *
+     * Returns: 1 if successful, otherwise a negative error code
+     */
+
+    static current_e current;
+
+    /***** Non-PWM mode of operation *****/
+    if(magnetInfo -> magnetState == COAST){
+        current = CURRENT_NONE;
+        if(magnetInfo -> magnet == MAGNET1){
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+            MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+            MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+            HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_SET);
+        }
+        else{ // if(magnetInfo -> magnet == MAGNET2)
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+            MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+            MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+            HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_SET);
+        }
+        return 1;
+    }
+    else if(magnetInfo -> magnetState == BRAKE){
+        current = CURRENT_NONE;
+        if(magnetInfo -> magnet == MAGNET1){
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+            MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+            MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+            HAL_GPIO_WritePin(GPIOA, Magnet_1A_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOA, Magnet_1B_Pin, GPIO_PIN_RESET);
+        }
+        else{ // if(magnetInfo -> magnet == MAGNET2)
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+            MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+            MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+            HAL_GPIO_WritePin(GPIOB, Magnet_2A_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOB, Magnet_2B_Pin, GPIO_PIN_RESET);
+        }
+        return 1;
+    }
+
+
+    /***** PWM modes *****/
+    if((magnetInfo -> dutyCycle) < -1 || (magnetInfo -> dutyCycle) > 1){
+        return -1;
+    }
+
+    current = (magnetInfo -> dutyCycle < 0) ? NEGATIVE : POSITIVE; // Compute polarity
+
+    TIM_OC_InitTypeDef sConfigOC;
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = (fabs(magnetInfo -> dutyCycle)) * MAGNET_PWM_PERIOD;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+
+    if(magnetInfo -> magnet == MAGNET1){
+        if(current == POSITIVE){
+            // Magnet 1A is GPIO here and Magnet 1B is PWM
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1); // Magnet 1A
+
+            if(magnetInfo -> driveMode == ACTIVE_LOW){
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+                MAGNET_MAKE_PWM(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+                MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+                HAL_GPIO_WritePin(Magnet_1A_GPIO_Port, Magnet_1A_Pin, GPIO_PIN_SET);
+            }
+            else{
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+                MAGNET_MAKE_PWM(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+                MAGNET_MAKE_GPIO(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+                HAL_GPIO_WritePin(Magnet_1A_GPIO_Port, Magnet_1A_Pin, GPIO_PIN_RESET);
+            }
+
+            HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
+            HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+        }
+        else{ // if(current == NEGATIVE)
+            // Magnet 1B is GPIO here and Magnet 1A is PWM
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2); // Magnet 1B
+
+            if(magnetInfo -> driveMode == ACTIVE_LOW){
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+                MAGNET_MAKE_PWM(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+                MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+                HAL_GPIO_WritePin(Magnet_1B_GPIO_Port, Magnet_1B_Pin, GPIO_PIN_SET);
+            }
+            else{
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+                MAGNET_MAKE_PWM(Magnet_1A_GPIO_Port, Magnet_1A_Pin);
+                MAGNET_MAKE_GPIO(Magnet_1B_GPIO_Port, Magnet_1B_Pin);
+                HAL_GPIO_WritePin(Magnet_1B_GPIO_Port, Magnet_1B_Pin, GPIO_PIN_RESET);
+            }
+
+            HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+            HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+        }
+    }
+    else{ // if(magnetInfo -> magnet == MAGNET2)
+        if(current == POSITIVE){
+            // Magnet 2A is GPIO here and Magnet 2B is PWM
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3); // Magnet 2A
+
+            if(magnetInfo -> driveMode == ACTIVE_LOW){
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+                MAGNET_MAKE_PWM(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+                MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+                HAL_GPIO_WritePin(Magnet_2A_GPIO_Port, Magnet_2A_Pin, GPIO_PIN_SET);
+            }
+            else{
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+                MAGNET_MAKE_PWM(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+                MAGNET_MAKE_GPIO(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+                HAL_GPIO_WritePin(Magnet_2A_GPIO_Port, Magnet_2A_Pin, GPIO_PIN_RESET);
+            }
+
+            HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
+            HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+        }
+        else{ // if(current == NEGATIVE)
+            // Magnet 2B is GPIO here and Magnet 2A is PWM
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4); // Magnet 2B
+
+            if(magnetInfo -> driveMode == ACTIVE_LOW){
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+                MAGNET_MAKE_PWM(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+                MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+                HAL_GPIO_WritePin(Magnet_2B_GPIO_Port, Magnet_2B_Pin, GPIO_PIN_SET);
+            }
+            else{
+                sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+                MAGNET_MAKE_PWM(Magnet_2A_GPIO_Port, Magnet_2A_Pin);
+                MAGNET_MAKE_GPIO(Magnet_2B_GPIO_Port, Magnet_2B_Pin);
+                HAL_GPIO_WritePin(Magnet_2B_GPIO_Port, Magnet_2B_Pin, GPIO_PIN_RESET);
+            }
+
+            HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
+            HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+        }
+    }
+
+    return 1;
+}
+
+static int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle){
+    /* Sets the PWM duty cycle used to drive the top and bottom TECs used for
+     * heating the parafluid.
+     *
+     * Arguments: the duty cycle for the top and bottom tec, respectively,
+     *            indicating what fraction of a period each one should be
+     *            on for (arguments in range [0, 1] are valid)
+     *
+     * Returns: 1 if successful, otherwise a negative error code
+     */
+
+    // Check argument validity
+    if(TEC_Top_duty_cycle < 0 || TEC_Top_duty_cycle > 1){
+        return -1;
+    }
+
+    if(TEC_Bot_duty_cycle < 0 || TEC_Bot_duty_cycle > 1){
+        return -2;
+    }
+
+    TIM_OC_InitTypeDef sConfigOC;
+
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = TEC_Top_duty_cycle * TEC_PWM_PERIOD;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+
+    if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_1) != HAL_OK){
+        /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+         * to it must be invalid. Handle the error here. */
+        return -3;
+    }
+    HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_1);
+
+    sConfigOC.Pulse = TEC_Bot_duty_cycle * TEC_PWM_PERIOD;
+    if (HAL_TIM_PWM_ConfigChannel(&htim12, &sConfigOC, TIM_CHANNEL_2) != HAL_OK){
+        /* The call to HAL_TIME_PWM_ConfigChannel failed, so one or more arguments passed
+         * to it must be invalid. Handle the error here. */
+        return -4;
+    }
+    HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+
+    return 1;
+}
+
+static void TEC_stop(void){
+    /* Turns off the timer channels used for TEC PWM.
+     *
+     * Arguments: none
+     *
+     * Returns: none
+     */
+
+    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
+}
+
 static void processReceivedEvent(uint32_t receivedEvent){
     switch(receivedEvent){
         case REDUCEDGRAVITY:
@@ -76,16 +321,7 @@ static void processReceivedEvent(uint32_t receivedEvent){
                     break;
             }
 
-            TEC1DutyCycle = 0;
-            TEC2DutyCycle = 0;
-            TEC_stop();
-
-            magnet1Info.magnetState = BRAKE;
-            magnet2Info.magnetState = BRAKE;
-            magnet1Info.dutyCycle = 0;
-            magnet2Info.dutyCycle = 0;
-            setMagnet(&magnet1Info);
-            setMagnet(&magnet2Info);
+            controlSetSignalsToIdleState();
 
             // Make status LED blink at 2 Hz
             osTimerStop(tmrLEDBlinkHandle);
@@ -204,4 +440,18 @@ void updateControlData(controlData_t* controlData){
     controlData->mag2Power = (int16_t)(magnet2Info.dutyCycle * 10000);
     controlData->tec1Power = (uint16_t)(TEC1DutyCycle * 10000);
     controlData->tec2Power = (uint16_t)(TEC2DutyCycle * 10000);
+}
+
+
+void controlSetSignalsToIdleState(){
+    TEC1DutyCycle = 0;
+    TEC2DutyCycle = 0;
+    TEC_stop();
+
+    magnet1Info.magnetState = BRAKE;
+    magnet2Info.magnetState = BRAKE;
+    magnet1Info.dutyCycle = 0;
+    magnet2Info.dutyCycle = 0;
+    setMagnet(&magnet1Info);
+    setMagnet(&magnet2Info);
 }

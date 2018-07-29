@@ -561,13 +561,7 @@ void StartRxTask(void const * argument)
                 taskENTER_CRITICAL();
 
                 // Brake the magnets and turn off the TECs
-                MagnetInfo_t magnet1Info = { MAGNET1, BRAKE, ACTIVE_HIGH, 0.0 };
-                MagnetInfo_t magnet2Info = { MAGNET2, BRAKE, ACTIVE_HIGH, 0.0 };
-
-                TEC_stop();
-
-                setMagnet(&magnet1Info);
-                setMagnet(&magnet2Info);
+                controlSetSignalsToIdleState();
 
                 // Wait 1 second for the magnetic field energy to start
                 // dissipating safely. This time is also sufficient to allow
