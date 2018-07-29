@@ -62,12 +62,14 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+
 #include "../Drivers/MPU9250/MPU9250.h"
 #include "userTypes.h"
 
 #include "App/App_Control.h"
 #include "App/App_CommTX.h"
 #include "App/App_MPU9250.h"
+#include "App/App_CommRX.h"
 
 
 /* USER CODE END Includes */
@@ -142,10 +144,6 @@ __weak void configureTimerForRunTimeStats(void)
 __weak unsigned long getRunTimeCounterValue(void)
 {
 return 0;
-}
-
-inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
-    return MANUAL_OVERRIDE_START_BITMASK | x;
 }
 
 // LED blink for debugging (green LED, LD2)
@@ -390,56 +388,17 @@ void StartMPU9250Task(void const * argument)
 /* StartRxTask function */
 void StartRxTask(void const * argument)
 {
-  /* USER CODE BEGIN StartRxTask */
-    const char MANUAL_OVERRIDE_START_CHAR = 'S';
-    const char MANUAL_OVERRIDE_STOP_SEQ[] = { 'X', 'X' };
-    const char RESET_SEQ[] = { 'R', 'S' };
-
-    // buffer[0] == control character,
-    // buffer[1] == accompanying data or control character,
-    // buffer[2] == '\n'
-    uint8_t buffer[3];
-
+    /* USER CODE BEGIN StartRxTask */
     // TODO: Should we time-trigger this thread and clear the buffer
     // every 100 ms or so? It is conceivable that somehow communication
     // would get messed up and then the buffer would always be shifted.
     /* Infinite loop */
     for(;;)
     {
-        HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
+        commRXInitReception();
+
         if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
-            if(buffer[0] == MANUAL_OVERRIDE_START_CHAR){
-                // Manual override for starting experiment
-                xTaskNotify(ControlTaskHandle,
-                            NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'),
-                            eSetBits
-                );
-            }
-            else if(buffer[0] == MANUAL_OVERRIDE_STOP_SEQ[0] &&
-                    buffer[1] == MANUAL_OVERRIDE_STOP_SEQ[1])
-            {
-                // Manual override for stopping experiment
-                xTaskNotify(ControlTaskHandle,
-                            MANUAL_OVERRIDE_STOP_BITMASK,
-                            eSetBits
-                );
-            }
-            else if(buffer[0] == RESET_SEQ[0] && buffer[1] == RESET_SEQ[1]){
-                // Enter critical section; disable interrupts
-                taskENTER_CRITICAL();
-
-                // Brake the magnets and turn off the TECs
-                controlSetSignalsToIdleState();
-
-                // Wait 1 second for the magnetic field energy to start
-                // dissipating safely. This time is also sufficient to allow
-                // existing I2C transactions with the MPU9250 to finish.
-                HAL_Delay(1000);
-
-                // Full system reset
-                NVIC_SystemReset();
-            }
-//		 LED(); // Debugging for RX
+            commRXEventHandler();
         }
     }
   /* USER CODE END StartRxTask */
