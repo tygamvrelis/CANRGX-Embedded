@@ -59,10 +59,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-#include "../Drivers/MPU9250/MPU9250.h"
+#include "App/App_MPU9250.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -154,14 +151,12 @@ int main(void)
       else if(mpuInitStatus > -8){
     	  /* This is the case if there is a problem with the IMU module.
     	   * Try hard-resetting the IMU module. */
-    	  uint8_t dataToWrite = 0x80;
-		  HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
+          resetIMUBlocking();
       }
       else if(mpuInitStatus <= -8){
     	  /* This is the case if there is a problem with the magnetometer.
     	   * Try software-resetting the magnetometer. */
-    	  uint8_t dataToWrite = 1;
-    	  HAL_I2C_Mem_Write(&hi2c3, MPU9250_MAG_ADDR, CNTL2, I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
+          resetMagnetometerBlocking();
       }
       if(i == 2){
     	  /* When the microcontroller program starts up, it is not guaranteed that
@@ -229,9 +224,6 @@ int main(void)
 		  aToUint((char*)(ptrSubseconds + 5)) * 0.000001
   	  };
 
-  // TODO: Compensate for the comm link delay
-  float linkDelay = 0.000502; // Estimate for number of seconds to send time info
-
   // Set RTC registers for hours, minutes, seconds (BCD)
   RTC_TimeTypeDef theTime;
   RTC_DateTypeDef theDate;
@@ -267,19 +259,16 @@ int main(void)
   }
 
   /*************************************************************************
-   *                 Blink LED for camera synchronization                  *
+   *               Turn on LED for camera synchronization                  *
    *************************************************************************/
 
   // Turn on LED here
-  HAL_GPIO_WritePin(CAMERA_LED_GPIO_Port, CAMERA_LED_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_SET);
 
   HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
   	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
   	  	  	  	   // 1500 ms is necessary because after setting the RTC shift register,
                    // it takes about a second or so for it to work again properly.`
-
-  // Turn off LED here
-  HAL_GPIO_WritePin(CAMERA_LED_GPIO_Port, CAMERA_LED_Pin, GPIO_PIN_RESET);
 
   /*************************************************************************
    *         Send back time, triggering GUI to start data display          *
@@ -309,6 +298,13 @@ int main(void)
 	  HAL_UART_Receive(&huart2, &recvBuff, 1, 10);
   }while(recvBuff != 'A');
   recvBuff = 0; // Clear ACK
+
+  /*************************************************************************
+   *               Turn off LED for camera synchronization                 *
+   *************************************************************************/
+
+  // Turn off LED here
+  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_RESET);
 
   /* USER CODE END 2 */
 

@@ -21,6 +21,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #define ARM_MATH_CM4	// Use ARM Cortex M4
 #define __FPU_PRESENT 1		// Does this device have a floating point unit?
 #include <arm_math.h>	// Include CMSIS header
+#include "MPU9250_t.h"
 
 // Link with library: libarm_cortexM4_mathL.a (or equivalent)
 // Add CMSIS/Lib/GCC to the library search path
@@ -29,29 +30,22 @@ extern float32_t MPUFilter_coefficients[21];
 static const int MPUFilter_numTaps = 21;
 static const int MPUFilter_blockSize = 16;
 
-typedef struct
-{
-	arm_fir_instance_f32 instance;
-	float32_t state[37];
-	float32_t output;
+typedef struct{
+    arm_fir_instance_f32 instance;
+    float32_t state[37];
+    float32_t output;
 } MPUFilterType;
 
-void MPUFilter_init( MPUFilterType * pThis );
-void MPUFilter_reset( MPUFilterType * pThis );
 inline void MPUFilter_writeInput(MPUFilterType * pThis, float input){
-	arm_fir_f32( &pThis->instance, &input, &pThis->output, 1 );
-};
-inline float MPUFilter_readOutput( MPUFilterType * pThis ){
-	return pThis->output;
+    arm_fir_f32(&pThis->instance, &input, &pThis->output, 1);
 }
 
+inline float MPUFilter_readOutput(MPUFilterType * pThis){
+    return pThis->output;
+}
 
-int MPUFilter_filterBlock( MPUFilterType * pThis, float * pInput, float * pOutput, unsigned int count );
-#define MPUFilter_outputToFloat( output )  \
-	(output)
-
-#define MPUFilter_inputFromFloat( input )  \
-	(input)
+void initAllMPU9250Filters(void);
+void filterAccelMPU9250(MPU9250_t* myMPU9250);
 
 #endif // MPUFILTER_H_
 
