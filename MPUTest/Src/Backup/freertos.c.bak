@@ -51,24 +51,12 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-/* USER CODE BEGIN Includes */
-#include <stdbool.h>
-#include <math.h>
-#include "main.h"
-#include "adc.h"
-#include "dma.h"
-#include "i2c.h"
-#include "rtc.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-#include "../Drivers/MPU9250/MPU9250.h"
-#include "userTypes.h"
-
+/* USER CODE BEGIN Includes */     
 #include "App/App_Control.h"
+#include "App/App_CommTX.h"
 #include "App/App_MPU9250.h"
-
-
+#include "App/App_CommRX.h"
+#include "App/App_Temperature.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -143,15 +131,13 @@ __weak unsigned long getRunTimeCounterValue(void)
 return 0;
 }
 
-inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
-    return MANUAL_OVERRIDE_START_BITMASK | x;
-}
-
-// LED blink for debugging (green LED, LD2)
+/**
+ * @brief Toggles the green LED, LD2
+ * @note  Useful for debugging
+ */
 inline void LED(){
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
-
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -259,20 +245,20 @@ void MX_FREERTOS_Init(void) {
 }
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument) {
+void StartDefaultTask(void const * argument)
+{
 
-    /* USER CODE BEGIN StartDefaultTask */
-    /* Infinite loop */
-    for(;;)
-    {
+  /* USER CODE BEGIN StartDefaultTask */
+    for(;;){
 
     }
-    /* USER CODE END StartDefaultTask */
+  /* USER CODE END StartDefaultTask */
 }
 
 /* StartControlTask function */
-void StartControlTask(void const * argument) {
-    /* USER CODE BEGIN StartControlTask */
+void StartControlTask(void const * argument)
+{
+  /* USER CODE BEGIN StartControlTask */
     TXData_t txDataControl;
     controlData_t controlData = { 0 };
 
@@ -286,74 +272,39 @@ void StartControlTask(void const * argument) {
 
     controlInit();
 
-    /* Infinite loop */
-    for(;;)
-    {
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
+    for(;;){
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
 
-		// Check for flight events
-		if(xTaskNotifyWait(0, UINT32_MAX, &notification, pdMS_TO_TICKS(1)) == pdTRUE){
-		    controlEventHandler(notification);
-		}
+        // Check for flight events
+        if(xTaskNotifyWait(0, UINT32_MAX, &notification,
+                pdMS_TO_TICKS(1)) == pdTRUE){
+            controlEventHandler(notification);
+        }
 
-		// Update PWM duty cycle for magnets
-		updateControlSignals();
+        // Update PWM duty cycle for magnets
+        updateControlSignals();
 
         // Tell transmit task that new data is ready
-		updateControlData(&controlData);
+        updateControlData(&controlData);
         xQueueSend(xTXDataQueueHandle, &txDataControl, 1);
     }
-    /* USER CODE END StartControlTask */
+  /* USER CODE END StartControlTask */
 }
 
 /* StartTxTask function */
 void StartTxTask(void const * argument)
 {
-    /* USER CODE BEGIN StartTxTask */
-    /********** For intertask communication **********/
-    uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
-
+  /* USER CODE BEGIN StartTxTask */
+    // For intertask communication
     TXData_t receivedData;
-    accelerometerData_t* accelerometerDataPtr = NULL;
-    magnetometerData_t* magnetometerDataPtr = NULL;
-    controlData_t* controlDataPtr = NULL;
-    temperatureData_t* temperatureDataPtr = NULL;
 
-    /********** Local vars used for packet **********/
-    uint8_t buffer[50] = {0};
-
-    // Dummy bits to indicate packet start
-    buffer[0] = 0xFF;
-    buffer[1] = 0xFF;
-
-    // Addresses in buffer for each datum
-    uint8_t* tickStart = &buffer[2];
-    uint8_t* accelX = &buffer[6];
-    uint8_t* accelY = &buffer[10];
-    uint8_t* accelZ = &buffer[14];
-    uint8_t* magX = &buffer[18];
-    uint8_t* magY = &buffer[22];
-    uint8_t* magZ = &buffer[26];
-    uint8_t* mag1Power = &buffer[30];
-    uint8_t* mag2Power = &buffer[32];
-    uint8_t* tec1Power = &buffer[34];
-    uint8_t* tec2Power = &buffer[36];
-    uint8_t* temp1a = &buffer[38];
-    uint8_t* temp1b = &buffer[40];
-    uint8_t* temp2a = &buffer[42];
-    uint8_t* temp2b = &buffer[44];
-    uint8_t* temp3a = &buffer[46];
-    uint8_t* temp3b = &buffer[48];
-
-    /********** For packet timing management **********/
+    // For packet timing management
     BaseType_t status;
     TickType_t xLastWakeTime, cycleStartTick;
     xLastWakeTime = xTaskGetTickCount();
     cycleStartTick = xTaskGetTickCount();
 
-    // Infinite loop
-    for(;;)
-    {
+    for(;;){
         // Trigger this thread every 1 ms. This way, we are guaranteed to meet
         // the 3 ms deadline
         vTaskDelay(pdMS_TO_TICKS(1));
@@ -363,124 +314,24 @@ void StartTxTask(void const * argument)
             status = xQueueReceive(xTXDataQueueHandle, &receivedData, 0);
 
             if(status == pdTRUE){
-                switch(receivedData.type){
-                    case accelerometer_t:
-                        accelerometerDataPtr = (accelerometerData_t*)receivedData.data;
-
-                        if(accelerometerDataPtr == NULL){break;}
-
-                        // Update task flags to indicate MPU task has been received from
-                        taskFlags = taskFlags | 0b00000001;
-
-                        // Copy data to buffer
-                        memcpy(accelX, &(accelerometerDataPtr -> ax), sizeof(float));
-                        memcpy(accelY, &(accelerometerDataPtr -> ay), sizeof(float));
-                        memcpy(accelZ, &(accelerometerDataPtr -> az), sizeof(float));
-
-                        break;
-                    case magnetometer_t:
-                        magnetometerDataPtr = (magnetometerData_t*)receivedData.data;
-
-                        if(magnetometerDataPtr == NULL){break;}
-
-                        // Update task flags to indicate MPU task has been received from
-                        taskFlags = taskFlags | 0b00000010;
-
-                        memcpy(magX, &(magnetometerDataPtr -> hx), sizeof(float));
-                        memcpy(magY, &(magnetometerDataPtr -> hy), sizeof(float));
-                        memcpy(magZ, &(magnetometerDataPtr -> hz), sizeof(float));
-
-                        break;
-                    case control_t:
-                        controlDataPtr = (controlData_t*)receivedData.data;
-
-                        if(controlDataPtr == NULL){break;}
-
-                        // Update task flags to indicate control task has been received from
-                        taskFlags = taskFlags | 0b00000100;
-
-                        // Copy data to buffer
-                        int16_t mag1data = controlDataPtr -> mag1Power;
-                        int16_t mag2data = controlDataPtr -> mag2Power;
-                        uint16_t tec1data = controlDataPtr -> tec1Power;
-                        uint16_t tec2data = controlDataPtr -> tec2Power;
-                        memcpy(mag1Power, &mag1data, sizeof(int16_t));
-                        memcpy(mag2Power, &mag2data, sizeof(int16_t));
-                        memcpy(tec1Power, &tec1data, sizeof(uint16_t));
-                        memcpy(tec2Power, &tec2data, sizeof(uint16_t));
-
-                        break;
-                    case temperature_t:
-                        temperatureDataPtr = (temperatureData_t*)receivedData.data;
-
-                        if(temperatureDataPtr == NULL){break;}
-
-                        // Update task flags to indicate temperature task has been received from
-                        taskFlags = taskFlags | 0b00001000;
-
-                        // Copy data to buffer
-                        uint16_t temp1adata = temperatureDataPtr -> temp1a;
-                        uint16_t temp1bdata = temperatureDataPtr -> temp1b;
-                        uint16_t temp2adata = temperatureDataPtr -> temp2a;
-                        uint16_t temp2bdata = temperatureDataPtr -> temp2b;
-                        uint16_t temp3adata = temperatureDataPtr -> temp3a;
-                        uint16_t temp3bdata = temperatureDataPtr -> temp3b;
-                        memcpy(temp1a, &temp1adata, sizeof(uint16_t));
-                        memcpy(temp1b, &temp1bdata, sizeof(uint16_t));
-                        memcpy(temp2a, &temp2adata, sizeof(uint16_t));
-                        memcpy(temp2b, &temp2bdata, sizeof(uint16_t));
-                        memcpy(temp3a, &temp3adata, sizeof(uint16_t));
-                        memcpy(temp3b, &temp3bdata, sizeof(uint16_t));
-
-                        break;
-                    default:
-                        break;
-                }
+                commTXEventHandler(&receivedData);
             }
-        }while(status == pdTRUE);
+        }while (status == pdTRUE);
 
         // This runs when:
         //    1. the control & MPU9250 threads have responded
         //    2. the timeout has elapsed
-        if((taskFlags & 0b00000111) == 0b00000111 ||
-           xTaskGetTickCount() - cycleStartTick >= pdMS_TO_TICKS(3)
-        )
-        {
-            // Send packets every 3 milliseconds. At a symbol rate of 230400, it takes 2.17 ms
-            // to send 50 bytes. To ease the data analysis process, this has been rounded up to
-            // 3 ms so that it will be easier to "line up" data with the FreeRTOS tick.
-            vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3));
-
-            // Clear task flags
-            taskFlags = 0x00;
-
-            // Get the tick at which we are starting the next cycle, for timeout
-            // purposes
-            cycleStartTick = xTaskGetTickCount();
-
-            // Pack the tick at which we are sending this packet
-            TickType_t curTick = xTaskGetTickCount();
-            memcpy(tickStart, &curTick, sizeof(TickType_t));
-
-            // Block for 87 microseconds, the time for 2 bytes to be transmitted
-            // via UART. This idle time guarantees interpacket delay, thus
-            // reducing the probability of a framing error. Time out after 1 ms.
-            HAL_TIM_Base_Start_IT(&htim10);
-            xTaskNotifyWait(UINT32_MAX, UINT32_MAX, NULL, 1);
-
-            // Transmit
-            HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
-
-            // Wait until transmit is done
-            xSemaphoreTake(semTxHandle, portMAX_DELAY);
+        if(isControlAndMPUDataCollected() || hasTimeoutElapsed(cycleStartTick)){
+            commTXSendPacket(&xLastWakeTime, &cycleStartTick);
         }
     }
-    /* USER CODE END StartTxTask */
+  /* USER CODE END StartTxTask */
 }
 
 /* StartMPU9250Task function */
-void StartMPU9250Task(void const * argument) {
-    /* USER CODE BEGIN StartMPU9250Task */
+void StartMPU9250Task(void const * argument)
+{
+  /* USER CODE BEGIN StartMPU9250Task */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -496,9 +347,7 @@ void StartMPU9250Task(void const * argument) {
 
     initAllMPU9250Filters();
 
-    /* Infinite loop */
-    for(;;)
-    {
+    for(;;){
         // Service this task every MPU9250_CYCLE_MS milliseconds
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS));
 
@@ -513,75 +362,30 @@ void StartMPU9250Task(void const * argument) {
         // Send updates to control task if there is an event
         MPU9250EventHandler(&myMPU9250);
     }
-    /* USER CODE END StartMPU9250Task */
+  /* USER CODE END StartMPU9250Task */
 }
 
 /* StartRxTask function */
-void StartRxTask(void const * argument) {
-    /* USER CODE BEGIN StartRxTask */
-    const char MANUAL_OVERRIDE_START_CHAR = 'S';
-    const char MANUAL_OVERRIDE_STOP_SEQ[] = { 'X', 'X' };
-    const char RESET_SEQ[] = { 'R', 'S' };
+void StartRxTask(void const * argument)
+{
+  /* USER CODE BEGIN StartRxTask */
+    for(;;){
+        commRXInitReception();
 
-    // buffer[0] == control character,
-    // buffer[1] == accompanying data or control character,
-    // buffer[2] == '\n'
-    uint8_t buffer[3];
-
-    // TODO: Should we time-trigger this thread and clear the buffer
-    // every 100 ms or so? It is conceivable that somehow communication
-    // would get messed up and then the buffer would always be shifted.
-    /* Infinite loop */
-    for(;;)
-    {
-        HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
-        if(xSemaphoreTake(semRxHandle, portMAX_DELAY) == pdTRUE){
-            if(buffer[0] == MANUAL_OVERRIDE_START_CHAR){
-                // Manual override for starting experiment
-                xTaskNotify(ControlTaskHandle,
-                            NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'),
-                            eSetBits
-                );
-            }
-            else if(buffer[0] == MANUAL_OVERRIDE_STOP_SEQ[0] &&
-                    buffer[1] == MANUAL_OVERRIDE_STOP_SEQ[1])
-            {
-                // Manual override for stopping experiment
-                xTaskNotify(ControlTaskHandle,
-                            MANUAL_OVERRIDE_STOP_BITMASK,
-                            eSetBits
-                );
-            }
-            else if(buffer[0] == RESET_SEQ[0] && buffer[1] == RESET_SEQ[1]){
-                // Enter critical section; disable interrupts
-                taskENTER_CRITICAL();
-
-                // Brake the magnets and turn off the TECs
-                MagnetInfo_t magnet1Info = { MAGNET1, BRAKE, ACTIVE_HIGH, 0.0 };
-                MagnetInfo_t magnet2Info = { MAGNET2, BRAKE, ACTIVE_HIGH, 0.0 };
-
-                TEC_stop();
-
-                setMagnet(&magnet1Info);
-                setMagnet(&magnet2Info);
-
-                // Wait 1 second for the magnetic field energy to start
-                // dissipating safely. This time is also sufficient to allow
-                // existing I2C transactions with the MPU9250 to finish.
-                HAL_Delay(1000);
-
-                // Full system reset
-                NVIC_SystemReset();
-            }
-//		 LED(); // Debugging for RX
+        if(xSemaphoreTake(semRxHandle, pdMS_TO_TICKS(30)) == pdTRUE){
+            commRXEventHandler();
+        }
+        else{
+            commRXCancelReception();
         }
     }
-    /* USER CODE END StartRxTask */
+  /* USER CODE END StartRxTask */
 }
 
 /* StartTempTask function */
-void StartTempTask(void const * argument) {
-    /* USER CODE BEGIN StartTempTask */
+void StartTempTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTempTask */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -593,29 +397,23 @@ void StartTempTask(void const * argument) {
 
     Temp_Scan_Start();
 
-    /* Infinite loop */
-    for(;;)
-    {
+    for(;;){
         // Service this task every TEMP_CYCLE_MS milliseconds
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS));
 
-        temperatureData.temp1a = ADC_processed[TEMP1A];
-        temperatureData.temp1b = ADC_processed[TEMP1B];
-        temperatureData.temp2a = ADC_processed[TEMP2A];
-        temperatureData.temp2b = ADC_processed[TEMP2B];
-        temperatureData.temp3a = ADC_processed[TEMP3A];
-        temperatureData.temp3b = ADC_processed[TEMP3B];
+        updateTemperatureData(&temperatureData);
 
         xQueueSend(xTXDataQueueHandle, &txDataTemperature, 1);
     }
-    /* USER CODE END StartTempTask */
+  /* USER CODE END StartTempTask */
 }
 
 /* tmrLEDCallback function */
-void tmrLEDCallback(void const * argument) {
-    /* USER CODE BEGIN tmrLEDCallback */
+void tmrLEDCallback(void const * argument)
+{
+  /* USER CODE BEGIN tmrLEDCallback */
     LED();
-    /* USER CODE END tmrLEDCallback */
+  /* USER CODE END tmrLEDCallback */
 }
 
 /* USER CODE BEGIN Application */
