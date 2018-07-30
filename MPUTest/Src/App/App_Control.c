@@ -1,8 +1,10 @@
-/*
- * App_Control.c
+/**
+ * @file App_Control.c
+ * @author Tyler
+ * @brief All the functions related to generating control signals
  *
- *  Created on: Jul 28, 2018
- *      Author: Tyler
+ * @defgroup Control Control
+ * {
  */
 
 
@@ -15,12 +17,13 @@
 
 
 /***************************** Extern declarations ***************************/
-extern osTimerId tmrLEDBlinkHandle;
+extern osTimerId tmrLEDBlinkHandle; /**< OS timer handle for status LED */
 
 
 
 
 /********************************* Constants *********************************/
+/** When the TECs are on, they are given PWM signals with this duty cycle */
 static const float TEC_ON_DUTY_CYCLE = 0.85;
 
 
@@ -43,14 +46,12 @@ static TickType_t curTick;
 
 
 /***************************** Private Functions *****************************/
+/**
+ * @brief Force PWM pin function to GPIO
+ * @param gpio The port for the pin whose function is to be made GPIO
+ * @param magnet_pin The pin on whose function is to be made GPIO
+ */
 static inline void MAGNET_MAKE_GPIO(GPIO_TypeDef* gpio, uint16_t magnet_pin){
-    /* Force PWM pin function to GPIO
-     *
-     * Arguments: port, pin
-     *
-     * Returns: none
-     */
-
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = magnet_pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -59,14 +60,12 @@ static inline void MAGNET_MAKE_GPIO(GPIO_TypeDef* gpio, uint16_t magnet_pin){
     HAL_GPIO_Init(gpio, &GPIO_InitStruct);
 }
 
+/**
+ * @brief Force PWM pin function to PWM
+ * @param gpio The port for the pin whose function is to be made PWM
+ * @param magnet_pin The pin on whose function is to be made PWM
+ */
 static inline void MAGNET_MAKE_PWM(GPIO_TypeDef* gpio, uint16_t magnet_pin){
-    /* Force PWM pin function to PWM
-     *
-     * Arguments: port, pin
-     *
-     * Returns: none
-     */
-
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = magnet_pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -76,16 +75,14 @@ static inline void MAGNET_MAKE_PWM(GPIO_TypeDef* gpio, uint16_t magnet_pin){
     HAL_GPIO_Init(gpio, &GPIO_InitStruct);
 }
 
+/**
+ * @brief  Sets the state of the specified magnet to coast, break, or PWM in
+ *         the direction selected by the duty cycle
+ * @param  magnetInfo Pointer to a struct that contains the configuration
+ *         info for the magnet
+ * @return 1 if successful, otherwise a negative error code
+ */
 static int8_t setMagnet(MagnetInfo_t* magnetInfo){
-    /* Sets the state of the specified magnet to coast, break, or PWM in the direction
-     * selected by the duty cycle.
-     *
-     * Arguments: magnetInfo, pointer to a struct that contains the configuration
-     *            info for the magnet
-     *
-     * Returns: 1 if successful, otherwise a negative error code
-     */
-
     static current_e current;
 
     /***** Non-PWM mode of operation *****/
@@ -231,17 +228,16 @@ static int8_t setMagnet(MagnetInfo_t* magnetInfo){
     return 1;
 }
 
+/**
+ * @brief   Sets the PWM duty cycle used to drive the top and bottom TECs used
+ *          for heating the parafluid
+ * @details Arguments in range [0, 1] are valid, as they are used to indicate
+ *          what fraction of a period each TEC should be on
+ * @param   TEC_Top_duty_cycle The duty cycle for the top TEC
+ * @param   TEC_Bot_duty_cycle The duty cycle for the bottom TEC
+ * @return  1 if successful, otherwise a negative error code
+ */
 static int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle){
-    /* Sets the PWM duty cycle used to drive the top and bottom TECs used for
-     * heating the parafluid.
-     *
-     * Arguments: the duty cycle for the top and bottom tec, respectively,
-     *            indicating what fraction of a period each one should be
-     *            on for (arguments in range [0, 1] are valid)
-     *
-     * Returns: 1 if successful, otherwise a negative error code
-     */
-
     // Check argument validity
     if(TEC_Top_duty_cycle < 0 || TEC_Top_duty_cycle > 1){
         return -1;
@@ -276,14 +272,10 @@ static int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle)
     return 1;
 }
 
+/**
+ * @brief Turns off the timer channels used for TEC PWM.
+ */
 static void TEC_stop(void){
-    /* Turns off the timer channels used for TEC PWM.
-     *
-     * Arguments: none
-     *
-     * Returns: none
-     */
-
     HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
     HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
 }
@@ -455,3 +447,8 @@ void controlSetSignalsToIdleState(){
     setMagnet(&magnet1Info);
     setMagnet(&magnet2Info);
 }
+
+/**
+ * @}
+ */
+/* end - Control */

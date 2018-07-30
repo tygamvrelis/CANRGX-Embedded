@@ -42,7 +42,7 @@ static uint8_t* temp2b = &buffer[44];
 static uint8_t* temp3a = &buffer[46];
 static uint8_t* temp3b = &buffer[48];
 
-uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
+static uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
 
 static accelerometerData_t* accelerometerDataPtr = NULL;
 static magnetometerData_t* magnetometerDataPtr = NULL;
