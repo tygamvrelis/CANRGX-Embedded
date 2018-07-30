@@ -95,8 +95,6 @@
 #define Magnet_2A_GPIO_Port GPIOB
 #define Magnet_2B_Pin GPIO_PIN_1
 #define Magnet_2B_GPIO_Port GPIOB
-#define Heating_Wire_Pin GPIO_PIN_13
-#define Heating_Wire_GPIO_Port GPIOB
 #define TEC_Right_Pin GPIO_PIN_14
 #define TEC_Right_GPIO_Port GPIOB
 #define TEC_Left_Pin GPIO_PIN_15

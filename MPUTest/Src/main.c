@@ -124,7 +124,10 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
-  MANUAL_MX_RTC_Init(); // Fix HAL bug where RTC is not initialized in the generated code
+  // The 2 functions below are fixes for cases where Cube did not generate
+  // correct peripheral initialization code
+  MANUAL_MX_RTC_Init();
+  MANUAL_ADC1_Init();
 
   HAL_Delay(100); // We're in no rush here...
 

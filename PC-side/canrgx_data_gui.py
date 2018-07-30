@@ -308,7 +308,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpALabel = QtWidgets.QLabel(self.main_widget)
         self.tmpALabel.setObjectName("tmpALabel")
-        self.tmpALabel.setText("Temp A:")
+        self.tmpALabel.setText("Temp 1A:")
         self.tmpALabel.setFont(font)
         self.tmpALabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpALabel, 4, 0, 1, 1)
@@ -324,7 +324,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpBLabel = QtWidgets.QLabel(self.main_widget)
         self.tmpBLabel.setObjectName("tmpBLabel")
-        self.tmpBLabel.setText("Temp B:")
+        self.tmpBLabel.setText("Temp 1B:")
         self.tmpBLabel.setFont(font)
         self.tmpBLabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpBLabel, 5, 0, 1, 1)
@@ -340,7 +340,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpCLabel = QtWidgets.QLabel(self.main_widget)
         self.tmpCLabel.setObjectName("tmpCLabel")
-        self.tmpCLabel.setText("Temp C:")
+        self.tmpCLabel.setText("Temp 2A:")
         self.tmpCLabel.setFont(font)
         self.tmpCLabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpCLabel, 6, 0, 1, 1)
@@ -356,7 +356,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpDLabel = QtWidgets.QLabel(self.main_widget)
         self.tmpDLabel.setObjectName("tmpDLabel")
-        self.tmpDLabel.setText("Temp D:")
+        self.tmpDLabel.setText("Temp 2B:")
         self.tmpDLabel.setFont(font)
         self.tmpDLabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpDLabel, 7, 0, 1, 1)
@@ -372,7 +372,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpELabel = QtWidgets.QLabel(self.main_widget)
         self.tmpELabel.setObjectName("tmpELabel")
-        self.tmpELabel.setText("Temp E:")
+        self.tmpELabel.setText("Temp 3A:")
         self.tmpELabel.setFont(font)
         self.tmpELabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpELabel, 8, 0, 1, 1)
@@ -388,7 +388,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
         self.tmpFLabel = QtWidgets.QLabel(self.main_widget)
         self.tmpFLabel.setObjectName("tmpFLabel")
-        self.tmpFLabel.setText("Temp F:")
+        self.tmpFLabel.setText("Temp 3B:")
         self.tmpFLabel.setFont(font)
         self.tmpFLabel.setScaledContents(True)
         self.numDispLayout.addWidget(self.tmpFLabel, 9, 0, 1, 1)

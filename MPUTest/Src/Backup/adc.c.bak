@@ -68,7 +68,7 @@ DMA_HandleTypeDef hdma_adc3;
 void MX_ADC1_Init(void)
 {
   ADC_ChannelConfTypeDef sConfig;
-  ADC_InjectionConfTypeDef sConfigInjected;
+//  ADC_InjectionConfTypeDef sConfigInjected;
 
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
@@ -108,27 +108,27 @@ void MX_ADC1_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configures for the selected ADC injected channel its corresponding rank in the sequencer and its sample time 
-    */
-  sConfigInjected.InjectedChannel = ADC_CHANNEL_0;
-  sConfigInjected.InjectedRank = 1;
-  sConfigInjected.InjectedNbrOfConversion = 0;
-  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_3CYCLES;
-  sConfigInjected.AutoInjectedConv = DISABLE;
-  sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
-  sConfigInjected.InjectedOffset = 0;
-  if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configures for the selected ADC injected channel its corresponding rank in the sequencer and its sample time 
-    */
-  sConfigInjected.InjectedRank = 2;
-  if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+//    /**Configures for the selected ADC injected channel its corresponding rank in the sequencer and its sample time
+//    */
+//  sConfigInjected.InjectedChannel = ADC_CHANNEL_0;
+//  sConfigInjected.InjectedRank = 1;
+//  sConfigInjected.InjectedNbrOfConversion = 0;
+//  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_3CYCLES;
+//  sConfigInjected.AutoInjectedConv = DISABLE;
+//  sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
+//  sConfigInjected.InjectedOffset = 0;
+//  if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
+//
+//    /**Configures for the selected ADC injected channel its corresponding rank in the sequencer and its sample time
+//    */
+//  sConfigInjected.InjectedRank = 2;
+//  if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
+//  {
+//    _Error_Handler(__FILE__, __LINE__);
+//  }
 
 }
 /* ADC2 init function */
@@ -429,133 +429,51 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-#define ADC_DATA_N 64 // 64 array elements per channel
-
-volatile uint32_t ADC_buff[3][ADC_DATA_N];
-uint16_t ADC_processed[6];
-
-typedef enum bufferState{
-	STATE_HALF_FULL,
-	STATE_FULL
-}bufferState_e;
-
 /**
- * @brief Given an ADC_HandleTypeDef pointer, this function returns the
- *        associated raw data buffer and the processed data destination
- *        by reference.
- * @param hadc Pointer to the data structure containing all ADC configuration
- *        data
- * @param adc_buff Is assigned the address of the raw data buffer for hadc
- * @param adc_processed Is assigned the address of the output destination for
- *        the processed data corresponding to hadc
+ * @brief   Correct code for initializing ADC1
+ * @details HAL code generator screws up the ADC1 init function
  */
-inline void setUpADCProcessing(
-	ADC_HandleTypeDef* hadc,
-	volatile uint32_t** adc_buff,
-	uint16_t** adc_processed
-)
+void MANUAL_ADC1_Init(void)
 {
-	if(hadc == &hadc1){
-		*adc_buff = ADC_buff[0];
-		*adc_processed = &ADC_processed[0];
-	}
-	else if(hadc == &hadc2){
-		*adc_buff = ADC_buff[1];
-		*adc_processed = &ADC_processed[2];
-	}
-	else{
-		*adc_buff = ADC_buff[2];
-		*adc_processed = &ADC_processed[4];
-	}
-}
+  ADC_ChannelConfTypeDef sConfig;
 
-/**
- * @brief Processes the raw ADC data by block averaging the samples from a
- *        specified half of the raw data buffer
- * @param hadc Pointer to the data structure containing all ADC configuration
- *        data
- * @param buffState Indicates whether the processing is to occur on the first
- *        or second half of the samples in the raw data buffer
- */
-inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
-	uint32_t  accumulate[2] = {0};
-	volatile uint32_t* adc_raw_data_ptr = NULL; // Beginning of buffer
-	uint16_t* adc_output_ptr = NULL;
+    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+    */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.ScanConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 2;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 
-	setUpADCProcessing(hadc, &adc_raw_data_ptr, &adc_output_ptr);
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+    */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 
-	if(buffState == STATE_FULL){
-		adc_raw_data_ptr += ADC_DATA_N / 2; // Middle of buffer
-	}
-
-	uint32_t raw_data;
-	for(uint8_t i = 0; i < ADC_DATA_N / 2; i++){
-		raw_data = *(adc_raw_data_ptr);
-		*accumulate += raw_data & 0xFFFF;
-		*(accumulate + 1) += (raw_data >> 16) & 0xFFFF ;
-		adc_raw_data_ptr++;
-	}
-
-	*adc_output_ptr = (uint16_t)(*accumulate >> 5);
-	*(adc_output_ptr + 1) = (uint16_t)(*(accumulate + 1) >> 5);
-}
-
-/**
- * @brief Buffer half full callback. Here we process the first half of the
- *        buffered data
- */
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	processADC(hadc, STATE_HALF_FULL);
-}
-
-/**
- * @brief Buffer full callback. Here we just process the second half of the
- *        buffered data
- */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	processADC(hadc, STATE_FULL);
-}
-
-/**
- * @brief  Initializes ADC1, ADC2, and ADC3 to use DMA to transfer sample data
- *         to buffers.
- * @return 1 if successful, otherwise a negative error code
- */
-int Temp_Scan_Start(void){
-	if(HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC_buff[0], 2 * ADC_DATA_N) != HAL_OK){
-	    return -1;
-	}
-	if(HAL_ADC_Start_DMA(&hadc2, (uint32_t*)ADC_buff[1], 2 * ADC_DATA_N) != HAL_OK){
-		HAL_ADC_Stop_DMA(&hadc1);
-	    return -2;
-	}
-	if(HAL_ADC_Start_DMA(&hadc3, (uint32_t*)ADC_buff[2], 2 * ADC_DATA_N) != HAL_OK){
-		HAL_ADC_Stop_DMA(&hadc1);
-		HAL_ADC_Stop_DMA(&hadc2);
-	    return -3;
-	}
-
-	return 1;
-}
-
-/**
- * @brief  Stops ADC peripherals used for sensing temperature.
- * @return 1 if successful, otherwise a negative error code
- */
-int Temp_Scan_Stop(void){
-	if(HAL_ADC_Stop_DMA(&hadc1) != HAL_OK){
-	    return -1;
-	}
-	if(HAL_ADC_Stop_DMA(&hadc2) != HAL_OK){
-	    return -2;
-	}
-	if(HAL_ADC_Stop_DMA(&hadc3) != HAL_OK){
-	    return -3;
-	}
-
-	return 1;
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+    */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = 2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 }
 /* USER CODE END 1 */
 

@@ -79,32 +79,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
 
 /* USER CODE BEGIN Prototypes */
-enum magnets_e{
-	MAGNET1,
-	MAGNET2,
-};
 
-enum magnetStates_e{
-	COAST, // Logical outputs: A=high, B=high
-	BRAKE, // Logical outputs: A=low, B=low
-	PWM // Drive current through coils
-};
-
-enum driveMode_e{
-	ACTIVE_LOW,
-	ACTIVE_HIGH
-};
-
-typedef struct{
-	enum magnets_e magnet; // Magnet 1 or magnet 2
-	enum magnetStates_e magnetState; // What the magnet is suppose to do
-	enum driveMode_e driveMode; // Channel polarity (i.e. whether 100% duty cycle is ON or OFF)
-	float dutyCycle; // Only needed if magnetState is PWM
-}MagnetInfo_t;
-
-int8_t setMagnet(MagnetInfo_t* magnetInfo);
-int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle);
-void TEC_stop(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
