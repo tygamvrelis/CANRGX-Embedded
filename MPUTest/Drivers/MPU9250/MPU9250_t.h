@@ -8,6 +8,9 @@
 #ifndef MPU9250_MPU9250_T_H_
 #define MPU9250_MPU9250_T_H_
 
+
+
+
 /*********************************** Types ************************************/
 // Stores data from the sensor in a global struct
 typedef struct{

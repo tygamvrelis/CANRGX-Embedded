@@ -8,6 +8,9 @@
 #ifndef APP_COMMRX_H_
 #define APP_COMMRX_H_
 
+
+
+
 /********************************** Includes *********************************/
 #include "cmsis_os.h"
 #include "usart.h"

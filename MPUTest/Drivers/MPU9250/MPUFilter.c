@@ -18,30 +18,41 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #include <stdlib.h> // For malloc/free
 #include <string.h> // For memset
 
-float32_t MPUFilter_coefficients[21] =
-{
-	-0.018872079, -0.0011102221, 0.0030367336, 0.014906744, 0.030477359, 0.049086205,
-	0.070363952, 0.089952103, 0.10482875, 0.11485946, 0.11869398, 0.11485946,
-	0.10482875, 0.089952103, 0.070363952, 0.049086205, 0.030477359, 0.014906744,
-	0.0030367336, -0.0011102221, -0.018872079
-};
+float32_t MPUFilter_coefficients[21] = {-0.018872079, -0.0011102221,
+        0.0030367336, 0.014906744, 0.030477359, 0.049086205, 0.070363952,
+        0.089952103, 0.10482875, 0.11485946, 0.11869398, 0.11485946, 0.10482875,
+        0.089952103, 0.070363952, 0.049086205, 0.030477359, 0.014906744,
+        0.0030367336, -0.0011102221, -0.018872079};
 
-void MPUFilter_reset( MPUFilterType * pThis )
-{
-   memset( &pThis->state, 0, sizeof( pThis->state ) ); // Reset state to 0
-   pThis->output = 0;                                  // Reset output
+void MPUFilter_reset(MPUFilterType * pThis){
+    memset(&pThis->state, 0, sizeof(pThis->state)); // Reset state to 0
+    pThis->output = 0; // Reset output
 }
 
-void MPUFilter_init( MPUFilterType * pThis )
-{
-	arm_fir_init_f32( &pThis->instance, MPUFilter_numTaps, MPUFilter_coefficients, pThis->state, MPUFilter_blockSize );
-	MPUFilter_reset( pThis );
+void MPUFilter_init(MPUFilterType * pThis){
+    arm_fir_init_f32(
+            &pThis->instance,
+            MPUFilter_numTaps,
+            MPUFilter_coefficients,
+            pThis->state,
+            MPUFilter_blockSize
+    );
+
+    MPUFilter_reset(pThis);
 }
 
-int MPUFilter_filterBlock( MPUFilterType * pThis, float * pInput, float * pOutput, unsigned int count )
-{
-	arm_fir_f32( &pThis->instance, (float32_t *)pInput, (float32_t *)pOutput, count );
-	return count;
+int MPUFilter_filterBlock(
+        MPUFilterType * pThis,
+        float * pInput,
+        float * pOutput,
+        unsigned int count
+){
+    arm_fir_f32(&pThis->instance,
+            (float32_t*)pInput,
+            (float32_t*)pOutput,
+            count
+    );
+    return count;
 }
 
 MPUFilterType azFilter, ayFilter, axFilter;
@@ -52,7 +63,7 @@ void initAllMPU9250Filters(void){
 }
 
 void filterAccelMPU9250(MPU9250_t* myMPU9250){
-    /***** Filter the signals along each axis *****/
+    // Filter the signals along each axis
     MPUFilter_writeInput(&axFilter, myMPU9250->ax);
     myMPU9250->ax = MPUFilter_readOutput(&axFilter);
 

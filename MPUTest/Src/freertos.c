@@ -52,27 +52,11 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */     
-#include <stdbool.h>
-#include <math.h>
-#include "main.h"
-#include "adc.h"
-#include "dma.h"
-#include "i2c.h"
-#include "rtc.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
-
-#include "../Drivers/MPU9250/MPU9250.h"
-#include "userTypes.h"
-
 #include "App/App_Control.h"
 #include "App/App_CommTX.h"
 #include "App/App_MPU9250.h"
 #include "App/App_CommRX.h"
 #include "App/App_Temperature.h"
-
-
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -147,6 +131,13 @@ __weak unsigned long getRunTimeCounterValue(void)
 return 0;
 }
 
+/**
+ * @brief Toggles the green LED, LD2
+ * @note  Useful for debugging
+ */
+inline void LED(){
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+}
 /* USER CODE END 1 */
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
@@ -254,22 +245,18 @@ void MX_FREERTOS_Init(void) {
 }
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
-{
+void StartDefaultTask(void const * argument){
 
-  /* USER CODE BEGIN StartDefaultTask */
-    /* Infinite loop */
-    for(;;)
-    {
+    /* USER CODE BEGIN StartDefaultTask */
+    for(;;){
 
     }
-  /* USER CODE END StartDefaultTask */
+    /* USER CODE END StartDefaultTask */
 }
 
 /* StartControlTask function */
-void StartControlTask(void const * argument)
-{
-  /* USER CODE BEGIN StartControlTask */
+void StartControlTask(void const * argument){
+    /* USER CODE BEGIN StartControlTask */
     TXData_t txDataControl;
     controlData_t controlData = { 0 };
 
@@ -283,29 +270,27 @@ void StartControlTask(void const * argument)
 
     controlInit();
 
-    /* Infinite loop */
-    for(;;)
-    {
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
+    for(;;){
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_CYCLE_MS)); // Service this task every CONTROL_CYCLE_MS milliseconds
 
-		// Check for flight events
-		if(xTaskNotifyWait(0, UINT32_MAX, &notification, pdMS_TO_TICKS(1)) == pdTRUE){
-		    controlEventHandler(notification);
-		}
+        // Check for flight events
+        if(xTaskNotifyWait(0, UINT32_MAX, &notification,
+                pdMS_TO_TICKS(1)) == pdTRUE){
+            controlEventHandler(notification);
+        }
 
-		// Update PWM duty cycle for magnets
-		updateControlSignals();
+        // Update PWM duty cycle for magnets
+        updateControlSignals();
 
         // Tell transmit task that new data is ready
-		updateControlData(&controlData);
+        updateControlData(&controlData);
         xQueueSend(xTXDataQueueHandle, &txDataControl, 1);
     }
-  /* USER CODE END StartControlTask */
+    /* USER CODE END StartControlTask */
 }
 
 /* StartTxTask function */
-void StartTxTask(void const * argument)
-{
+void StartTxTask(void const * argument){
     /* USER CODE BEGIN StartTxTask */
     // For intertask communication
     TXData_t receivedData;
@@ -316,9 +301,7 @@ void StartTxTask(void const * argument)
     xLastWakeTime = xTaskGetTickCount();
     cycleStartTick = xTaskGetTickCount();
 
-    // Infinite loop
-    for(;;)
-    {
+    for(;;){
         // Trigger this thread every 1 ms. This way, we are guaranteed to meet
         // the 3 ms deadline
         vTaskDelay(pdMS_TO_TICKS(1));
@@ -330,7 +313,7 @@ void StartTxTask(void const * argument)
             if(status == pdTRUE){
                 commTXEventHandler(&receivedData);
             }
-        }while(status == pdTRUE);
+        }while (status == pdTRUE);
 
         // This runs when:
         //    1. the control & MPU9250 threads have responded
@@ -339,12 +322,11 @@ void StartTxTask(void const * argument)
             commTXSendPacket(&xLastWakeTime, &cycleStartTick);
         }
     }
-  /* USER CODE END StartTxTask */
+    /* USER CODE END StartTxTask */
 }
 
 /* StartMPU9250Task function */
-void StartMPU9250Task(void const * argument)
-{
+void StartMPU9250Task(void const * argument){
     /* USER CODE BEGIN StartMPU9250Task */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
@@ -361,9 +343,7 @@ void StartMPU9250Task(void const * argument)
 
     initAllMPU9250Filters();
 
-    /* Infinite loop */
-    for(;;)
-    {
+    for(;;){
         // Service this task every MPU9250_CYCLE_MS milliseconds
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(MPU9250_CYCLE_MS));
 
@@ -378,15 +358,13 @@ void StartMPU9250Task(void const * argument)
         // Send updates to control task if there is an event
         MPU9250EventHandler(&myMPU9250);
     }
-  /* USER CODE END StartMPU9250Task */
+    /* USER CODE END StartMPU9250Task */
 }
 
 /* StartRxTask function */
-void StartRxTask(void const * argument)
-{
+void StartRxTask(void const * argument){
     /* USER CODE BEGIN StartRxTask */
-    for(;;)
-    {
+    for(;;){
         commRXInitReception();
 
         if(xSemaphoreTake(semRxHandle, pdMS_TO_TICKS(30)) == pdTRUE){
@@ -396,12 +374,11 @@ void StartRxTask(void const * argument)
             commRXCancelReception();
         }
     }
-  /* USER CODE END StartRxTask */
+    /* USER CODE END StartRxTask */
 }
 
 /* StartTempTask function */
-void StartTempTask(void const * argument)
-{
+void StartTempTask(void const * argument){
     /* USER CODE BEGIN StartTempTask */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
@@ -414,9 +391,7 @@ void StartTempTask(void const * argument)
 
     Temp_Scan_Start();
 
-    /* Infinite loop */
-    for(;;)
-    {
+    for(;;){
         // Service this task every TEMP_CYCLE_MS milliseconds
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(TEMP_CYCLE_MS));
 
@@ -428,13 +403,7 @@ void StartTempTask(void const * argument)
 }
 
 /* tmrLEDCallback function */
-// LED blink for debugging (green LED, LD2)
-inline void LED(){
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-}
-
-void tmrLEDCallback(void const * argument)
-{
+void tmrLEDCallback(void const * argument){
     /* USER CODE BEGIN tmrLEDCallback */
     LED();
     /* USER CODE END tmrLEDCallback */
