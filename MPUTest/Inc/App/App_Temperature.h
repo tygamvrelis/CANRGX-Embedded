@@ -8,6 +8,9 @@
 #ifndef APP_TEMPERATURE_H_
 #define APP_TEMPERATURE_H_
 
+
+
+
 /********************************** Includes *********************************/
 #include "adc.h"
 #include "userTypes.h"

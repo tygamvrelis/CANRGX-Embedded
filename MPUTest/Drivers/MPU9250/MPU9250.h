@@ -5,112 +5,27 @@
  *      Author: Tyler
  */
 
-/************************* Prevent recursive inclusion ************************/
 #ifndef MPU9250_H_
 #define MPU9250_H_
 
 
 
 
-/********************************** Includes **********************************/
-#include "stm32f4xx_hal.h"
-#include "i2c.h"
-#include "freertos.h"
-#include "cmsis_os.h"
+/********************************** Includes *********************************/
 #include <math.h>
-
+#include "cmsis_os.h"
+#include "i2c.h"
 #include "MPUFilter.h"
 #include "MPU9250_t.h"
 
 
 
 
-/*********************************** Macros ***********************************/
-// MPU9250_ACCEL_AND_GYRO_ADDR is the slave address that should be used when trying
-// to get the acceleration and gyroscope data. If the magnetometer data is to be
-// read, you need to use the MPU9250 slave control registers as it is seen as a slave
-// device.
-#define MPU9250_ACCEL_AND_GYRO_ADDR 0x68 << 1 // pg. 32 of datasheet. Also, this is shifted
-											  // 1 bit to the left because that's what ST's
-											  // HAL libraries require...apparently...
-#define MPU9250_MAG_ADDR 0x0C << 1// pg. 24 of datasheet
-
-
-// Register addresses for configuration stuff
-// Accel and gyro addresses
-#define SMPLRT_DIV 0x19
-#define CONFIG 0x1A
-#define GYRO_CONFIG 0x1B
-#define ACCEL_CONFIG 0x1C
-#define ACCEL_CONFIG_2 0x1D
-#define I2C_MST_CTRL 0x24 // Used to set I2C clock speed
-#define I2C_SLV0_ADDR 0x25 // Physical address of I2C slave 0
-#define I2C_SLV0_REG 0x26 // Slave 0 register from where to begin data transfer
-#define I2C_SLV0_CTRL 0x27 // Control register for data transactions with slave 0
-#define I2C_SLV1_ADDR 0x2B // Physical address of I2C slave 1
-#define I2C_SLV1_REG 0x2C // Slave 1 register from where to begin data transfer
-#define I2C_SLV1_CTRL 0x2D // Control register for data transactions with slave 1
-#define INT_PIN_CFG 0x37 //
-#define EXT_SENS_DATA_00 0x49 // Holds data from external sensors (i.e. magnetometer)
-#define I2C_SLV0_DO 0x63 // Data out when writing to slave 0
-#define I2C_SLV1_DO 0x64 // Data out when writing to slave 1
-#define USER_CTRL 0x6A // Used to enable I2C interface module
-#define PWR_MGMT_1 0x6B // Used to set the clock source for the accel & gyro
-#define PWR_MGMT_2 0x6C // Used to force accelerometer and gyroscope on
-#define WHO_AM_I 0x75 // Should ALWAYS be 0x71 so this is a good test of communication
-
-// Magnetometer data
-#define WIA 0x00 // Device ID, should always read 0x48
-#define ST1 0x02 // Data ready
-#define ST2 0x09 // Read this to indicate "read end". Also indicates if sensor overflow occurs
-#define CNTL1 0x0A // Changes bit depth and operating mode
-#define CNTL2 0x0B // Set the lsb to reset the sensor
-
-// Register addresses for accelerometer data (pg. 8 register map)
-#define MPU9250_ACCEL_X_ADDR_H 0x3B // AXH
-#define MPU9250_ACCEL_X_ADDR_L 0x3C // AXL
-#define MPU9250_ACCEL_Y_ADDR_H 0x3D // AYH
-#define MPU9250_ACCEL_Y_ADDR_L 0x3E // AYL
-#define MPU9250_ACCEL_Z_ADDR_H 0x3F // AZH
-#define MPU9250_ACCEL_Z_ADDR_L 0x40 // AZL
-
-
-// Register addresses for gyroscope data (pg. 8 register map)
-#define MPU9250_GYRO_X_ADDR_H 0x43 // VXH
-#define MPU9250_GYRO_X_ADDR_L 0x44 // VXL
-#define MPU9250_GYRO_Y_ADDR_H 0x45 // VYH
-#define MPU9250_GYRO_Y_ADDR_L 0x46 // VYL
-#define MPU9250_GYRO_Z_ADDR_H 0x47 // VZH
-#define MPU9250_GYRO_Z_ADDR_L 0x48 // VZL
-
-
-// Register addresses for magnetometer data (pg. 47 register map)
-#define MPU9250_MAG_X_ADDR_L 0x03 // HXL
-#define MPU9250_MAG_X_ADDR_H 0x04 // HXH
-#define MPU9250_MAG_Y_ADDR_L 0x05 // HYL
-#define MPU9250_MAG_Y_ADDR_H 0x06 // HYH
-#define MPU9250_MAG_Z_ADDR_L 0x07 // HZL
-#define MPU9250_MAG_Z_ADDR_H 0x08 // HZH
-
-
-// Scales for readings
-#define MPU9250_ACCEL_FULL_SCALE 2 * g // twice the gravitational acceleration due to Earth
-#define MPU9250_GYRO_FULL_SCALE 250.0 // degree/s
-#define MPU9250_MAG_FULL_SCALE 4912.0 // microTeslas. See pg. 50 of the register map
-
-
-
-
-/*********************************** Globals *********************************/
-extern MPU9250_t myMPU9250;
-extern const MPU9250_t* myMPU9250Ptr;
-extern const float g;
-
-
-
-
 /********************************* Functions *********************************/
+// These 3 should only be used before the scheduler is started
 int MPU9250Init(MPU9250_t* myMPU);
+void resetIMUBlocking(void);
+void resetMagnetometerBlocking(void);
 
 // These 3 are the only ones that should really be used during runtime once the
 // scheduler has started.
@@ -125,12 +40,6 @@ inline void computeTotalAcceleration(MPU9250_t* myMPU9250){
     );
 }
 
-int magnetometerRead(uint8_t addr, uint8_t numBytes, uint8_t* buff);
-int magnetometerWrite(uint8_t addr, uint8_t data);
-
-int runtimeResetIMU(osSemaphoreId sem); // Use with caution
-int runtimeResetMagnetometer(osSemaphoreId sem); // Use with caution
 void generateClocks(I2C_HandleTypeDef* hi2c, uint8_t numClocks, uint8_t sendStopBits); // Use with caution
-
 
 #endif /* MPU9250_H_ */

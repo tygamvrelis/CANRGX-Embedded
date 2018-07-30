@@ -30,18 +30,18 @@ extern float32_t MPUFilter_coefficients[21];
 static const int MPUFilter_numTaps = 21;
 static const int MPUFilter_blockSize = 16;
 
-typedef struct
-{
-	arm_fir_instance_f32 instance;
-	float32_t state[37];
-	float32_t output;
+typedef struct{
+    arm_fir_instance_f32 instance;
+    float32_t state[37];
+    float32_t output;
 } MPUFilterType;
 
 inline void MPUFilter_writeInput(MPUFilterType * pThis, float input){
-	arm_fir_f32( &pThis->instance, &input, &pThis->output, 1 );
-};
-inline float MPUFilter_readOutput( MPUFilterType * pThis ){
-	return pThis->output;
+    arm_fir_f32(&pThis->instance, &input, &pThis->output, 1);
+}
+
+inline float MPUFilter_readOutput(MPUFilterType * pThis){
+    return pThis->output;
 }
 
 void initAllMPU9250Filters(void);

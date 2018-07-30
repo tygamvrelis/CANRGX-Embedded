@@ -19,6 +19,12 @@
 
 
 
+/******************************* Public variables ****************************/
+extern MPU9250_t myMPU9250;
+
+
+
+
 /********************************* Functions *********************************/
 inline uint32_t NOTIFY_FROM_MPU(uint32_t x){
     return MPU_BITMASK | x;

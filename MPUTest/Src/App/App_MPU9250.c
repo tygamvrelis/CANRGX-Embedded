@@ -21,6 +21,12 @@ extern osThreadId ControlTaskHandle;
 
 
 
+/******************************* Public variables ****************************/
+MPU9250_t myMPU9250; // Global MPU9250 object
+
+
+
+
 /***************************** Public Functions ******************************/
 void updateAccelReading(
         accelerometerData_t* accelData,
