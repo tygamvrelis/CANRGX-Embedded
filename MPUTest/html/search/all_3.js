@@ -1,6 +1,13 @@
 var searchData=
 [
   ['coast',['COAST',['../group___control_header.html#gga36187279be8cb0ac4b9b3f877315a2f8ae509e364ab4c8f25b108b70b0840b142',1,'App_Control.h']]],
+  ['commrx',['CommRX',['../group___comm_r_x.html',1,'']]],
+  ['commrxcancelreception',['commRXCancelReception',['../group___comm_r_x_header.html#gae9d638c5bedb8c365fa621ee34d3b67c',1,'commRXCancelReception(void):&#160;App_CommRX.c'],['../group___comm_r_x_public_functions.html#gae9d638c5bedb8c365fa621ee34d3b67c',1,'commRXCancelReception(void):&#160;App_CommRX.c']]],
+  ['commrxeventhandler',['commRXEventHandler',['../group___comm_r_x_header.html#ga462f687bae25acaf4778f475daffc11f',1,'commRXEventHandler(void):&#160;App_CommRX.c'],['../group___comm_r_x_public_functions.html#ga462f687bae25acaf4778f475daffc11f',1,'commRXEventHandler(void):&#160;App_CommRX.c']]],
+  ['communication_3a_20rx_20header',['Communication: RX Header',['../group___comm_r_x_header.html',1,'']]],
+  ['commrxinitreception',['commRXInitReception',['../group___comm_r_x_header.html#gae1a95a68477db3f758daee283727de20',1,'commRXInitReception(void):&#160;App_CommRX.c'],['../group___comm_r_x_public_functions.html#gae1a95a68477db3f758daee283727de20',1,'commRXInitReception(void):&#160;App_CommRX.c']]],
+  ['communication_3a_20rx_20private_20functions',['Communication: RX Private Functions',['../group___comm_r_x_private_functions.html',1,'']]],
+  ['communication_3a_20rx_20public_20functions',['Communication: RX Public Functions',['../group___comm_r_x_public_functions.html',1,'']]],
   ['control',['Control',['../group___control.html',1,'']]],
   ['control_5ft',['control_t',['../group___user_types.html#gga58a8ea9172ea09c6590921190ba11921a457548a531ea932dab30e2c95e85c077',1,'userTypes.h']]],
   ['controldata_5ft',['controlData_t',['../structcontrol_data__t.html',1,'']]],

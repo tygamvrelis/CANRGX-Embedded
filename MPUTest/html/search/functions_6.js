@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['tec_5fset_5fvaluef',['TEC_set_valuef',['../group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896',1,'App_Control.c']]],
-  ['tec_5fstop',['TEC_stop',['../group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef',1,'App_Control.c']]],
-  ['temp_5fscan_5fstart',['Temp_Scan_Start',['../group___temperature_header.html#ga165ae9b3e76fa67f4bfef9302a54729d',1,'Temp_Scan_Start(void):&#160;App_Temperature.c'],['../group___temperature_public_functions.html#ga165ae9b3e76fa67f4bfef9302a54729d',1,'Temp_Scan_Start(void):&#160;App_Temperature.c']]],
-  ['temp_5fscan_5fstop',['Temp_Scan_Stop',['../group___temperature_header.html#gaaf412a639deba77bbb2d6026ff2cf537',1,'Temp_Scan_Stop(void):&#160;App_Temperature.c'],['../group___temperature_public_functions.html#gaaf412a639deba77bbb2d6026ff2cf537',1,'Temp_Scan_Stop(void):&#160;App_Temperature.c']]]
+  ['setmagnet',['setMagnet',['../group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d',1,'App_Control.c']]],
+  ['setupadcprocessing',['setUpADCProcessing',['../group___temperature_private_functions.html#ga42ae0e00c69e748ba833ba8a49905ab6',1,'App_Temperature.c']]],
+  ['systemclock_5fconfig',['SystemClock_Config',['../main_8c.html#a70af21c671abfcc773614a9a4f63d920',1,'main.c']]]
 ];

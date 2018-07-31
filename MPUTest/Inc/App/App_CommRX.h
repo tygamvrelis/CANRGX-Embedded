@@ -2,7 +2,7 @@
  * @file App_CommRX.h
  * @author Tyler
  *
- * @defgroup CommRXHeader Communication: Reception Header
+ * @defgroup CommRXHeader Communication: RX Header
  * @ingroup CommRX
  * @{
  */

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['data',['data',['../struct_t_x_data__t.html#a735984d41155bc1032e09bece8f8d66d',1,'TXData_t']]],
-  ['drivemode',['driveMode',['../struct_magnet_info__t.html#ad2757327a9eb4a3bb00ff6fe3b22c04d',1,'MagnetInfo_t']]],
-  ['dutycycle',['dutyCycle',['../struct_magnet_info__t.html#ab5e71ba0276929fe061bacdcc22c3335',1,'MagnetInfo_t']]]
+  ['controllerstate',['controllerState',['../group___control.html#ga25e98eb3709ea50b34c08328ddb5e787',1,'App_Control.c']]],
+  ['currentevent',['currentEvent',['../group___control.html#ga92cfb2de4679628b337e5a14fd586d63',1,'App_Control.c']]],
+  ['curtick',['curTick',['../group___control.html#ga8fa1407723d035d0374b59613df42461',1,'App_Control.c']]]
 ];

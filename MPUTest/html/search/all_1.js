@@ -7,6 +7,8 @@ var searchData=
   ['adc_5fbuff',['ADC_buff',['../group___temperature.html#ga64aa653883c86190fc86913280c1c2fe',1,'App_Temperature.c']]],
   ['adc_5fdata_5fn',['ADC_DATA_N',['../group___temperature.html#ga0ac2bedf503d36cd16feb876f427feb3',1,'App_Temperature.c']]],
   ['adc_5fprocessed',['ADC_processed',['../group___temperature_header.html#ga505a89eeab6d1e66d72518b74542b650',1,'ADC_processed():&#160;App_Temperature.c'],['../group___temperature.html#ga505a89eeab6d1e66d72518b74542b650',1,'ADC_processed():&#160;App_Temperature.c']]],
+  ['app_5fcommrx_2ec',['App_CommRX.c',['../_app___comm_r_x_8c.html',1,'']]],
+  ['app_5fcommrx_2eh',['App_CommRX.h',['../_app___comm_r_x_8h.html',1,'']]],
   ['app_5fcontrol_2ec',['App_Control.c',['../_app___control_8c.html',1,'']]],
   ['app_5fcontrol_2eh',['App_Control.h',['../_app___control_8h.html',1,'']]],
   ['app_5ftemperature_2ec',['App_Temperature.c',['../_app___temperature_8c.html',1,'']]],

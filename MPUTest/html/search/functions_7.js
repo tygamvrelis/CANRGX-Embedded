@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['updatecontroldata',['updateControlData',['../group___control_header.html#ga96e500bdb498d4c5e4fedb5ab548ee08',1,'updateControlData(controlData_t *controlData):&#160;App_Control.c'],['../group___control_public_functions.html#ga96e500bdb498d4c5e4fedb5ab548ee08',1,'updateControlData(controlData_t *controlData):&#160;App_Control.c']]],
-  ['updatecontrolsignals',['updateControlSignals',['../group___control_header.html#gae842d8967168109b231043ca7463c173',1,'updateControlSignals(void):&#160;App_Control.c'],['../group___control_public_functions.html#gae842d8967168109b231043ca7463c173',1,'updateControlSignals(void):&#160;App_Control.c']]],
-  ['updatetemperaturedata',['updateTemperatureData',['../group___temperature_header.html#ga95a0b69da2c4b263d0177e39868ffd75',1,'App_Temperature.h']]]
+  ['tec_5fset_5fvaluef',['TEC_set_valuef',['../group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896',1,'App_Control.c']]],
+  ['tec_5fstop',['TEC_stop',['../group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef',1,'App_Control.c']]],
+  ['temp_5fscan_5fstart',['Temp_Scan_Start',['../group___temperature_header.html#ga165ae9b3e76fa67f4bfef9302a54729d',1,'Temp_Scan_Start(void):&#160;App_Temperature.c'],['../group___temperature_public_functions.html#ga165ae9b3e76fa67f4bfef9302a54729d',1,'Temp_Scan_Start(void):&#160;App_Temperature.c']]],
+  ['temp_5fscan_5fstop',['Temp_Scan_Stop',['../group___temperature_header.html#gaaf412a639deba77bbb2d6026ff2cf537',1,'Temp_Scan_Stop(void):&#160;App_Temperature.c'],['../group___temperature_public_functions.html#gaaf412a639deba77bbb2d6026ff2cf537',1,'Temp_Scan_Stop(void):&#160;App_Temperature.c']]]
 ];

@@ -19,7 +19,9 @@ var searchData=
   ['main_2ec',['main.c',['../main_8c.html',1,'']]],
   ['main_2eh',['main.h',['../main_8h.html',1,'']]],
   ['manual_5foverride_5fstart_5fbitmask',['MANUAL_OVERRIDE_START_BITMASK',['../group___user_types.html#ga8958f0f3c0694c7ca60c65140d027535',1,'userTypes.h']]],
+  ['manual_5foverride_5fstart_5fchar',['MANUAL_OVERRIDE_START_CHAR',['../group___comm_r_x.html#ga91066b4d1a996d76fb4ad49e1469b1fc',1,'App_CommRX.c']]],
   ['manual_5foverride_5fstop_5fbitmask',['MANUAL_OVERRIDE_STOP_BITMASK',['../group___user_types.html#ga0b1ce59174e4b2baaec9d90ed998e0c0',1,'userTypes.h']]],
+  ['manual_5foverride_5fstop_5fseq',['MANUAL_OVERRIDE_STOP_SEQ',['../group___comm_r_x.html#gae8f4752884a34f4ff8de94a237040486',1,'App_CommRX.c']]],
   ['mpu9250_5ft',['MPU9250_t',['../struct_m_p_u9250__t.html',1,'']]],
   ['mpu_5fbitmask',['MPU_BITMASK',['../group___user_types.html#ga76f4f7cd9b9ebff562e19782d4950200',1,'userTypes.h']]],
   ['mpufiltertype',['MPUFilterType',['../struct_m_p_u_filter_type.html',1,'']]]
