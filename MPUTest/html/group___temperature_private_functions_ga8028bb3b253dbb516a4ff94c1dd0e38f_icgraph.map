@@ -1,0 +1,4 @@
+<map id="processADC" name="processADC">
+<area shape="rect" id="node2" href="$group___temperature_callbacks.html#gad7e3dafc08886b97b9c9e23267645b9e" title="Buffer half full callback. Here we process the first half of the buffered data. " alt="" coords="148,5,359,32"/>
+<area shape="rect" id="node3" href="$group___temperature_callbacks.html#gaf20a88180db1113be1e89266917d148b" title="Buffer full callback. Here we just process the second half of the buffered data. " alt="" coords="159,56,348,83"/>
+</map>

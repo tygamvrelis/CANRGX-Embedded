@@ -1,4 +1,4 @@
-/*
+/**
  * @file App_Control.h
  * @author Tyler
  *

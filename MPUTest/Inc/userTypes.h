@@ -58,6 +58,9 @@ typedef enum{
     temperature_t    /**< Temperature sensor data    */
 }TXDataTypes_e;
 
+
+
+
 /*********************************** Types ***********************************/
 /**
  * @brief This is the generic structure for the TX queue. Based on the value of

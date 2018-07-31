@@ -1,22 +1,4 @@
 var searchData=
 [
-  ['mag1power',['mag1Power',['../structcontrol_data__t.html#a6e6a8ce33bc6adff416196ee713770ec',1,'controlData_t']]],
-  ['mag2power',['mag2Power',['../structcontrol_data__t.html#a939cbf524a59c750c8bbf42d464559b5',1,'controlData_t']]],
-  ['magnet',['magnet',['../struct_magnet_info__t.html#a8320931023d5b088c68b66c5e20db618',1,'MagnetInfo_t']]],
-  ['magnet1info',['magnet1Info',['../group___control.html#ga5f3b7ab87f00f1c0f2a5427e958fb84e',1,'App_Control.c']]],
-  ['magnet2info',['magnet2Info',['../group___control.html#ga272f96596755ce496a4705e7d2a98aaa',1,'App_Control.c']]],
-  ['magnet_5fmake_5fgpio',['MAGNET_MAKE_GPIO',['../group___control_private_functions.html#ga9fa41aa2c8686b524807fa969084a7d1',1,'App_Control.c']]],
-  ['magnet_5fmake_5fpwm',['MAGNET_MAKE_PWM',['../group___control_private_functions.html#ga91fd2d380a9e378ac550fbc2eb6382f2',1,'App_Control.c']]],
-  ['magnetinfo_5ft',['MagnetInfo_t',['../struct_magnet_info__t.html',1,'']]],
-  ['magnetometer_5ft',['magnetometer_t',['../group___user_types.html#gga58a8ea9172ea09c6590921190ba11921aa6d6a77a3dbc2e0784445e2bde768a01',1,'userTypes.h']]],
-  ['magnetometerdata_5ft',['magnetometerData_t',['../structmagnetometer_data__t.html',1,'']]],
-  ['magnetstate',['magnetState',['../struct_magnet_info__t.html#aef449ff25074d2a686f8b7680cf9b34b',1,'MagnetInfo_t']]],
-  ['main',['main',['../main_8c.html#a840291bc02cba5474a4cb46a9b9566fe',1,'main.c']]],
-  ['main_2ec',['main.c',['../main_8c.html',1,'']]],
-  ['main_2eh',['main.h',['../main_8h.html',1,'']]],
-  ['manual_5foverride_5fstart_5fbitmask',['MANUAL_OVERRIDE_START_BITMASK',['../group___user_types.html#ga8958f0f3c0694c7ca60c65140d027535',1,'userTypes.h']]],
-  ['manual_5foverride_5fstop_5fbitmask',['MANUAL_OVERRIDE_STOP_BITMASK',['../group___user_types.html#ga0b1ce59174e4b2baaec9d90ed998e0c0',1,'userTypes.h']]],
-  ['mpu9250_5ft',['MPU9250_t',['../struct_m_p_u9250__t.html',1,'']]],
-  ['mpu_5fbitmask',['MPU_BITMASK',['../group___user_types.html#ga76f4f7cd9b9ebff562e19782d4950200',1,'userTypes.h']]],
-  ['mpufiltertype',['MPUFilterType',['../struct_m_p_u_filter_type.html',1,'']]]
+  ['idle',['IDLE',['../group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18',1,'userTypes.h']]]
 ];

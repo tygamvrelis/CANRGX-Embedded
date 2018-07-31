@@ -1,23 +1,8 @@
 var searchData=
 [
-  ['tec1dutycycle',['TEC1DutyCycle',['../group___control.html#ga98ad25c3b66dd3974da389fab8e5dbd9',1,'App_Control.c']]],
-  ['tec1power',['tec1Power',['../structcontrol_data__t.html#ace3b973e40a1a82e7aa94121178cea85',1,'controlData_t']]],
-  ['tec2dutycycle',['TEC2DutyCycle',['../group___control.html#gafeb68fa8b721e3816901476505a30c8a',1,'App_Control.c']]],
-  ['tec2power',['tec2Power',['../structcontrol_data__t.html#a19dadd577e805fea20dac8ee6913055a',1,'controlData_t']]],
-  ['tec_5fon_5fduty_5fcycle',['TEC_ON_DUTY_CYCLE',['../group___control.html#gabb75f288c9ae4fa6946db581bddf9291',1,'App_Control.c']]],
-  ['tec_5fpid_5fctrl',['TEC_PID_Ctrl',['../struct_t_e_c___p_i_d___ctrl.html',1,'']]],
-  ['tec_5fset_5fvaluef',['TEC_set_valuef',['../group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896',1,'App_Control.c']]],
-  ['tec_5fstop',['TEC_stop',['../group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef',1,'App_Control.c']]],
-  ['temp1a',['temp1a',['../structtemperature_data__t.html#a567e8f9ba659cb556f19b769c4664785',1,'temperatureData_t']]],
-  ['temp1b',['temp1b',['../structtemperature_data__t.html#aca93ff3883b0db96d67cbf5cd6bd3256',1,'temperatureData_t']]],
-  ['temp2a',['temp2a',['../structtemperature_data__t.html#a7a40db3190c0df7283af3f3d02d61cb0',1,'temperatureData_t']]],
-  ['temp2b',['temp2b',['../structtemperature_data__t.html#a9bfba33d4961675f0c5cfc40cd423479',1,'temperatureData_t']]],
-  ['temp3a',['temp3a',['../structtemperature_data__t.html#ac8a388f4413cb5c3128475ee882fe5dd',1,'temperatureData_t']]],
-  ['temp3b',['temp3b',['../structtemperature_data__t.html#a85958a2f3956fded4fcaf4c2d5850b7e',1,'temperatureData_t']]],
-  ['temperature_5ft',['temperature_t',['../group___user_types.html#gga58a8ea9172ea09c6590921190ba11921a3f2f5d7f3d2218130cc7f539c6b78855',1,'userTypes.h']]],
-  ['temperaturedata_5ft',['temperatureData_t',['../structtemperature_data__t.html',1,'']]],
-  ['tmrledblinkhandle',['tmrLEDBlinkHandle',['../group___control.html#ga1fd9b1d4931209565f0cdc11ccf5a3b5',1,'tmrLEDBlinkHandle():&#160;freertos.c'],['../group___control.html#ga1fd9b1d4931209565f0cdc11ccf5a3b5',1,'tmrLEDBlinkHandle():&#160;freertos.c']]],
-  ['txdata_5ft',['TXData_t',['../struct_t_x_data__t.html',1,'']]],
-  ['txdatatypes_5fe',['TXDataTypes_e',['../group___user_types.html#ga58a8ea9172ea09c6590921190ba11921',1,'userTypes.h']]],
-  ['type',['type',['../struct_t_x_data__t.html#ac8f848eadef79aba6809c3221517ae72',1,'TXData_t']]]
+  ['setmagnet',['setMagnet',['../group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d',1,'App_Control.c']]],
+  ['setupadcprocessing',['setUpADCProcessing',['../group___temperature_private_functions.html#ga42ae0e00c69e748ba833ba8a49905ab6',1,'App_Temperature.c']]],
+  ['state_5ffull',['STATE_FULL',['../group___temperature.html#gga74dc76a83db70f4df418dfc5232df300a74ca1e2c15312884f7e85efb1b56ce1c',1,'App_Temperature.c']]],
+  ['state_5fhalf_5ffull',['STATE_HALF_FULL',['../group___temperature.html#gga74dc76a83db70f4df418dfc5232df300a32342deb9a82ee3bce911a231917a325',1,'App_Temperature.c']]],
+  ['systemclock_5fconfig',['SystemClock_Config',['../main_8c.html#a70af21c671abfcc773614a9a4f63d920',1,'main.c']]]
 ];

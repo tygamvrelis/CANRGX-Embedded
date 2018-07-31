@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['experiment1',['EXPERIMENT1',['../group___user_types.html#gga02062a8247dd3fe20512455456c3c234a075beae84c7cd5a80338c8ac77d3eb97',1,'userTypes.h']]],
-  ['experiment2',['EXPERIMENT2',['../group___user_types.html#gga02062a8247dd3fe20512455456c3c234aefde61326a8aefe3197847a08e7a41de',1,'userTypes.h']]],
-  ['experiment3',['EXPERIMENT3',['../group___user_types.html#gga02062a8247dd3fe20512455456c3c234aed86bbcc9117e449b75437f4f47c9877',1,'userTypes.h']]],
-  ['experiment4',['EXPERIMENT4',['../group___user_types.html#gga02062a8247dd3fe20512455456c3c234a574d2a9524c88992f7cf0ee7397b7de2',1,'userTypes.h']]]
+  ['data',['data',['../struct_t_x_data__t.html#a735984d41155bc1032e09bece8f8d66d',1,'TXData_t']]],
+  ['drivemode',['driveMode',['../struct_magnet_info__t.html#ad2757327a9eb4a3bb00ff6fe3b22c04d',1,'MagnetInfo_t']]],
+  ['drivemode_5fe',['driveMode_e',['../group___control_header.html#ga7e557e9594f3d847884af99b5a9848fd',1,'App_Control.h']]],
+  ['dutycycle',['dutyCycle',['../struct_magnet_info__t.html#ab5e71ba0276929fe061bacdcc22c3335',1,'MagnetInfo_t']]]
 ];

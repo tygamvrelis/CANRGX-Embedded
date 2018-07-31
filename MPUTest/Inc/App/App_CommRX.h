@@ -1,8 +1,10 @@
-/*
- * App_CommRX.h
+/**
+ * @file App_CommRX.h
+ * @author Tyler
  *
- *  Created on: Jul 29, 2018
- *      Author: Tyler
+ * @defgroup CommRXHeader Communication: Reception Header
+ * @ingroup CommRX
+ * @{
  */
 
 #ifndef APP_COMMRX_H_
@@ -24,5 +26,10 @@
 void commRXInitReception(void);
 void commRXEventHandler(void);
 void commRXCancelReception(void);
+
+/*
+ * @}
+ */
+/* end - CommRXHeader */
 
 #endif /* APP_COMMRX_H_ */

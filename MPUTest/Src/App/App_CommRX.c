@@ -1,8 +1,10 @@
-/*
- * App_CommRX.c
+/**
+ * @file App_CommRX.c
+ * @author Tyler
+ * @brief Functions and data related to the reception side of PC communication
  *
- *  Created on: Jul 29, 2018
- *      Author: Tyler
+ * @defgroup CommRX
+ * @{
  */
 
 /********************************** Includes *********************************/
@@ -90,3 +92,8 @@ void commRXEventHandler(void){
 void commRXCancelReception(void){
     HAL_UART_AbortReceive_IT(&huart2);
 }
+
+/**
+ * @}
+ */
+/* end - CommRX */

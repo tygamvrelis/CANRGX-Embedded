@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['magnetometer_5ft',['magnetometer_t',['../group___user_types.html#gga58a8ea9172ea09c6590921190ba11921aa6d6a77a3dbc2e0784445e2bde768a01',1,'userTypes.h']]]
+  ['idle',['IDLE',['../group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18',1,'userTypes.h']]]
 ];

@@ -1,5 +1,6 @@
 var group___control =
 [
+    [ "Control Header", "group___control_header.html", "group___control_header" ],
     [ "Control Private Functions", "group___control_private_functions.html", "group___control_private_functions" ],
     [ "Control Public Functions", "group___control_public_functions.html", "group___control_public_functions" ],
     [ "current_e", "group___control.html#ga74272f655c117071e9892aff60b6335a", [
