@@ -10553,7 +10553,7 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_info    0x00045a14      0x1b9 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
  .debug_info    0x00045bcd      0x382 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
 
-.debug_abbrev   0x00000000     0x893e
+.debug_abbrev   0x00000000     0x8940
  .debug_abbrev  0x00000000      0x420 Drivers/MPU9250/MPU9250.o
  .debug_abbrev  0x00000420      0x2dd Drivers/MPU9250/MPUFilter.o
  .debug_abbrev  0x000006fd      0x343 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
@@ -10580,27 +10580,27 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_abbrev  0x0000512c      0x354 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
  .debug_abbrev  0x00005480      0x2ef Src/App/App_CommRX.o
  .debug_abbrev  0x0000576f      0x2b9 Src/App/App_CommTX.o
- .debug_abbrev  0x00005a28      0x403 Src/App/App_Control.o
- .debug_abbrev  0x00005e2b      0x333 Src/App/App_MPU9250.o
- .debug_abbrev  0x0000615e      0x2e8 Src/App/App_Temperature.o
- .debug_abbrev  0x00006446      0x2c5 Src/adc.o
- .debug_abbrev  0x0000670b      0x23b Src/dma.o
- .debug_abbrev  0x00006946      0x39f Src/freertos.o
- .debug_abbrev  0x00006ce5      0x232 Src/gpio.o
- .debug_abbrev  0x00006f17      0x2f9 Src/i2c.o
- .debug_abbrev  0x00007210      0x3b9 Src/main.o
- .debug_abbrev  0x000075c9      0x24b Src/rtc.o
- .debug_abbrev  0x00007814      0x23b Src/stm32f4xx_hal_msp.o
- .debug_abbrev  0x00007a4f      0x293 Src/stm32f4xx_hal_timebase_TIM.o
- .debug_abbrev  0x00007ce2      0x2a0 Src/stm32f4xx_it.o
- .debug_abbrev  0x00007f82      0x205 Src/system_stm32f4xx.o
- .debug_abbrev  0x00008187      0x35f Src/tim.o
- .debug_abbrev  0x000084e6      0x287 Src/usart.o
- .debug_abbrev  0x0000876d       0x12 startup/startup_stm32f446xx.o
- .debug_abbrev  0x0000877f       0xe8 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
- .debug_abbrev  0x00008867       0xd7 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
+ .debug_abbrev  0x00005a28      0x405 Src/App/App_Control.o
+ .debug_abbrev  0x00005e2d      0x333 Src/App/App_MPU9250.o
+ .debug_abbrev  0x00006160      0x2e8 Src/App/App_Temperature.o
+ .debug_abbrev  0x00006448      0x2c5 Src/adc.o
+ .debug_abbrev  0x0000670d      0x23b Src/dma.o
+ .debug_abbrev  0x00006948      0x39f Src/freertos.o
+ .debug_abbrev  0x00006ce7      0x232 Src/gpio.o
+ .debug_abbrev  0x00006f19      0x2f9 Src/i2c.o
+ .debug_abbrev  0x00007212      0x3b9 Src/main.o
+ .debug_abbrev  0x000075cb      0x24b Src/rtc.o
+ .debug_abbrev  0x00007816      0x23b Src/stm32f4xx_hal_msp.o
+ .debug_abbrev  0x00007a51      0x293 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_abbrev  0x00007ce4      0x2a0 Src/stm32f4xx_it.o
+ .debug_abbrev  0x00007f84      0x205 Src/system_stm32f4xx.o
+ .debug_abbrev  0x00008189      0x35f Src/tim.o
+ .debug_abbrev  0x000084e8      0x287 Src/usart.o
+ .debug_abbrev  0x0000876f       0x12 startup/startup_stm32f446xx.o
+ .debug_abbrev  0x00008781       0xe8 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
+ .debug_abbrev  0x00008869       0xd7 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
 
-.debug_loc      0x00000000    0x1bfff
+.debug_loc      0x00000000    0x1bfee
  .debug_loc     0x00000000      0x761 Drivers/MPU9250/MPU9250.o
  .debug_loc     0x00000761      0x21e Drivers/MPU9250/MPUFilter.o
  .debug_loc     0x0000097f      0x10d Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
@@ -10626,19 +10626,19 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_loc     0x00018e60       0xc5 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
  .debug_loc     0x00018f25      0x3a5 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
  .debug_loc     0x000192ca       0xf5 Src/App/App_CommTX.o
- .debug_loc     0x000193bf      0xb52 Src/App/App_Control.o
- .debug_loc     0x00019f11       0xe6 Src/App/App_MPU9250.o
- .debug_loc     0x00019ff7      0x3d7 Src/App/App_Temperature.o
- .debug_loc     0x0001a3ce       0xbe Src/adc.o
- .debug_loc     0x0001a48c      0x10f Src/freertos.o
- .debug_loc     0x0001a59b       0xd4 Src/i2c.o
- .debug_loc     0x0001a66f      0x39d Src/main.o
- .debug_loc     0x0001aa0c       0x9a Src/stm32f4xx_hal_timebase_TIM.o
- .debug_loc     0x0001aaa6      0x14c Src/system_stm32f4xx.o
- .debug_loc     0x0001abf2      0x126 Src/tim.o
- .debug_loc     0x0001ad18       0xbe Src/usart.o
- .debug_loc     0x0001add6       0xc2 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
- .debug_loc     0x0001ae98     0x1167 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
+ .debug_loc     0x000193bf      0xb41 Src/App/App_Control.o
+ .debug_loc     0x00019f00       0xe6 Src/App/App_MPU9250.o
+ .debug_loc     0x00019fe6      0x3d7 Src/App/App_Temperature.o
+ .debug_loc     0x0001a3bd       0xbe Src/adc.o
+ .debug_loc     0x0001a47b      0x10f Src/freertos.o
+ .debug_loc     0x0001a58a       0xd4 Src/i2c.o
+ .debug_loc     0x0001a65e      0x39d Src/main.o
+ .debug_loc     0x0001a9fb       0x9a Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_loc     0x0001aa95      0x14c Src/system_stm32f4xx.o
+ .debug_loc     0x0001abe1      0x126 Src/tim.o
+ .debug_loc     0x0001ad07       0xbe Src/usart.o
+ .debug_loc     0x0001adc5       0xc2 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
+ .debug_loc     0x0001ae87     0x1167 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
 
 .debug_aranges  0x00000000     0x17d8
  .debug_aranges
@@ -10926,7 +10926,7 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_macro   0x0002b8eb      0x386 Src/tim.o
  .debug_macro   0x0002bc71      0x43d Src/usart.o
 
-.debug_line     0x00000000    0x262d5
+.debug_line     0x00000000    0x262d7
  .debug_line    0x00000000      0xe14 Drivers/MPU9250/MPU9250.o
  .debug_line    0x00000e14      0x523 Drivers/MPU9250/MPUFilter.o
  .debug_line    0x00001337      0xb1b Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
@@ -10953,25 +10953,25 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_line    0x00017447      0xc5d Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
  .debug_line    0x000180a4      0xcd5 Src/App/App_CommRX.o
  .debug_line    0x00018d79      0xd13 Src/App/App_CommTX.o
- .debug_line    0x00019a8c     0x11d2 Src/App/App_Control.o
- .debug_line    0x0001ac5e      0xd85 Src/App/App_MPU9250.o
- .debug_line    0x0001b9e3      0xcd9 Src/App/App_Temperature.o
- .debug_line    0x0001c6bc      0xe30 Src/adc.o
- .debug_line    0x0001d4ec      0x94b Src/dma.o
- .debug_line    0x0001de37      0xf23 Src/freertos.o
- .debug_line    0x0001ed5a      0x95e Src/gpio.o
- .debug_line    0x0001f6b8      0xcf6 Src/i2c.o
- .debug_line    0x000203ae      0xfc5 Src/main.o
- .debug_line    0x00021373      0x9b9 Src/rtc.o
- .debug_line    0x00021d2c      0x949 Src/stm32f4xx_hal_msp.o
- .debug_line    0x00022675      0x991 Src/stm32f4xx_hal_timebase_TIM.o
- .debug_line    0x00023006      0xce0 Src/stm32f4xx_it.o
- .debug_line    0x00023ce6      0x982 Src/system_stm32f4xx.o
- .debug_line    0x00024668      0xad7 Src/tim.o
- .debug_line    0x0002513f      0xca6 Src/usart.o
- .debug_line    0x00025de5       0x83 startup/startup_stm32f446xx.o
- .debug_line    0x00025e68      0x14d D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
- .debug_line    0x00025fb5      0x320 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
+ .debug_line    0x00019a8c     0x11d4 Src/App/App_Control.o
+ .debug_line    0x0001ac60      0xd85 Src/App/App_MPU9250.o
+ .debug_line    0x0001b9e5      0xcd9 Src/App/App_Temperature.o
+ .debug_line    0x0001c6be      0xe30 Src/adc.o
+ .debug_line    0x0001d4ee      0x94b Src/dma.o
+ .debug_line    0x0001de39      0xf23 Src/freertos.o
+ .debug_line    0x0001ed5c      0x95e Src/gpio.o
+ .debug_line    0x0001f6ba      0xcf6 Src/i2c.o
+ .debug_line    0x000203b0      0xfc5 Src/main.o
+ .debug_line    0x00021375      0x9b9 Src/rtc.o
+ .debug_line    0x00021d2e      0x949 Src/stm32f4xx_hal_msp.o
+ .debug_line    0x00022677      0x991 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_line    0x00023008      0xce0 Src/stm32f4xx_it.o
+ .debug_line    0x00023ce8      0x982 Src/system_stm32f4xx.o
+ .debug_line    0x0002466a      0xad7 Src/tim.o
+ .debug_line    0x00025141      0xca6 Src/usart.o
+ .debug_line    0x00025de7       0x83 startup/startup_stm32f446xx.o
+ .debug_line    0x00025e6a      0x14d D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
+ .debug_line    0x00025fb7      0x320 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
 
 .debug_str      0x00000000    0xe1613
  .debug_str     0x00000000    0xd7675 Drivers/MPU9250/MPU9250.o

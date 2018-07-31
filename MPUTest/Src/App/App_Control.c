@@ -4,7 +4,7 @@
  * @brief All the functions related to generating control signals
  *
  * @defgroup Control Control
- * {
+ * @{
  */
 
 
@@ -29,23 +29,48 @@ static const float TEC_ON_DUTY_CYCLE = 0.85;
 
 
 
+/*********************************** Types ***********************************/
+/** Indicates the polarity of current through the magnets */
+typedef enum{
+    CURRENT_NONE, /**< No current (idle) */
+    POSITIVE,     /**< Positive polarity */
+    NEGATIVE      /**< Negative polarity */
+}current_e;
+
+
+
+
 /***************************** Private Variables *****************************/
-static float TEC1DutyCycle = 0;
-static float TEC2DutyCycle = 0;
+static float TEC1DutyCycle = 0; /**< State variable -- TEC 1 PWM duty cycle */
+static float TEC2DutyCycle = 0; /**< State variable -- TEC 2 PWM duty cycle */
 
-static MagnetInfo_t magnet1Info;
-static MagnetInfo_t magnet2Info;
+static MagnetInfo_t magnet1Info; /**< State variable -- Magnet 1 container */
+static MagnetInfo_t magnet2Info; /**< State variable -- Magnet 1 container */
 
+/** State variable -- The current event driving execution */
 static enum flightEvents_e currentEvent = NONE;
+
+/** State variable -- The experiment currently being executed */
 static enum controllerStates_e controllerState = IDLE;
+
+/**
+ * State variable -- The experiment to be executed on the next reduced gravity
+ * cycle
+ */
 static enum controllerStates_e nextControllerState = EXPERIMENT1;
 
-static TickType_t curTick;
+static TickType_t curTick; /**< State variable -- Current system time */
 
 
 
 
 /***************************** Private Functions *****************************/
+/**
+ * @defgroup ControlPrivateFunctions Control Private Functions
+ * @ingroup Control
+ * @{
+ */
+
 /**
  * @brief Force PWM pin function to GPIO
  * @param gpio The port for the pin whose function is to be made GPIO
@@ -78,8 +103,8 @@ static inline void MAGNET_MAKE_PWM(GPIO_TypeDef* gpio, uint16_t magnet_pin){
 /**
  * @brief  Sets the state of the specified magnet to coast, break, or PWM in
  *         the direction selected by the duty cycle
- * @param  magnetInfo Pointer to a struct that contains the configuration
- *         info for the magnet
+ * @param  magnetInfo Pointer to a struct that contains the configuration info
+ *         for the magnet
  * @return 1 if successful, otherwise a negative error code
  */
 static int8_t setMagnet(MagnetInfo_t* magnetInfo){
@@ -280,7 +305,17 @@ static void TEC_stop(void){
     HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
 }
 
-static void processReceivedEvent(uint32_t receivedEvent){
+/**
+ * @brief   Given an event that is different that the current event, this
+ *          function handles the event by updating the controller state
+ *          accordingly
+ * @details When the state is updated to REDUCEDGRAVITY, PWM is initiated for
+ *          the magnets and TECs, and the LED connected to LD2 is blinked at 10
+ *          Hz. When the state is updated to NONE, the control signals are set
+ *          to 0 duty cycle, and the LED connected to LD2 is blinked at 0.5 Hz
+ * @param   receivedEvent The value which encodes the event
+ */
+static void processReceivedEvent(enum flightEvents_e receivedEvent){
     switch(receivedEvent){
         case REDUCEDGRAVITY:
             controllerState = nextControllerState;
@@ -315,7 +350,7 @@ static void processReceivedEvent(uint32_t receivedEvent){
 
             controlSetSignalsToIdleState();
 
-            // Make status LED blink at 2 Hz
+            // Make status LED blink at 0.5 Hz
             osTimerStop(tmrLEDBlinkHandle);
             osTimerStart(tmrLEDBlinkHandle, 1000);
             break;
@@ -324,10 +359,24 @@ static void processReceivedEvent(uint32_t receivedEvent){
     }
 }
 
+/**
+ * @}
+ */
+/* end - ControlPrivateFunctions */
 
 
 
 /***************************** Public Functions ******************************/
+/**
+ * @defgroup ControlPublicFunctions Control Public Functions
+ * @ingroup Control
+ * @{
+ */
+
+/**
+ * @brief Initializes the control state to IDLE, and asserts all control
+ *        signals accordingly
+ */
 void controlInit(void){
     magnet1Info.magnet = MAGNET1;
     magnet1Info.magnetState = BRAKE;
@@ -348,6 +397,15 @@ void controlInit(void){
     nextControllerState = EXPERIMENT1;
 }
 
+/**
+ * @brief   Given a task notification value, this function extracts the command
+ *          or event information from it, then conditionally passes the
+ *          extracted event to processReceivedEvent for handling
+ * @details The call to processReceivedEvent occurs if the received event is
+ *          different than the current event, or the received event is
+ *          manual override start
+ * @param   notification The notification value passed to the control task
+ */
 void controlEventHandler(uint32_t notification){
     enum flightEvents_e receivedEvent = NONE;
     bool manualOverrideStart = false;
@@ -387,6 +445,12 @@ void controlEventHandler(uint32_t notification){
     }
 }
 
+/**
+ * @brief Updates the values of the time-varying control signals, using
+ *        different functions of time depending on the experiment
+ * @note  The control signals for the magnets are the only ones that are time-
+ *        varying
+ */
 void updateControlSignals(void){
     // Update PWM duty cycle for magnets
     switch(controllerState){
@@ -425,17 +489,24 @@ void updateControlSignals(void){
     }
 }
 
+/**
+ * @brief  Updates the control data container with the most recent signal values
+ * @note   All fields are multiplied by 10,000 so that we capture the integer
+ *         part, and the fractional part to 2 decimal places
+ * @param  controlData Pointer to the control data container
+ */
 void updateControlData(controlData_t* controlData){
-    // Here, we multiply the duty cycle by 100 * 100 so that we capture the
-    // integer part and the fractional part (to 2 decimal places)
     controlData->mag1Power = (int16_t)(magnet1Info.dutyCycle * 10000);
     controlData->mag2Power = (int16_t)(magnet2Info.dutyCycle * 10000);
     controlData->tec1Power = (uint16_t)(TEC1DutyCycle * 10000);
     controlData->tec2Power = (uint16_t)(TEC2DutyCycle * 10000);
 }
 
-
-void controlSetSignalsToIdleState(){
+/**
+ * @brief Sets the control signals to their idle state. This turns off the
+ *        PWM for the TECs (0 duty cycle) and brakes the magnets
+ */
+void controlSetSignalsToIdleState(void){
     TEC1DutyCycle = 0;
     TEC2DutyCycle = 0;
     TEC_stop();
@@ -447,6 +518,11 @@ void controlSetSignalsToIdleState(){
     setMagnet(&magnet1Info);
     setMagnet(&magnet2Info);
 }
+
+/**
+ * @}
+ */
+/* end - ControlPublicFunctions */
 
 /**
  * @}
