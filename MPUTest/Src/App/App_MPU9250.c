@@ -41,7 +41,7 @@ MPU9250_t myMPU9250; /**< Global MPU9250 object */
  * @details Each axis of accelerometer data is digitally filtered
  * @param   accelData Pointer to the acceleration data container
  * @param   myMPU9250 Pointer to the data structure which stores the data read
- *          from the MPU9250 sensor and tracks its configuration details
+ *          from the MPU9250 sensor
  */
 void updateAccelReading(
         accelerometerData_t* accelData,
@@ -69,7 +69,7 @@ void updateAccelReading(
  * @brief Updates the magnetic flux density data container with fresh data
  * @param magData Pointer to the magnetic flux density data container
  * @param myMPU9250 Pointer to the data structure which stores the data read
- *        from the MPU9250 sensor and tracks its configuration details
+ *        from the MPU9250 sensor
  */
 void updateMagReading(
         magnetometerData_t* magData,
@@ -95,7 +95,7 @@ void updateMagReading(
  *        generated which notifies the control thread (to start/stop
  *        experiments).
  * @param myMPU9250 Pointer to the data structure which stores the data read
- *        from the MPU9250 sensor and tracks its configuration details
+ *        from the MPU9250 sensor
  */
 void MPU9250EventHandler(MPU9250_t* myMPU9250){
     /* Initial state is sensing no event, and no command to transmit */

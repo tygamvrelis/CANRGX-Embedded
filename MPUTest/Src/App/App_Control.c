@@ -24,7 +24,7 @@ extern osTimerId tmrLEDBlinkHandle; /**< OS timer handle for status LED */
 
 /********************************* Constants *********************************/
 /** When the TECs are on, they are given PWM signals with this duty cycle */
-static const float TEC_ON_DUTY_CYCLE = 0.85;
+static const float TEC_ON_DUTY_CYCLE = 1.00;
 
 
 
