@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['mag1power',['mag1Power',['../structcontrol_data__t.html#a6e6a8ce33bc6adff416196ee713770ec',1,'controlData_t']]],
-  ['mag2power',['mag2Power',['../structcontrol_data__t.html#a939cbf524a59c750c8bbf42d464559b5',1,'controlData_t']]],
+  ['mag1power',['mag1Power',['../structcontrol_data__t.html#a6e6a8ce33bc6adff416196ee713770ec',1,'controlData_t::mag1Power()'],['../group___comm_t_x.html#ga02e213db33db1309642ba795b8608f65',1,'mag1Power():&#160;App_CommTX.c']]],
+  ['mag2power',['mag2Power',['../structcontrol_data__t.html#a939cbf524a59c750c8bbf42d464559b5',1,'controlData_t::mag2Power()'],['../group___comm_t_x.html#gafe1ec03e4789ae36b54aad3d8d59e60c',1,'mag2Power():&#160;App_CommTX.c']]],
   ['magnet',['magnet',['../struct_magnet_info__t.html#a8320931023d5b088c68b66c5e20db618',1,'MagnetInfo_t']]],
   ['magnet1',['MAGNET1',['../group___control_header.html#gga2a3ef01a0f385b9fa4d65f5ff3854949ad90784b78544344499143f030d72a584',1,'App_Control.h']]],
   ['magnet1info',['magnet1Info',['../group___control.html#ga5f3b7ab87f00f1c0f2a5427e958fb84e',1,'App_Control.c']]],
@@ -15,6 +15,9 @@ var searchData=
   ['magnets_5fe',['magnets_e',['../group___control_header.html#ga2a3ef01a0f385b9fa4d65f5ff3854949',1,'App_Control.h']]],
   ['magnetstate',['magnetState',['../struct_magnet_info__t.html#aef449ff25074d2a686f8b7680cf9b34b',1,'MagnetInfo_t']]],
   ['magnetstates_5fe',['magnetStates_e',['../group___control_header.html#ga36187279be8cb0ac4b9b3f877315a2f8',1,'App_Control.h']]],
+  ['magx',['magX',['../group___comm_t_x.html#ga97e63e56a5c7232c2b588a18cdea7c55',1,'App_CommTX.c']]],
+  ['magy',['magY',['../group___comm_t_x.html#gab963a15b3d3b5fe06ca9828c5a24a65f',1,'App_CommTX.c']]],
+  ['magz',['magZ',['../group___comm_t_x.html#gab2123ab3ec42386c08ee806dbbc5c6b6',1,'App_CommTX.c']]],
   ['main',['main',['../main_8c.html#a840291bc02cba5474a4cb46a9b9566fe',1,'main.c']]],
   ['main_2ec',['main.c',['../main_8c.html',1,'']]],
   ['main_2eh',['main.h',['../main_8h.html',1,'']]],

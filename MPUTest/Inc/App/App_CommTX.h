@@ -1,8 +1,10 @@
-/*
- * App_CommTX.h
+/**
+ * @file App_CommTX.h
+ * @author Tyler
  *
- *  Created on: Jul 29, 2018
- *      Author: Tyler
+ * @defgroup CommTXHeader Communication: TX Header
+ * @ingroup CommTX
+ * @{
  */
 
 #ifndef APP_COMMTX_H_
@@ -27,5 +29,10 @@ void commTXEventHandler(TXData_t* receivedData);
 void commTXSendPacket(TickType_t* lastWakeTime, TickType_t* cycleStartTick);
 bool isControlAndMPUDataCollected();
 bool hasTimeoutElapsed(TickType_t cycleStartTick);
+
+/**
+ * @}
+ */
+/* end - CommTXHeader */
 
 #endif /* APP_COMMTX_H_ */

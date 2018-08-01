@@ -1,8 +1,11 @@
-/*
- * App_CommTX.c
+/**
+ * @file App_CommTX.c
+ * @author Tyler
+ * @brief Functions and data related to the transmission side of PC
+ *        communication
  *
- *  Created on: Jul 29, 2018
- *      Author: Tyler
+ * @defgroup CommTX Communication: TX
+ * @{
  */
 
 /********************************** Includes *********************************/
@@ -20,53 +23,79 @@ extern TIM_HandleTypeDef htim10;
 
 
 /***************************** Private Variables *****************************/
-// Buffers sensor data to send to PC
+/**
+ * @brief Buffers sensor data to send to PC. The contents of this buffer are
+ *        sent to the PC every 3 ms.
+ */
 static uint8_t buffer[50] = {0};
 
 // Addresses in buffer for each datum
-static uint8_t* tickStart = &buffer[2];
-static uint8_t* accelX = &buffer[6];
-static uint8_t* accelY = &buffer[10];
-static uint8_t* accelZ = &buffer[14];
-static uint8_t* magX = &buffer[18];
-static uint8_t* magY = &buffer[22];
-static uint8_t* magZ = &buffer[26];
-static uint8_t* mag1Power = &buffer[30];
-static uint8_t* mag2Power = &buffer[32];
-static uint8_t* tec1Power = &buffer[34];
-static uint8_t* tec2Power = &buffer[36];
-static uint8_t* temp1a = &buffer[38];
-static uint8_t* temp1b = &buffer[40];
-static uint8_t* temp2a = &buffer[42];
-static uint8_t* temp2b = &buffer[44];
-static uint8_t* temp3a = &buffer[46];
-static uint8_t* temp3b = &buffer[48];
+static uint8_t* tickStart = &buffer[2];  /**< OS tick timestamp              */
+static uint8_t* accelX = &buffer[6];     /**< X-axis acceleration            */
+static uint8_t* accelY = &buffer[10];    /**< Y-axis acceleration            */
+static uint8_t* accelZ = &buffer[14];    /**< Z-axis acceleration            */
+static uint8_t* magX = &buffer[18];      /**< X-axis magnetic flux density   */
+static uint8_t* magY = &buffer[22];      /**< Y-axis magnetic flux density   */
+static uint8_t* magZ = &buffer[26];      /**< Z-axis magnetic flux density   */
+static uint8_t* mag1Power = &buffer[30]; /**< Mag 1 control signal amplitude */
+static uint8_t* mag2Power = &buffer[32]; /**< Mag 2 control signal amplitude */
+static uint8_t* tec1Power = &buffer[34]; /**< TEC 1 control signal amplitude */
+static uint8_t* tec2Power = &buffer[36]; /**< TEC 2 control signal amplitude */
+static uint8_t* temp1a = &buffer[38];    /**< Temp sensor 1A                 */
+static uint8_t* temp1b = &buffer[40];    /**< Temp sensor 1B                 */
+static uint8_t* temp2a = &buffer[42];    /**< Temp sensor 2A                 */
+static uint8_t* temp2b = &buffer[44];    /**< Temp sensor 2B                 */
+static uint8_t* temp3a = &buffer[46];    /**< Temp sensor 3A                 */
+static uint8_t* temp3b = &buffer[48];    /**< Temp sensor 3B                 */
 
-static uint8_t taskFlags = 0x00; // Used to track which tasks have fresh data
-
-static accelerometerData_t* accelerometerDataPtr = NULL;
-static magnetometerData_t* magnetometerDataPtr = NULL;
-static controlData_t* controlDataPtr = NULL;
-static temperatureData_t* temperatureDataPtr = NULL;
+/**
+ * @brief   Used to track which sensors have fresh data in the buffer
+ * @details When a bit is 1, it indicates fresh data has been received from its
+ *          corresponding sensor. All the bits are cleared once a transmission
+ *          is initiated. The bit-to-sensor mapping is as follows:
+ *  - Bit 0: accelerometer data
+ *  - Bit 1: magnetometer data
+ *  - Bit 2: control signal data
+ *  - Bit 3: temperature sensor data
+ */
+static uint8_t taskFlags = 0x00;
 
 
 
 
 /***************************** Public Functions ******************************/
+/**
+ * @defgroup CommTXPublicFunctions Communication: TX Public Functions
+ * @ingroup CommTX
+ * @{
+ */
+
+/**
+ * @brief Initializes the buffer contents by writing in the start sequence
+ */
 void commTXInit(void){
     // Dummy bits to indicate packet start
     buffer[0] = 0xFF;
     buffer[1] = 0xFF;
 }
 
+/**
+ * @brief When a sensor thread sends data to the queue xTXDataQueue, this
+ *        function is executed to interpret the data based on the sender and
+ *        pack it into the appropriate place in the buffer
+ * @param receivedData Pointer to the TXData_t structure received from the
+ *        queue
+ */
 void commTXEventHandler(TXData_t* receivedData){
     switch(receivedData->type){
         case accelerometer_t:
-            accelerometerDataPtr = (accelerometerData_t*)receivedData->data;
+            accelerometerData_t* accelerometerDataPtr =
+                    (accelerometerData_t*)receivedData->data;
 
             if(accelerometerDataPtr == NULL){break;}
 
-            // Update task flags to indicate MPU task has been received from
+            // Update task flags to indicate accelerometer data has been
+            // received
             taskFlags = taskFlags | 0b00000001;
 
             // Copy data to buffer
@@ -76,11 +105,13 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case magnetometer_t:
-            magnetometerDataPtr = (magnetometerData_t*)receivedData->data;
+            magnetometerData_t magnetometerDataPtr =
+                    (magnetometerData_t*)receivedData->data;
 
             if(magnetometerDataPtr == NULL){break;}
 
-            // Update task flags to indicate MPU task has been received from
+            // Update task flags to indicate magnetometer data has been
+            // received
             taskFlags = taskFlags | 0b00000010;
 
             memcpy(magX, &(magnetometerDataPtr -> hx), sizeof(float));
@@ -89,7 +120,7 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case control_t:
-            controlDataPtr = (controlData_t*)receivedData->data;
+            controlData_t controlDataPtr = (controlData_t*)receivedData->data;
 
             if(controlDataPtr == NULL){break;}
 
@@ -108,11 +139,13 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case temperature_t:
-            temperatureDataPtr = (temperatureData_t*)receivedData->data;
+            temperatureData_t temperatureDataPtr =
+                    (temperatureData_t*)receivedData->data;
 
             if(temperatureDataPtr == NULL){break;}
 
-            // Update task flags to indicate temperature task has been received from
+            // Update task flags to indicate temperature data has been
+            // received
             taskFlags = taskFlags | 0b00001000;
 
             // Copy data to buffer
@@ -135,6 +168,23 @@ void commTXEventHandler(TXData_t* receivedData){
     }
 }
 
+/**
+ * @brief   Initiates an asynchronous packet transmission after 3 ms have
+ *          passed since the last time
+ * @details When this function is called, it first waits until 3 ms have passed
+ *          since the last time a packet transmission was initiated. Then, it
+ *          clears the task flags and gets the current OS tick. The OS tick is
+ *          loaded into the packet and stored in the cycleStartTick variable,
+ *          hence indicating that the next cycle has started. These steps
+ *          ensure deterministic 3 ms timing. An 87 microsecond wait occurs (to
+ *          (guarantee an interpacket delay of about 2 bytes), then finally the
+ *          asynchronous transfer is initiated. The TX thread is then blocked
+ *          until the callback occurs or 3 ms have elapsed (timeout).
+ * @param   lastWakeTime Pointer to the OS tick at which vTaskDelayUntil was
+ *          last called
+ * @param   cycleStartTick Pointer to the OS tick at which the current
+ *          transmission cycle began
+ */
 void commTXSendPacket(TickType_t* lastWakeTime, TickType_t* cycleStartTick){
     // Send packets every 3 milliseconds. At a symbol rate of 230400, it takes 2.17 ms
     // to send 50 bytes. To ease the data analysis process, this has been rounded up to
@@ -161,15 +211,34 @@ void commTXSendPacket(TickType_t* lastWakeTime, TickType_t* cycleStartTick){
     // Transmit
     HAL_UART_Transmit_DMA(&huart2, buffer, sizeof(buffer));
 
-    // Wait until transmit is done
-    xSemaphoreTake(semTxHandle, portMAX_DELAY);
+    // Wait until transmit is done or timeout
+    xSemaphoreTake(semTxHandle, pdMS_TO_TICKS(3));
 }
 
+/**
+ * @return true if control data, accelerometer data, and magnetometer data
+ *         have been added to the packet, otherwise false
+ */
 bool isControlAndMPUDataCollected(){
     return (taskFlags & 0b00000111) == 0b00000111;
 }
 
+/**
+ * @param  cycleStartTick The OS tick at which the current transmission cycle
+ *         began
+ * @return true if 3 ms or greater have elapsed since the current transmission
+ *         cycle began
+ */
 bool hasTimeoutElapsed(TickType_t cycleStartTick){
     return xTaskGetTickCount() - cycleStartTick >= pdMS_TO_TICKS(3);
 }
 
+/**
+ * @}
+ */
+/* end - CommTXPublicFunctions */
+
+/**
+ * @}
+ */
+/* end - CommTX */

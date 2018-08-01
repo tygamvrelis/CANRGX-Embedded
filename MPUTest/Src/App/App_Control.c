@@ -458,29 +458,29 @@ void updateControlSignals(void){
             break;
         case EXPERIMENT1:
             curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = sinf(0.002 * curTick);
-            magnet2Info.dutyCycle = sinf(0.002 * curTick);
+            magnet1Info.dutyCycle = 0; // sinf(0.002 * curTick);
+            magnet2Info.dutyCycle = 0.5; // sinf(0.002 * curTick);
             setMagnet(&magnet1Info);
             setMagnet(&magnet2Info);
             break;
         case EXPERIMENT2:
             curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
-            magnet2Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
+            magnet1Info.dutyCycle = 0; // (1.0 + sinf(0.002 * curTick)) / 2.0;
+            magnet2Info.dutyCycle = 1; // (1.0 + sinf(0.002 * curTick)) / 2.0;
             setMagnet(&magnet1Info);
             setMagnet(&magnet2Info);
             break;
         case EXPERIMENT3:
             curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = sinf(0.002 * curTick);
-            magnet2Info.dutyCycle = cosf(0.002 * curTick);
+            magnet1Info.dutyCycle = 1; // sinf(0.002 * curTick);
+            magnet2Info.dutyCycle = 0; // cosf(0.002 * curTick);
             setMagnet(&magnet1Info);
             setMagnet(&magnet2Info);
             break;
         case EXPERIMENT4:
             curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = (1.0 + sinf(0.002 * curTick)) / 2.0;
-            magnet2Info.dutyCycle = (1.0 + cosf(0.002 * curTick)) / 2.0;
+            magnet1Info.dutyCycle = 0.5; // (1.0 + sinf(0.002 * curTick)) / 2.0;
+            magnet2Info.dutyCycle = 0; // (1.0 + cosf(0.002 * curTick)) / 2.0;
             setMagnet(&magnet1Info);
             setMagnet(&magnet2Info);
             break;
