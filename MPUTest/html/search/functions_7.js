@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['setmagnet',['setMagnet',['../group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d',1,'App_Control.c']]],
-  ['setupadcprocessing',['setUpADCProcessing',['../group___temperature_private_functions.html#ga42ae0e00c69e748ba833ba8a49905ab6',1,'App_Temperature.c']]],
-  ['systemclock_5fconfig',['SystemClock_Config',['../main_8c.html#a70af21c671abfcc773614a9a4f63d920',1,'main.c']]]
+  ['notify_5ffrom_5fmanual_5foverride_5fstart',['NOTIFY_FROM_MANUAL_OVERRIDE_START',['../group___comm_r_x_private_functions.html#gaeeb1e6fc58c676b915529b1802a390ea',1,'App_CommRX.c']]],
+  ['notify_5ffrom_5fmpu',['NOTIFY_FROM_MPU',['../group___m_p_u9250___app___header.html#gac3288e25a721de667d237f2f1b018f2c',1,'App_MPU9250.h']]]
 ];

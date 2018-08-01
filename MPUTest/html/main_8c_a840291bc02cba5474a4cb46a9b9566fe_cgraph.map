@@ -1,4 +1,8 @@
 <map id="main" name="main">
-<area shape="rect" id="node2" href="$main_8c.html#a70af21c671abfcc773614a9a4f63d920" title="System Clock Configuration. " alt="" coords="104,5,247,32"/>
-<area shape="rect" id="node3" href="$main_8c.html#a829116a51f1db1a72ebd1120f60719d5" title="This function is executed in case of error occurrence. " alt="" coords="295,5,403,32"/>
+<area shape="rect" id="node2" href="$main_8c.html#a70af21c671abfcc773614a9a4f63d920" title="System Clock Configuration. " alt="" coords="125,5,267,32"/>
+<area shape="rect" id="node4" href="$group___m_p_u9250___driver___init___functions.html#ga38728380853d7ecd98a358b9b5532647" title="Initializes the MPU9250 sensor by writing various settings to its registers, and reading a few of the..." alt="" coords="148,56,244,83"/>
+<area shape="rect" id="node5" href="$group___m_p_u9250___driver___init___functions.html#gae74cca72276d6720375d7f944ad2c1e4" title="Reset the inertial measurement unit using blocking IO. " alt="" coords="134,107,258,133"/>
+<area shape="rect" id="node6" href="$group___m_p_u9250___driver___init___functions.html#gaadfb015435e168ab7126999dd525be0b" title="Reset the magnetometer using blocking IO. " alt="" coords="104,157,288,184"/>
+<area shape="rect" id="node7" href="$group___m_p_u9250___driver___error___handlers.html#ga7319e8a8d05588fc9332b354223cefae" title="This function bit&#45;bangs the I2C master clock, with the option of sending stop bits. " alt="" coords="140,208,252,235"/>
+<area shape="rect" id="node3" href="$main_8c.html#a829116a51f1db1a72ebd1120f60719d5" title="This function is executed in case of error occurrence. " alt="" coords="336,5,444,32"/>
 </map>

@@ -1,6 +1,8 @@
 /**
  * @file MPU9250_t.h
  * @author Tyler
+ *
+ * @ingroup MPU9250_Driver
  */
 
 #ifndef MPU9250_MPU9250_T_H_

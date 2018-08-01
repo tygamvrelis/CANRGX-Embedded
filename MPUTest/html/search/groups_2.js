@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['user_20types',['User Types',['../group___user_types.html',1,'']]]
+  ['initialization_20functions',['Initialization Functions',['../group___m_p_u9250___driver___init___functions.html',1,'']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['notify_5ffrom_5fmanual_5foverride_5fstart',['NOTIFY_FROM_MANUAL_OVERRIDE_START',['../group___comm_r_x_private_functions.html#gaeeb1e6fc58c676b915529b1802a390ea',1,'App_CommRX.c']]]
+  ['iscontrolandmpudatacollected',['isControlAndMPUDataCollected',['../group___comm_t_x_header.html#ga96357b0972de5636d02c3df233502afb',1,'isControlAndMPUDataCollected():&#160;App_CommTX.c'],['../group___comm_t_x_public_functions.html#ga96357b0972de5636d02c3df233502afb',1,'isControlAndMPUDataCollected():&#160;App_CommTX.c']]]
 ];

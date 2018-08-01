@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['tec_5fset_5fvaluef',['TEC_set_valuef',['../group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896',1,'App_Control.c']]],
-  ['tec_5fstop',['TEC_stop',['../group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef',1,'App_Control.c']]],
-  ['temp_5fscan_5fstart',['Temp_Scan_Start',['../group___temperature_header.html#ga165ae9b3e76fa67f4bfef9302a54729d',1,'Temp_Scan_Start(void):&#160;App_Temperature.c'],['../group___temperature_public_functions.html#ga165ae9b3e76fa67f4bfef9302a54729d',1,'Temp_Scan_Start(void):&#160;App_Temperature.c']]],
-  ['temp_5fscan_5fstop',['Temp_Scan_Stop',['../group___temperature_header.html#gaaf412a639deba77bbb2d6026ff2cf537',1,'Temp_Scan_Stop(void):&#160;App_Temperature.c'],['../group___temperature_public_functions.html#gaaf412a639deba77bbb2d6026ff2cf537',1,'Temp_Scan_Stop(void):&#160;App_Temperature.c']]]
+  ['processadc',['processADC',['../group___temperature_private_functions.html#ga8028bb3b253dbb516a4ff94c1dd0e38f',1,'App_Temperature.c']]],
+  ['processreceivedevent',['processReceivedEvent',['../group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a',1,'App_Control.c']]]
 ];
