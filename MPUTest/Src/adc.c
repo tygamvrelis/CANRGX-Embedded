@@ -54,7 +54,7 @@
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
-#include "filter.h"
+
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;

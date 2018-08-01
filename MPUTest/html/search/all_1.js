@@ -27,5 +27,6 @@ var searchData=
   ['app_5ftemperature_2eh',['App_Temperature.h',['../_app___temperature_8h.html',1,'']]],
   ['ax',['ax',['../struct_m_p_u9250__t.html#a891ecae9815b78a72f186dea5fd2bb20',1,'MPU9250_t::ax()'],['../structaccelerometer_data__t.html#a891ecae9815b78a72f186dea5fd2bb20',1,'accelerometerData_t::ax()']]],
   ['ay',['ay',['../struct_m_p_u9250__t.html#af43b61b2240a8bb95242e29a45e68522',1,'MPU9250_t::ay()'],['../structaccelerometer_data__t.html#af43b61b2240a8bb95242e29a45e68522',1,'accelerometerData_t::ay()']]],
-  ['az',['az',['../struct_m_p_u9250__t.html#a78668fd499dcb34d59074c131c26639a',1,'MPU9250_t::az()'],['../structaccelerometer_data__t.html#a78668fd499dcb34d59074c131c26639a',1,'accelerometerData_t::az()']]]
+  ['az',['az',['../struct_m_p_u9250__t.html#a78668fd499dcb34d59074c131c26639a',1,'MPU9250_t::az()'],['../structaccelerometer_data__t.html#a78668fd499dcb34d59074c131c26639a',1,'accelerometerData_t::az()']]],
+  ['azfilter',['azFilter',['../group___m_p_u9250___f_i_r.html#gadcb5e64e0c5e663775f43b60ddabb962',1,'MPUFilter.c']]]
 ];

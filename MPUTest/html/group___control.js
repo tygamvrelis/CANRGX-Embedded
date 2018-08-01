@@ -1,8 +1,9 @@
 var group___control =
 [
-    [ "Control Header", "group___control_header.html", "group___control_header" ],
-    [ "Control Private Functions", "group___control_private_functions.html", "group___control_private_functions" ],
-    [ "Control Public Functions", "group___control_public_functions.html", "group___control_public_functions" ],
+    [ "Header", "group___control_header.html", "group___control_header" ],
+    [ "Private Functions", "group___control_private_functions.html", "group___control_private_functions" ],
+    [ "Public Functions", "group___control_public_functions.html", "group___control_public_functions" ],
+    [ "Callbacks", "group___control___callbacks.html", "group___control___callbacks" ],
     [ "current_e", "group___control.html#ga74272f655c117071e9892aff60b6335a", [
       [ "CURRENT_NONE", "group___control.html#gga74272f655c117071e9892aff60b6335aa605f042dc7bee6ec4afca1f5f9b52008", null ],
       [ "POSITIVE", "group___control.html#gga74272f655c117071e9892aff60b6335aa03d440bbbfb042afc85347f994b44fb5", null ],
@@ -17,5 +18,6 @@ var group___control =
     [ "TEC1DutyCycle", "group___control.html#ga98ad25c3b66dd3974da389fab8e5dbd9", null ],
     [ "TEC2DutyCycle", "group___control.html#gafeb68fa8b721e3816901476505a30c8a", null ],
     [ "TEC_ON_DUTY_CYCLE", "group___control.html#gabb75f288c9ae4fa6946db581bddf9291", null ],
+    [ "tmrCameraLEDHandle", "group___control.html#gad7adfeda17f2ba62d088e93ab7b61c1f", null ],
     [ "tmrLEDBlinkHandle", "group___control.html#ga1fd9b1d4931209565f0cdc11ccf5a3b5", null ]
 ];

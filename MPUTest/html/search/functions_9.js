@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['resetimublocking',['resetIMUBlocking',['../group___m_p_u9250___driver___init___functions.html#gae74cca72276d6720375d7f944ad2c1e4',1,'resetIMUBlocking(void):&#160;MPU9250.c'],['../group___m_p_u9250___driver___header.html#gae74cca72276d6720375d7f944ad2c1e4',1,'resetIMUBlocking(void):&#160;MPU9250.c']]],
-  ['resetmagnetometerblocking',['resetMagnetometerBlocking',['../group___m_p_u9250___driver___init___functions.html#gaadfb015435e168ab7126999dd525be0b',1,'resetMagnetometerBlocking(void):&#160;MPU9250.c'],['../group___m_p_u9250___driver___header.html#gaadfb015435e168ab7126999dd525be0b',1,'resetMagnetometerBlocking(void):&#160;MPU9250.c']]]
+  ['processadc',['processADC',['../group___temperature_private_functions.html#ga8028bb3b253dbb516a4ff94c1dd0e38f',1,'App_Temperature.c']]],
+  ['processreceivedevent',['processReceivedEvent',['../group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a',1,'App_Control.c']]]
 ];

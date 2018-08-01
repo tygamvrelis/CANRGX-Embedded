@@ -4,6 +4,8 @@
  * @brief All the functions related to generating control signals
  *
  * @defgroup Control Control
+ * @brief Generating control signals for the electromagnets, TECs, and LEDs
+ *        for status indication and camera synchronization
  * @{
  */
 
@@ -67,7 +69,8 @@ static TickType_t curTick; /**< State variable -- Current system time */
 
 /***************************** Private Functions *****************************/
 /**
- * @defgroup ControlPrivateFunctions Control Private Functions
+ * @defgroup ControlPrivateFunctions Private Functions
+ * @brief Functions used internally
  * @ingroup Control
  * @{
  */
@@ -376,9 +379,11 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
 
 
 
+
 /***************************** Public Functions ******************************/
 /**
- * @defgroup ControlPublicFunctions Control Public Functions
+ * @defgroup ControlPublicFunctions Public Functions
+ * @brief Functions used externally
  * @ingroup Control
  * @{
  */

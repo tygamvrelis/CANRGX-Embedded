@@ -2,7 +2,7 @@
  * @file App_MPU9250.h
  * @author Tyler
  *
- * @defgroup MPU9250_App_Header MPU9250 Application Code Header
+ * @defgroup MPU9250_App_Header Header
  * @ingroup MPU9250_App
  * @{
  */

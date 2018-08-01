@@ -1,5 +1,9 @@
 var _app___control_8h =
 [
+    [ "cameraState_e", "group___control_header.html#ga40e9cde7fbbbd9517b9eb0d35b3414eb", [
+      [ "ON", "group___control_header.html#gga40e9cde7fbbbd9517b9eb0d35b3414eba977d478dacaae531f95695750d1e9d03", null ],
+      [ "OFF", "group___control_header.html#gga40e9cde7fbbbd9517b9eb0d35b3414ebaac132f2982b98bcaa3445e535a03ff75", null ]
+    ] ],
     [ "driveMode_e", "group___control_header.html#ga7e557e9594f3d847884af99b5a9848fd", [
       [ "ACTIVE_LOW", "group___control_header.html#gga7e557e9594f3d847884af99b5a9848fda43ad983a1a6a3c04a137ec0471cdfe85", null ],
       [ "ACTIVE_HIGH", "group___control_header.html#gga7e557e9594f3d847884af99b5a9848fdafe240f1952811db0c18b4355fb28190f", null ]
@@ -16,6 +20,7 @@ var _app___control_8h =
     [ "controlEventHandler", "group___control_header.html#ga3d48081d7ffbb94a15af09d4671c5044", null ],
     [ "controlInit", "group___control_header.html#gaad6fb9d9fd4f6a64e9ce0a547170b55a", null ],
     [ "controlSetSignalsToIdleState", "group___control_header.html#gafcfabfde443c3976d02dbd7b267cb659", null ],
+    [ "setCameraLEDState", "group___control_header.html#gad0cf375a8aab8843514689bfcd765133", null ],
     [ "updateControlData", "group___control_header.html#ga96e500bdb498d4c5e4fedb5ab548ee08", null ],
     [ "updateControlSignals", "group___control_header.html#gae842d8967168109b231043ca7463c173", null ]
 ];

@@ -1,3 +1,3 @@
-<map id="Communication: RX Private Functions" name="Communication: RX Private Functions">
-<area shape="rect" id="node1" href="$group___comm_r_x.html" title="CommRX" alt="" coords="5,13,81,39"/>
+<map id="Private functions" name="Private functions">
+<area shape="rect" id="node1" href="$group___comm_r_x.html" title="Handles receiving commands from the PC program. " alt="" coords="5,5,44,32"/>
 </map>

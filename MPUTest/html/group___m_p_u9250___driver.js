@@ -1,9 +1,10 @@
 var group___m_p_u9250___driver =
 [
     [ "Initialization Functions", "group___m_p_u9250___driver___init___functions.html", "group___m_p_u9250___driver___init___functions" ],
-    [ "Thread-safe reader functions", "group___m_p_u9250___driver___threaded.html", "group___m_p_u9250___driver___threaded" ],
-    [ "Error Handlers", "group___m_p_u9250___driver___error___handlers.html", "group___m_p_u9250___driver___error___handlers" ],
-    [ "MPU9250 Driver Header", "group___m_p_u9250___driver___header.html", "group___m_p_u9250___driver___header" ],
+    [ "Readers", "group___m_p_u9250___driver___threaded.html", "group___m_p_u9250___driver___threaded" ],
+    [ "Errata handlers", "group___m_p_u9250___driver___error___handlers.html", "group___m_p_u9250___driver___error___handlers" ],
+    [ "Header", "group___m_p_u9250___driver___header.html", "group___m_p_u9250___driver___header" ],
+    [ "FIR Filter", "group___m_p_u9250___f_i_r.html", "group___m_p_u9250___f_i_r" ],
     [ "MPU9250_t.h", "_m_p_u9250__t_8h.html", null ],
     [ "ACCEL_CONFIG", "group___m_p_u9250___driver.html#gab7336e26f8947086e41a375f1e1e74d4", null ],
     [ "ACCEL_CONFIG_2", "group___m_p_u9250___driver.html#ga86a65c9ccec738d87e0aa97db3589a52", null ],
@@ -20,6 +21,7 @@ var group___m_p_u9250___driver =
     [ "I2C_SLV1_ADDR", "group___m_p_u9250___driver.html#gadeef906221a363d4489cf0a51d7f03b6", null ],
     [ "I2C_SLV1_CTRL", "group___m_p_u9250___driver.html#ga6857f4e255988b5aae9d570dec2a06c8", null ],
     [ "I2C_SLV1_DO", "group___m_p_u9250___driver.html#ga043904c7afcc6c5f59446654b0e5c14d", null ],
+    [ "I2C_SLV1_REG", "group___m_p_u9250___driver.html#ga33d12ea757eeb8ef10aa501f6c68ba3d", null ],
     [ "INT_PIN_CFG", "group___m_p_u9250___driver.html#gab00fdfba66092d2d869031629c092dad", null ],
     [ "MPU9250_ACCEL_X_ADDR_H", "group___m_p_u9250___driver.html#gaa36ea0cd8f37ae1e415e016c3ef92865", null ],
     [ "MPU9250_ACCEL_X_ADDR_L", "group___m_p_u9250___driver.html#gab4c5489dba3cb780515cc089c5ded201", null ],

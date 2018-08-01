@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.14"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CAN-RGX: Error Handlers</title>
+<title>CAN-RGX: Errata handlers</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -89,15 +89,18 @@ $(document).ready(function(){initNavTree('group___m_p_u9250___driver___error___h
   <div class="summary">
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">Error Handlers<div class="ingroups"><a class="el" href="group___m_p_u9250___driver.html">MPU9250 Driver</a></div></div>  </div>
+<div class="title">Errata handlers<div class="ingroups"><a class="el" href="group___m_p_u9250___driver.html">MPU9250 Driver</a></div></div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Handles a silicon bug in the I2C module that shows up occasionally.  
+<a href="#details">More...</a></p>
 <div class="dynheader">
-Collaboration diagram for Error Handlers:</div>
+Collaboration diagram for Errata handlers:</div>
 <div class="dyncontent">
 <center><table><tr><td><img src="group___m_p_u9250___driver___error___handlers.png" border="0" alt="" usemap="#group______m__p__u9250______driver______error______handlers"/>
 <map name="group______m__p__u9250______driver______error______handlers" id="group______m__p__u9250______driver______error______handlers">
-<area shape="rect" id="node1" href="group___m_p_u9250___driver.html" title="MPU9250 Driver" alt="" coords="5,5,120,32"/>
+<area shape="rect" id="node1" href="group___m_p_u9250___driver.html" title="Library for interfacing with MPU9250. " alt="" coords="5,5,120,32"/>
 </map>
 </td></tr></table></center>
 </div>
@@ -112,6 +115,7 @@ Functions</h2></td></tr>
 <tr class="separator:ga7319e8a8d05588fc9332b354223cefae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<p>Handles a silicon bug in the I2C module that shows up occasionally. </p>
 <p>These functions are used as a workaround for an issue where the BUSY flag of the I2C module is erroneously asserted in the hardware (a silicon bug, essentially). By checking the logs for "nan", I have been able to see that this fix indeed will resolve I2C bus conflict. So it is useful to have.</p>
 <p>Overall, use these functions with EXTREME caution.</p>
 <p>Resources used for resolution:</p><ul>

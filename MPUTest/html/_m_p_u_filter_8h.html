@@ -87,22 +87,21 @@ $(document).ready(function(){initNavTree('_m_p_u_filter_8h.html','');});
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#define-members">Macros</a> &#124;
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">MPUFilter.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;arm_math.h&gt;</code><br />
+<div class="textblock"><code>#include &quot;stm32f446xx.h&quot;</code><br />
+<code>#include &lt;arm_math.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="_m_p_u9250__t_8h_source.html">MPU9250_t.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for MPUFilter.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="_m_p_u_filter_8h__incl.png" border="0" usemap="#_drivers_2_m_p_u9250_2_m_p_u_filter_8h" alt=""/></div>
 <map name="_drivers_2_m_p_u9250_2_m_p_u_filter_8h" id="_drivers_2_m_p_u9250_2_m_p_u_filter_8h">
-<area shape="rect" id="node3" href="_m_p_u9250__t_8h.html" title="MPU9250_t.h" alt="" coords="120,80,221,107"/>
+<area shape="rect" id="node4" href="_m_p_u9250__t_8h.html" title="MPU9250_t.h" alt="" coords="251,80,352,107"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -111,7 +110,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="center"><img src="_m_p_u_filter_8h__dep__incl.png" border="0" usemap="#_drivers_2_m_p_u9250_2_m_p_u_filter_8hdep" alt=""/></div>
 <map name="_drivers_2_m_p_u9250_2_m_p_u_filter_8hdep" id="_drivers_2_m_p_u9250_2_m_p_u_filter_8hdep">
 <area shape="rect" id="node2" href="_m_p_u9250_8h.html" title="Drivers/MPU9250/MPU9250.h" alt="" coords="108,80,303,107"/>
-<area shape="rect" id="node7" href="_m_p_u_filter_8c.html" title="Drivers/MPU9250/MPUFilter.c" alt="" coords="327,80,521,107"/>
+<area shape="rect" id="node7" href="_m_p_u_filter_8c.html" title="API for filtering accelerometer data. Filter coefficients &amp; preliminary C code was generated with Mic..." alt="" coords="327,80,521,107"/>
 <area shape="rect" id="node3" href="_m_p_u9250_8c.html" title="Driver for MPU9250. " alt="" coords="5,155,200,181"/>
 <area shape="rect" id="node4" href="_app___m_p_u9250_8h.html" title="Inc/App/App_MPU9250.h" alt="" coords="224,155,392,181"/>
 <area shape="rect" id="node5" href="_app___m_p_u9250_8c.html" title="Application code utilizing the MPU9250. " alt="" coords="147,229,317,256"/>
@@ -121,46 +120,15 @@ This graph shows which files directly or indirectly include this file:</div>
 </div>
 <p><a href="_m_p_u_filter_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
-Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_m_p_u_filter_type.html">MPUFilterType</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a42e162ee7b8b8c2663d1dbd31c7b590b"><td class="memItemLeft" align="right" valign="top"><a id="a42e162ee7b8b8c2663d1dbd31c7b590b"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>ARM_MATH_CM4</b></td></tr>
-<tr class="separator:a42e162ee7b8b8c2663d1dbd31c7b590b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1ba8a48ca926bddc88be9bfd7d42641"><td class="memItemLeft" align="right" valign="top"><a id="ac1ba8a48ca926bddc88be9bfd7d42641"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>__FPU_PRESENT</b>&#160;&#160;&#160;1</td></tr>
-<tr class="separator:ac1ba8a48ca926bddc88be9bfd7d42641"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a228d8b7b1799dcb7740acdc4a0f3f494"><td class="memItemLeft" align="right" valign="top"><a id="a228d8b7b1799dcb7740acdc4a0f3f494"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>MPUFilter_writeInput</b> (<a class="el" href="struct_m_p_u_filter_type.html">MPUFilterType</a> *pThis, float input)</td></tr>
-<tr class="separator:a228d8b7b1799dcb7740acdc4a0f3f494"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0d8446cb2fa98cbd1190be0446da826"><td class="memItemLeft" align="right" valign="top"><a id="aa0d8446cb2fa98cbd1190be0446da826"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>MPUFilter_readOutput</b> (<a class="el" href="struct_m_p_u_filter_type.html">MPUFilterType</a> *pThis)</td></tr>
-<tr class="separator:aa0d8446cb2fa98cbd1190be0446da826"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5fae5feeb6b0511c7dc7f171ba6a1a73"><td class="memItemLeft" align="right" valign="top"><a id="a5fae5feeb6b0511c7dc7f171ba6a1a73"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>initAllMPU9250Filters</b> (void)</td></tr>
-<tr class="separator:a5fae5feeb6b0511c7dc7f171ba6a1a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a250eb8f76ec3adf4dd1c6113295d9a18"><td class="memItemLeft" align="right" valign="top"><a id="a250eb8f76ec3adf4dd1c6113295d9a18"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>filterAccelMPU9250</b> (<a class="el" href="struct_m_p_u9250__t.html">MPU9250_t</a> *<a class="el" href="group___m_p_u9250___app.html#ga86e70590b4a00a4a3749d4693133e8cf">myMPU9250</a>)</td></tr>
-<tr class="separator:a250eb8f76ec3adf4dd1c6113295d9a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a339d372661e26e45769da933fd637f16"><td class="memItemLeft" align="right" valign="top"><a id="a339d372661e26e45769da933fd637f16"></a>
-float32_t&#160;</td><td class="memItemRight" valign="bottom"><b>MPUFilter_coefficients</b> [21]</td></tr>
-<tr class="separator:a339d372661e26e45769da933fd637f16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a256965b5b2d015f97421019cccc2393f"><td class="memItemLeft" align="right" valign="top"><a id="a256965b5b2d015f97421019cccc2393f"></a>
-static const int&#160;</td><td class="memItemRight" valign="bottom"><b>MPUFilter_numTaps</b> = 21</td></tr>
-<tr class="separator:a256965b5b2d015f97421019cccc2393f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b853ce1deaf017a66927d865d3d0b3c"><td class="memItemLeft" align="right" valign="top"><a id="a1b853ce1deaf017a66927d865d3d0b3c"></a>
-static const int&#160;</td><td class="memItemRight" valign="bottom"><b>MPUFilter_blockSize</b> = 16</td></tr>
-<tr class="separator:a1b853ce1deaf017a66927d865d3d0b3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5fae5feeb6b0511c7dc7f171ba6a1a73"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___m_p_u9250___f_i_r___header.html#ga5fae5feeb6b0511c7dc7f171ba6a1a73">initAllMPU9250Filters</a> (void)</td></tr>
+<tr class="memdesc:ga5fae5feeb6b0511c7dc7f171ba6a1a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes all filters for the accelerometer data. <br /></td></tr>
+<tr class="separator:ga5fae5feeb6b0511c7dc7f171ba6a1a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga250eb8f76ec3adf4dd1c6113295d9a18"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___m_p_u9250___f_i_r___header.html#ga250eb8f76ec3adf4dd1c6113295d9a18">filterAccelMPU9250</a> (<a class="el" href="struct_m_p_u9250__t.html">MPU9250_t</a> *<a class="el" href="group___m_p_u9250___app.html#ga86e70590b4a00a4a3749d4693133e8cf">myMPU9250</a>)</td></tr>
+<tr class="memdesc:ga250eb8f76ec3adf4dd1c6113295d9a18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given fresh sensor data for acceleration in each axis, this function filters the data then writes in back into the data structure passed in.  <a href="group___m_p_u9250___f_i_r___header.html#ga250eb8f76ec3adf4dd1c6113295d9a18">More...</a><br /></td></tr>
+<tr class="separator:ga250eb8f76ec3adf4dd1c6113295d9a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Tyler </dd></dl>

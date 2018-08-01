@@ -4,7 +4,12 @@
  * @brief Functions and data related to the transmission side of PC
  *        communication
  *
- * @defgroup CommTX Communication: TX
+ * @defgroup Communication Communication
+ * @brief PC-MCU communication
+ *
+ * @defgroup CommTX TX
+ * @brief Handles sending packets to the PC for logging
+ * @ingroup Communication
  * @{
  */
 
@@ -89,7 +94,8 @@ static temperatureData_t* temperatureDataPtr = NULL;
 
 /***************************** Public Functions ******************************/
 /**
- * @defgroup CommTXPublicFunctions Communication: TX Public Functions
+ * @defgroup CommTXPublicFunctions Public functions
+ * @brief @brief Functions used externally
  * @ingroup CommTX
  * @{
  */

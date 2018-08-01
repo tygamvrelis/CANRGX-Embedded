@@ -108,8 +108,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1662329245.1679372372" name="filter.h" rcbsApplicability="disable" resourcePath="Inc/filter.h" toolsToInvoke=""/>
-					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1662329245.731193660" name="pid_contrl.h" rcbsApplicability="disable" resourcePath="Inc/pid_contrl.h" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="pid_contrl.h|filter.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc"/>

@@ -1,7 +1,7 @@
 var group___comm_t_x =
 [
-    [ "Communication: TX Header", "group___comm_t_x_header.html", "group___comm_t_x_header" ],
-    [ "Communication: TX Public Functions", "group___comm_t_x_public_functions.html", "group___comm_t_x_public_functions" ],
+    [ "Header", "group___comm_t_x_header.html", "group___comm_t_x_header" ],
+    [ "Public functions", "group___comm_t_x_public_functions.html", "group___comm_t_x_public_functions" ],
     [ "accelerometerDataPtr", "group___comm_t_x.html#ga57d6e194bf37d7746cbc659d9c8cfd05", null ],
     [ "accelX", "group___comm_t_x.html#gabdde7ac27508e0d6179cd206b82ae4c9", null ],
     [ "accelY", "group___comm_t_x.html#ga2d8095bb64b09fec417b86d87877996e", null ],

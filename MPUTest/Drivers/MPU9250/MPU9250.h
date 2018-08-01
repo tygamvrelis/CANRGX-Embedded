@@ -2,7 +2,7 @@
  * @file MPU9250.h
  * @author Tyler
  *
- * @defgroup MPU9250_Driver_Header MPU9250 Driver Header
+ * @defgroup MPU9250_Driver_Header Header
  * @ingroup MPU9250_Driver
  * @{
  */

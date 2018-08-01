@@ -4,6 +4,7 @@
  * @brief Driver for MPU9250
  *
  * @defgroup MPU9250_Driver MPU9250 Driver
+ * @brief Library for interfacing with MPU9250
  * @{
  */
 
@@ -127,7 +128,7 @@ static const float MPU9250_MAG_FULL_SCALE = 4912.0;
 /**
  * @defgroup MPU9250_Driver_Init_Functions Initialization Functions
  * @ingroup MPU9250_Driver
- * @brief Functions that may be used during initialization routines
+ * @brief Initialization routines
  * @{
  */
 
@@ -260,10 +261,9 @@ void resetMagnetometerBlocking(void){
 /* end - MPU9250_Driver_Init_Functions */
 
 /**
- * @defgroup MPU9250_Driver_Threaded Thread-safe reader functions
+ * @defgroup MPU9250_Driver_Threaded Readers
  * @ingroup MPU9250_Driver
- * @brief Functions used to gather sensor data. Safe to use after the
- *        scheduler has started
+ * @brief Sensor data readers used once the scheduler has started
  * @{
  */
 
@@ -396,7 +396,8 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
 /* end - MPU9250_Driver_Threaded */
 
 /**
- * @defgroup MPU9250_Driver_Error_Handlers Error Handlers
+ * @defgroup MPU9250_Driver_Error_Handlers Errata handlers
+ * @brief Handles a silicon bug in the I2C module that shows up occasionally
  * @ingroup MPU9250_Driver
  *
  * @details

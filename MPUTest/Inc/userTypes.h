@@ -5,6 +5,8 @@
  *        modules
  *
  * @defgroup UserTypes User Types
+ * @brief Types, enums, and some macros that need to be shared across several
+ *        modules
  * @{
  */
 

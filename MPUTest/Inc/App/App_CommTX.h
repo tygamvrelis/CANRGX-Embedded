@@ -2,7 +2,7 @@
  * @file App_CommTX.h
  * @author Tyler
  *
- * @defgroup CommTXHeader Communication: TX Header
+ * @defgroup CommTXHeader Header
  * @ingroup CommTX
  * @{
  */

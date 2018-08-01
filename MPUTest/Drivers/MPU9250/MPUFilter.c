@@ -1,6 +1,13 @@
 /**
  * @file MPUFilter.c
  * @author Tyler
+ * @brief API for filtering accelerometer data. Filter coefficients &
+ *        preliminary C code was generated with MicroModeler DSP
+ *
+ * @defgroup MPU9250_FIR FIR Filter
+ * @brief Digitally filters accelerometer data
+ * @ingroup MPU9250_Driver
+ * @{
  */
 
 /******************************* SOURCE LICENSE *********************************
@@ -18,27 +25,98 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 // A commercial license for MicroModeler DSP can be obtained at http://www.micromodeler.com/launch.jsp
 
-#include "MPUFilter.h"
 
-#include <stdlib.h> // For malloc/free
+
+
+/********************************** Includes *********************************/
+#include "MPUFilter.h"
 #include <string.h> // For memset
 
-float32_t MPUFilter_coefficients[21] = {-0.018872079, -0.0011102221,
+
+
+
+/********************************* Constants *********************************/
+/** @brief Number of taps (coefficients) in the filter */
+static const int MPUFilter_numTaps = 21;
+
+/**
+ * @brief Number of samples to collect before updating filter output. Not
+ *        used in our application
+ */
+static const int MPUFilter_blockSize = 16;
+
+/** @brief Filter coefficients */
+static const float32_t MPUFilter_coefficients[21] = {-0.018872079, -0.0011102221,
         0.0030367336, 0.014906744, 0.030477359, 0.049086205, 0.070363952,
         0.089952103, 0.10482875, 0.11485946, 0.11869398, 0.11485946, 0.10482875,
         0.089952103, 0.070363952, 0.049086205, 0.030477359, 0.014906744,
         0.0030367336, -0.0011102221, -0.018872079};
 
-void MPUFilter_reset(MPUFilterType * pThis){
+
+
+
+/*********************************** Types ***********************************/
+/** @brief Container for filter information */
+typedef struct{
+    arm_fir_instance_f32 instance; /**< Filter instance            */
+    float32_t state[37];           /**< Current & buffered samples */
+    float32_t output;              /**< Output of filter           */
+} MPUFilterType;
+
+
+
+
+/***************************** Private Variables *****************************/
+/** Filter data structures for x-, y-, and z-axis acceleration */
+static MPUFilterType azFilter, ayFilter, axFilter;
+
+
+
+
+/***************************** Private Functions *****************************/
+/**
+ * @defgroup MPU9250_FIR_Private_Functions Private functions
+ * @brief Functions used interally
+ * @ingroup MPU9250_FIR
+ * @{
+ */
+
+/**
+ * @brief Resets filter state
+ * @param pThis Pointer to filter data structure
+ */
+static void MPUFilter_reset(MPUFilterType * pThis){
     memset(&pThis->state, 0, sizeof(pThis->state)); // Reset state to 0
     pThis->output = 0; // Reset output
 }
 
-void MPUFilter_init(MPUFilterType * pThis){
+/**
+ * @brief Write a sample to the filter and update its output
+ * @param pThis Pointer to filter data structure
+ * @param input The new sample
+ */
+static inline void MPUFilter_writeInput(MPUFilterType * pThis, float input){
+    arm_fir_f32(&pThis->instance, &input, &pThis->output, 1);
+}
+
+/**
+ * @brief  Read the filter output
+ * @param  pThis Pointer to filter data structure
+ * @return The filter output
+ */
+static inline float MPUFilter_readOutput(MPUFilterType * pThis){
+    return pThis->output;
+}
+
+/**
+ * @brief Initializes a filter data structure
+ * @param pThis Pointer to filter data structure
+ */
+static void MPUFilter_init(MPUFilterType * pThis){
     arm_fir_init_f32(
             &pThis->instance,
             MPUFilter_numTaps,
-            MPUFilter_coefficients,
+            (float32_t*)MPUFilter_coefficients,
             pThis->state,
             MPUFilter_blockSize
     );
@@ -46,27 +124,38 @@ void MPUFilter_init(MPUFilterType * pThis){
     MPUFilter_reset(pThis);
 }
 
-int MPUFilter_filterBlock(
-        MPUFilterType * pThis,
-        float * pInput,
-        float * pOutput,
-        unsigned int count
-){
-    arm_fir_f32(&pThis->instance,
-            (float32_t*)pInput,
-            (float32_t*)pOutput,
-            count
-    );
-    return count;
-}
+/**
+ * @}
+ */
+/* end - MPU9250_FIR_Private_Functions */
 
-MPUFilterType azFilter, ayFilter, axFilter;
+
+
+
+/***************************** Public Functions ******************************/
+/**
+ * @defgroup MPU9250_FIR_Public_Functions Public functions
+ * @brief Functions used externally
+ * @ingroup MPU9250_FIR
+ * @{
+ */
+
+/**
+ * @brief Initializes all filters for the accelerometer data
+ */
 void initAllMPU9250Filters(void){
     MPUFilter_init(&axFilter);
     MPUFilter_init(&ayFilter);
     MPUFilter_init(&azFilter);
 }
 
+/**
+ * @brief Given fresh sensor data for acceleration in each axis, this function
+ *        filters the data then writes in back into the data structure passed
+ *        in
+ * @param myMPU9250 Pointer to the data structure which stores the data read
+ *        from the MPU9250 sensor
+ */
 void filterAccelMPU9250(MPU9250_t* myMPU9250){
     // Filter the signals along each axis
     MPUFilter_writeInput(&axFilter, myMPU9250->ax);
@@ -78,3 +167,13 @@ void filterAccelMPU9250(MPU9250_t* myMPU9250){
     MPUFilter_writeInput(&azFilter, myMPU9250->az);
     myMPU9250->az = MPUFilter_readOutput(&azFilter);
 }
+
+/**
+ * @}
+ */
+/* end - MPU9250_FIR_Public_Functions */
+
+/**
+ * @}
+ */
+/* end - MPU9250_FIR */

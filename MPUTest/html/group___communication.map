@@ -1,0 +1,4 @@
+<map id="Communication" name="Communication">
+<area shape="rect" id="node1" href="$group___comm_r_x.html" title="Handles receiving commands from the PC program. " alt="" coords="165,5,204,32"/>
+<area shape="rect" id="node2" href="$group___comm_t_x.html" title="Handles sending packets to the PC for logging. " alt="" coords="165,56,204,83"/>
+</map>

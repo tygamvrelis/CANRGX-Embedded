@@ -417,8 +417,14 @@ void StartTempTask(void const * argument)
 
 /* tmrLEDCallback function */
 /**
- * @brief Callback to blink status LED
+ * @defgroup Control_Callbacks Callbacks
+ * @brief Event handlers to update the status/camera synchronization LED states
  * @ingroup Control
+ */
+
+/**
+ * @brief Callback to blink status LED
+ * @ingroup Control_Callbacks
  */
 void tmrLEDCallback(void const * argument)
 {
@@ -431,7 +437,7 @@ void tmrLEDCallback(void const * argument)
 /**
  * @brief Callback to turn off the camera synchronization LED, which is turned
  *        on when a new reduced gravity event occurs
- * @ingroup Control
+ * @ingroup Control_Callbacks
  */
 void tmrCameraLEDCallback(void const * argument)
 {

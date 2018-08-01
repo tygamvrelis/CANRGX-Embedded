@@ -25,5 +25,6 @@ var _app___control_8c =
     [ "TEC1DutyCycle", "group___control.html#ga98ad25c3b66dd3974da389fab8e5dbd9", null ],
     [ "TEC2DutyCycle", "group___control.html#gafeb68fa8b721e3816901476505a30c8a", null ],
     [ "TEC_ON_DUTY_CYCLE", "group___control.html#gabb75f288c9ae4fa6946db581bddf9291", null ],
+    [ "tmrCameraLEDHandle", "group___control.html#gad7adfeda17f2ba62d088e93ab7b61c1f", null ],
     [ "tmrLEDBlinkHandle", "group___control.html#ga1fd9b1d4931209565f0cdc11ccf5a3b5", null ]
 ];

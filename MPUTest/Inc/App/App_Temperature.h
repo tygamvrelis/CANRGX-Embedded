@@ -2,7 +2,7 @@
  * @file App_Temperature.h
  * @author Tyler
  *
- * @defgroup TemperatureHeader Temperature Header
+ * @defgroup TemperatureHeader Header
  * @ingroup Temperature
  * @{
  */
