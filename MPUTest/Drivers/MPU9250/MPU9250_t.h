@@ -12,7 +12,9 @@
 
 
 /*********************************** Types ************************************/
-/** The data structure which stores the data read from the MPU9250 sensor */
+/**
+ * @brief The data structure which stores the data read from the MPU9250 sensor
+ */
 typedef struct{
     float az; /**< Acceleration along z-axis             */
     float ay; /**< Acceleration along y-axis             */

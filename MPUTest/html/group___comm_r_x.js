@@ -1,8 +1,8 @@
 var group___comm_r_x =
 [
-    [ "Communication: RX Header", "group___comm_r_x_header.html", "group___comm_r_x_header" ],
-    [ "Communication: RX Private Functions", "group___comm_r_x_private_functions.html", "group___comm_r_x_private_functions" ],
-    [ "Communication: RX Public Functions", "group___comm_r_x_public_functions.html", "group___comm_r_x_public_functions" ],
+    [ "Header", "group___comm_r_x_header.html", "group___comm_r_x_header" ],
+    [ "Private functions", "group___comm_r_x_private_functions.html", "group___comm_r_x_private_functions" ],
+    [ "Public functions", "group___comm_r_x_public_functions.html", "group___comm_r_x_public_functions" ],
     [ "buffer", "group___comm_r_x.html#ga0608d8f446c780396bb2ae6367c83152", null ],
     [ "huart2", "group___comm_r_x.html#gaa9479c261d65eecedd3d9582f7f0f89c", null ],
     [ "MANUAL_OVERRIDE_START_CHAR", "group___comm_r_x.html#ga91066b4d1a996d76fb4ad49e1469b1fc", null ],

@@ -2,7 +2,7 @@
  * @file App_Control.h
  * @author Tyler
  *
- * @defgroup ControlHeader Control Header
+ * @defgroup ControlHeader Header
  * @ingroup Control
  * @{
  */
@@ -57,7 +57,7 @@ enum cameraState_e{
 
 
 /*********************************** Types ***********************************/
-/** Container for magnet state information */
+/** @brief Container for magnet state information */
 typedef struct{
     enum magnets_e magnet;           /**< Magnet 1 or magnet 2               */
     enum magnetStates_e magnetState; /**< What the magnet is suppose to do   */

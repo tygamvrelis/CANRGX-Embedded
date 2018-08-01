@@ -3,7 +3,9 @@
  * @author Tyler
  * @brief Application code utilizing the MPU9250
  *
- * @defgroup MPU9250_App MPU9250 Application Code
+ * @defgroup MPU9250_App MPU9250
+ * @brief Sensing acceleration and magnetic flux density. Also digitally
+ *        filtering acceleration using FIR filters
  * @{
  */
 
@@ -31,7 +33,8 @@ MPU9250_t myMPU9250; /**< Global MPU9250 object */
 
 /***************************** Public Functions ******************************/
 /**
- * @defgroup MPU9250_App_Public_Functions MPU9250 Application Public Functions
+ * @defgroup MPU9250_App_Public_Functions Public functions
+ * @brief Functions used externally
  * @ingroup MPU9250_App
  * @{
  */

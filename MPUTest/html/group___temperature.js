@@ -1,9 +1,9 @@
 var group___temperature =
 [
-    [ "Temperature Header", "group___temperature_header.html", "group___temperature_header" ],
-    [ "Temperature Private Functions", "group___temperature_private_functions.html", "group___temperature_private_functions" ],
-    [ "Temperature Public Functions", "group___temperature_public_functions.html", "group___temperature_public_functions" ],
-    [ "Temperature Callbacks", "group___temperature_callbacks.html", "group___temperature_callbacks" ],
+    [ "Header", "group___temperature_header.html", "group___temperature_header" ],
+    [ "Private functions", "group___temperature_private_functions.html", "group___temperature_private_functions" ],
+    [ "Public functions", "group___temperature_public_functions.html", "group___temperature_public_functions" ],
+    [ "Callbacks", "group___temperature_callbacks.html", "group___temperature_callbacks" ],
     [ "ADC_DATA_N", "group___temperature.html#ga0ac2bedf503d36cd16feb876f427feb3", null ],
     [ "bufferState_e", "group___temperature.html#ga717c813e7060c871c8e96470b81f7c95", null ],
     [ "bufferState", "group___temperature.html#ga74dc76a83db70f4df418dfc5232df300", [

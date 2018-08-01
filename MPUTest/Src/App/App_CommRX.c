@@ -3,7 +3,9 @@
  * @author Tyler
  * @brief Functions and data related to the reception side of PC communication
  *
- * @defgroup CommRX
+ * @defgroup CommRX RX
+ * @brief Handles receiving commands from the PC program
+ * @ingroup Communication
  * @{
  */
 
@@ -57,7 +59,8 @@ static uint8_t buffer[3];
 
 /***************************** Private Functions *****************************/
 /**
- * @defgroup CommRXPrivateFunctions Communication: RX Private Functions
+ * @defgroup CommRXPrivateFunctions Private functions
+ * @brief Functions used internally
  * @ingroup CommRX
  * @{
  */
@@ -80,7 +83,8 @@ static inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
 
 /***************************** Public Functions ******************************/
 /**
- * @defgroup CommRXPublicFunctions Communication: RX Public Functions
+ * @defgroup CommRXPublicFunctions Public functions
+ * @brief Functions used externally
  * @ingroup CommRX
  * @{
  */

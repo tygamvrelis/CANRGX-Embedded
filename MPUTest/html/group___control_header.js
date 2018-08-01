@@ -6,6 +6,10 @@ var group___control_header =
       [ "magnet", "struct_magnet_info__t.html#a8320931023d5b088c68b66c5e20db618", null ],
       [ "magnetState", "struct_magnet_info__t.html#aef449ff25074d2a686f8b7680cf9b34b", null ]
     ] ],
+    [ "cameraState_e", "group___control_header.html#ga40e9cde7fbbbd9517b9eb0d35b3414eb", [
+      [ "ON", "group___control_header.html#gga40e9cde7fbbbd9517b9eb0d35b3414eba977d478dacaae531f95695750d1e9d03", null ],
+      [ "OFF", "group___control_header.html#gga40e9cde7fbbbd9517b9eb0d35b3414ebaac132f2982b98bcaa3445e535a03ff75", null ]
+    ] ],
     [ "driveMode_e", "group___control_header.html#ga7e557e9594f3d847884af99b5a9848fd", [
       [ "ACTIVE_LOW", "group___control_header.html#gga7e557e9594f3d847884af99b5a9848fda43ad983a1a6a3c04a137ec0471cdfe85", null ],
       [ "ACTIVE_HIGH", "group___control_header.html#gga7e557e9594f3d847884af99b5a9848fdafe240f1952811db0c18b4355fb28190f", null ]

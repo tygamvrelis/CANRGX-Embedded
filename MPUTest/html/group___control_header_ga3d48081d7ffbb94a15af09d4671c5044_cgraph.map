@@ -1,8 +1,4 @@
 <map id="controlEventHandler" name="controlEventHandler">
-<area shape="rect" id="node2" href="$group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a" title="Given an event that is different that the current event, this function handles the event by updating ..." alt="" coords="191,31,343,57"/>
-<area shape="rect" id="node3" href="$group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896" title="Sets the PWM duty cycle used to drive the top and bottom TECs used for heating the parafluid..." alt="" coords="430,5,541,32"/>
-<area shape="rect" id="node4" href="$group___control_public_functions.html#gafcfabfde443c3976d02dbd7b267cb659" title="Sets the control signals to their idle state. This turns off the PWM for the TECs (0 duty cycle) and ..." alt="" coords="391,56,580,83"/>
-<area shape="rect" id="node5" href="$group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef" title="Turns off the timer channels used for TEC PWM. " alt="" coords="630,31,709,57"/>
-<area shape="rect" id="node6" href="$group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d" title="Sets the state of the specified magnet to coast, break, or PWM in the direction selected by the duty ..." alt="" coords="628,81,711,108"/>
-<area shape="rect" id="node7" href="$group___control_private_functions.html#ga9fa41aa2c8686b524807fa969084a7d1" title="Force PWM pin function to GPIO. " alt="" coords="759,81,920,108"/>
+<area shape="rect" id="node2" href="$group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a" title="Given an event that is different that the current event, this function handles the event by updating ..." alt="" coords="191,5,343,32"/>
+<area shape="rect" id="node3" href="$group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896" title="Sets the PWM duty cycle used to drive the top and bottom TECs used for heating the parafluid..." alt="" coords="391,5,501,32"/>
 </map>

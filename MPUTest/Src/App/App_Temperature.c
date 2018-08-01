@@ -5,6 +5,7 @@
  *        data, and consequently interfacing with the ADCs
  *
  * @defgroup Temperature Temperature
+ * @brief Sensing temperature using ADCs
  * @{
  */
 
@@ -57,7 +58,8 @@ uint16_t ADC_processed[6];
 
 /***************************** Private Functions *****************************/
 /**
- * @defgroup TemperaturePrivateFunctions Temperature Private Functions
+ * @defgroup TemperaturePrivateFunctions Private functions
+ * @brief Functions used internally
  * @ingroup Temperature
  * @{
  */
@@ -133,7 +135,8 @@ static inline void processADC(ADC_HandleTypeDef* hadc, bufferState_e buffState){
 
 /***************************** Public Functions ******************************/
 /**
- * @defgroup TemperaturePublicFunctions Temperature Public Functions
+ * @defgroup TemperaturePublicFunctions Public functions
+ * @brief Functions used externally
  * @ingroup Temperature
  * @{
  */
@@ -188,7 +191,8 @@ int Temp_Scan_Stop(void){
 
 /********************************* Callbacks *********************************/
 /**
- * @defgroup TemperatureCallbacks Temperature Callbacks
+ * @defgroup TemperatureCallbacks Callbacks
+ * @brief Event handlers for when the sample buffers are sufficiently fresh
  * @ingroup Temperature
  * @{
  */

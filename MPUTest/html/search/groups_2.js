@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['initialization_20functions',['Initialization Functions',['../group___m_p_u9250___driver___init___functions.html',1,'']]]
+  ['fir_20filter',['FIR Filter',['../group___m_p_u9250___f_i_r.html',1,'']]]
 ];
