@@ -49,7 +49,7 @@ static const uint8_t MPU9250_MAG_ADDR = 0x0C << 1;
 #define I2C_SLV0_CTRL 0x27    /**< Control register for data transactions
                                *   with slave 0                              */
 
-#define I2C_SLV1_ADDR 0x2B    /**< Physical address of I2C slave 1
+#define I2C_SLV1_ADDR 0x2B    /**< Physical address of I2C slave 1           */
 #define I2C_SLV1_REG 0x2C     /**< Slave 1 register from where to begin data
                                *   transfer                                  */
 
