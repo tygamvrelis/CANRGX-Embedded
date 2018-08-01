@@ -18,6 +18,7 @@
 
 /***************************** Extern declarations ***************************/
 extern osTimerId tmrLEDBlinkHandle; /**< OS timer handle for status LED */
+extern osTimerId tmrCameraLEDHandle; /**< OS timer handle for camera LED */
 
 
 
@@ -330,6 +331,10 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
             // Make status LED blink at 10 Hz
             osTimerStop(tmrLEDBlinkHandle);
             osTimerStart(tmrLEDBlinkHandle, 50);
+
+            // Turn on camera synchronization LED for about 3 frames
+            setCameraLEDState(ON);
+            osTimerStart(tmrCameraLEDHandle, 100);
             break;
         case NONE:
             controllerState = IDLE;
@@ -353,6 +358,11 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
             // Make status LED blink at 0.5 Hz
             osTimerStop(tmrLEDBlinkHandle);
             osTimerStart(tmrLEDBlinkHandle, 1000);
+
+            // Turn off the camera synchronization LED (it is probably already
+            // off due to the timer callback, but we do it anyway just to make
+            // sure)
+            osTimerStop(tmrCameraLEDHandle);
             break;
         default:
             break; // Should never reach here

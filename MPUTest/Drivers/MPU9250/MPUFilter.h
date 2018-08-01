@@ -21,9 +21,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #ifndef MPUFILTER_H_ // Include guards
 #define MPUFILTER_H_
 
-#define ARM_MATH_CM4	// Use ARM Cortex M4
-#define __FPU_PRESENT 1		// Does this device have a floating point unit?
-#include <arm_math.h>	// Include CMSIS header
+#define ARM_MATH_CM4	 // Use ARM Cortex M4
+#include "stm32f446xx.h" // Need to know if __FPU_PRESENT == 1 in order to generate FPU instructions
+#include <arm_math.h>	 // Include CMSIS header
 #include "MPU9250_t.h"
 
 // Link with library: libarm_cortexM4_mathL.a (or equivalent)

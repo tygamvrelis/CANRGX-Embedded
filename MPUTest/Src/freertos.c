@@ -83,6 +83,8 @@ uint8_t xTXDataQueueBuffer[ 4 * sizeof( TXData_t ) ];
 osStaticMessageQDef_t xTXDataQueueControlBlock;
 osTimerId tmrLEDBlinkHandle;
 osStaticTimerDef_t tmrLEDBlinkControlBlock;
+osTimerId tmrCameraLEDHandle;
+osStaticTimerDef_t tmrCameraLEDControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
 osSemaphoreId semTxHandle;
@@ -102,6 +104,7 @@ void StartMPU9250Task(void const * argument);
 void StartRxTask(void const * argument);
 void StartTempTask(void const * argument);
 void tmrLEDCallback(void const * argument);
+void tmrCameraLEDCallback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -135,7 +138,7 @@ return 0;
  * @brief Toggles the green LED, LD2
  * @note  Useful for debugging
  */
-inline void LED(){
+inline void ToggleStatusLED(){
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
 /* USER CODE END 1 */
@@ -198,6 +201,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of tmrLEDBlink */
   osTimerStaticDef(tmrLEDBlink, tmrLEDCallback, &tmrLEDBlinkControlBlock);
   tmrLEDBlinkHandle = osTimerCreate(osTimer(tmrLEDBlink), osTimerPeriodic, NULL);
+
+  /* definition and creation of tmrCameraLED */
+  osTimerStaticDef(tmrCameraLED, tmrCameraLEDCallback, &tmrCameraLEDControlBlock);
+  tmrCameraLEDHandle = osTimerCreate(osTimer(tmrCameraLED), osTimerOnce, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -409,11 +416,28 @@ void StartTempTask(void const * argument)
 }
 
 /* tmrLEDCallback function */
+/**
+ * @brief Callback to blink status LED
+ * @ingroup Control
+ */
 void tmrLEDCallback(void const * argument)
 {
   /* USER CODE BEGIN tmrLEDCallback */
-    LED();
+    ToggleStatusLED();
   /* USER CODE END tmrLEDCallback */
+}
+
+/* tmrCameraLEDCallback function */
+/**
+ * @brief Callback to turn off the camera synchronization LED, which is turned
+ *        on when a new reduced gravity event occurs
+ * @ingroup Control
+ */
+void tmrCameraLEDCallback(void const * argument)
+{
+  /* USER CODE BEGIN tmrCameraLEDCallback */
+    setCameraLEDState(OFF);
+  /* USER CODE END tmrCameraLEDCallback */
 }
 
 /* USER CODE BEGIN Application */

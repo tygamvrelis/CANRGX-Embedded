@@ -59,6 +59,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+#include "App/App_Control.h"
 #include "App/App_MPU9250.h"
 /* USER CODE END Includes */
 
@@ -264,9 +265,7 @@ int main(void)
   /*************************************************************************
    *               Turn on LED for camera synchronization                  *
    *************************************************************************/
-
-  // Turn on LED here
-  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_SET);
+  setCameraLEDState(ON);
 
   HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
   	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
@@ -305,9 +304,7 @@ int main(void)
   /*************************************************************************
    *               Turn off LED for camera synchronization                 *
    *************************************************************************/
-
-  // Turn off LED here
-  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_RESET);
+  setCameraLEDState(OFF);
 
   /* USER CODE END 2 */
 

@@ -24,13 +24,13 @@
 
 
 /*********************************** Enums ***********************************/
-/** The magnets in our system */
+/** @brief The magnets in our system */
 enum magnets_e{
     MAGNET1, /**< First magnet  */
     MAGNET2, /**< Second magnet */
 };
 
-/** The states we can put the driver circuits for the magnets in */
+/** @brief The states we can put the driver circuits for the magnets in */
 enum magnetStates_e{
     COAST, /**< Logical outputs: A=high, B=high */
     BRAKE, /**< Logical outputs: A=low, B=low   */
@@ -38,13 +38,19 @@ enum magnetStates_e{
 };
 
 /**
- * The PWM libraries accept a polarity parameter which determines whether a
- * duty cycle of 100% is interpreted as a high voltage or a low voltage on the
- * pin
+ * @brief The PWM libraries accept a polarity parameter which determines
+ *        whether a duty cycle of 100% is interpreted as a high voltage or a
+ *        low voltage on the pin
  */
 enum driveMode_e{
     ACTIVE_LOW, /**< Duty cycle of 100% is low voltage  */
     ACTIVE_HIGH /**< Duty cycle of 100% is high voltage */
+};
+
+/** @brief The states the camera synchronization LED can be in */
+enum cameraState_e{
+    ON = GPIO_PIN_SET,   /**< LED is on */
+    OFF = GPIO_PIN_RESET /**< LED is off */
 };
 
 
@@ -69,6 +75,10 @@ void controlEventHandler(uint32_t notification);
 void updateControlSignals(void);
 void updateControlData(controlData_t* controlData);
 void controlSetSignalsToIdleState(void);
+
+inline void setCameraLEDState(enum cameraState_e state){
+    HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, state);
+}
 
 /**
  * @}
