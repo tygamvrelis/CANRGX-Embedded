@@ -38,7 +38,7 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.issue_encountered.connect(self.close)
         # First, make sure when any issue is encountered, go cleanup.
 
-        print("Starting PC-side application")
+        print("Starting Serial Data Listener")
         print("Worker Thread ID:", int(QThread.currentThreadId()))
 
         self.num_frame_shifts = 0
