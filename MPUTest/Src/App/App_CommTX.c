@@ -89,7 +89,7 @@ void commTXInit(void){
 void commTXEventHandler(TXData_t* receivedData){
     switch(receivedData->type){
         case accelerometer_t:
-            accelerometerData_t* accelerometerDataPtr =
+            accelerometerData_t accelerometerDataPtr* =
                     (accelerometerData_t*)receivedData->data;
 
             if(accelerometerDataPtr == NULL){break;}
@@ -105,7 +105,7 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case magnetometer_t:
-            magnetometerData_t magnetometerDataPtr =
+            magnetometerData_t magnetometerDataPtr* =
                     (magnetometerData_t*)receivedData->data;
 
             if(magnetometerDataPtr == NULL){break;}
@@ -120,7 +120,7 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case control_t:
-            controlData_t controlDataPtr = (controlData_t*)receivedData->data;
+            controlData_t controlDataPtr* = (controlData_t*)receivedData->data;
 
             if(controlDataPtr == NULL){break;}
 
@@ -139,7 +139,7 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case temperature_t:
-            temperatureData_t temperatureDataPtr =
+            temperatureData_t temperatureDataPtr* =
                     (temperatureData_t*)receivedData->data;
 
             if(temperatureDataPtr == NULL){break;}

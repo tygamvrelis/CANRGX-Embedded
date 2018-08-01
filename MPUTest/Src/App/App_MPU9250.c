@@ -1,8 +1,10 @@
-/*
- * App_MPU9250.c
+/**
+ * @file App_MPU9250.c
+ * @author Tyler
+ * @brief Application code utilizing the MPU9250
  *
- *  Created on: Jul 28, 2018
- *      Author: Tyler
+ * @defgroup MPU9250_App MPU9250 Application Code
+ * @{
  */
 
 
@@ -22,7 +24,7 @@ extern osThreadId ControlTaskHandle;
 
 
 /******************************* Public variables ****************************/
-MPU9250_t myMPU9250; // Global MPU9250 object
+MPU9250_t myMPU9250; /**< Global MPU9250 object */
 
 
 
@@ -93,3 +95,8 @@ void MPU9250EventHandler(MPU9250_t* myMPU9250){
         );
     }
 }
+
+/**
+ * @}
+ */
+/* end - MPU9250_App */
