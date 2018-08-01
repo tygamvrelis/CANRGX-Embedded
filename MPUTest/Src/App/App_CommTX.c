@@ -60,6 +60,30 @@ static uint8_t* temp3b = &buffer[48];    /**< Temp sensor 3B                 */
  */
 static uint8_t taskFlags = 0x00;
 
+/**
+ * @brief Pointer in which received accelerometer data container addresses are
+ *        stored
+ */
+static accelerometerData_t* accelerometerDataPtr = NULL;
+
+/**
+ * @brief Pointer in which received magnetometer data container addresses are
+ *        stored
+ */
+static magnetometerData_t* magnetometerDataPtr = NULL;
+
+/**
+ * @brief Pointer in which received control signal data container addresses are
+ *        stored
+ */
+static controlData_t* controlDataPtr = NULL;
+
+/**
+ * @brief Pointer in which received temperature data container addresses are
+ *        stored
+ */
+static temperatureData_t* temperatureDataPtr = NULL;
+
 
 
 
@@ -89,8 +113,7 @@ void commTXInit(void){
 void commTXEventHandler(TXData_t* receivedData){
     switch(receivedData->type){
         case accelerometer_t:
-            accelerometerData_t accelerometerDataPtr* =
-                    (accelerometerData_t*)receivedData->data;
+            accelerometerDataPtr = (accelerometerData_t*)receivedData->data;
 
             if(accelerometerDataPtr == NULL){break;}
 
@@ -105,8 +128,7 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case magnetometer_t:
-            magnetometerData_t magnetometerDataPtr* =
-                    (magnetometerData_t*)receivedData->data;
+            magnetometerDataPtr = (magnetometerData_t*)receivedData->data;
 
             if(magnetometerDataPtr == NULL){break;}
 
@@ -120,7 +142,7 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case control_t:
-            controlData_t controlDataPtr* = (controlData_t*)receivedData->data;
+            controlDataPtr = (controlData_t*)receivedData->data;
 
             if(controlDataPtr == NULL){break;}
 
@@ -139,8 +161,7 @@ void commTXEventHandler(TXData_t* receivedData){
 
             break;
         case temperature_t:
-            temperatureData_t temperatureDataPtr* =
-                    (temperatureData_t*)receivedData->data;
+            temperatureDataPtr = (temperatureData_t*)receivedData->data;
 
             if(temperatureDataPtr == NULL){break;}
 

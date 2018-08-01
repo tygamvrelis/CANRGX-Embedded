@@ -4,6 +4,7 @@
  *
  * @defgroup MPU9250_App_Header MPU9250 Application Code Header
  * @ingroup MPU9250_App
+ * @{
  */
 
 #ifndef APP_MPU9250_H_
@@ -47,5 +48,10 @@ void updateMagReading(
 );
 
 void MPU9250EventHandler(MPU9250_t* myMPU9250);
+
+/**
+ * @}
+ */
+/* end - MPU9250_App_Header */
 
 #endif /* APP_MPU9250_H_ */
