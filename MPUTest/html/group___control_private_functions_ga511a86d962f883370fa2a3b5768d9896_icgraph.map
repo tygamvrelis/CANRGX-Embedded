@@ -1,0 +1,4 @@
+<map id="TEC_set_valuef" name="TEC_set_valuef">
+<area shape="rect" id="node2" href="$group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a" title="Given an event that is different that the current event, this function handles the event by updating ..." alt="" coords="164,5,316,32"/>
+<area shape="rect" id="node3" href="$group___control_public_functions.html#ga3d48081d7ffbb94a15af09d4671c5044" title="Given a task notification value, this function extracts the command or event information from it..." alt="" coords="364,5,501,32"/>
+</map>

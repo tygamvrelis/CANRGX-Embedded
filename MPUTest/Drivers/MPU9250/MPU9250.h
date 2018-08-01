@@ -1,8 +1,10 @@
-/*
- * MPU9250.h
+/**
+ * @file MPU9250.h
+ * @author Tyler
  *
- *  Created on: April 8, 2018
- *      Author: Tyler
+ * @defgroup MPU9250_Driver_Header MPU9250 Driver Header
+ * @ingroup MPU9250_Driver
+ * @{
  */
 
 #ifndef MPU9250_H_
@@ -33,6 +35,11 @@ int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem);
 
+/**
+ * @brief Helper function to compute total acceleration
+ * @param  myMPU Pointer to the data structure which stores the data read from
+ *         the MPU9250 sensor
+ */
 inline void computeTotalAcceleration(MPU9250_t* myMPU9250){
     myMPU9250->A = sqrt(myMPU9250->az * myMPU9250->az +
                         myMPU9250->ay * myMPU9250->ay +
@@ -41,5 +48,10 @@ inline void computeTotalAcceleration(MPU9250_t* myMPU9250){
 }
 
 void generateClocks(I2C_HandleTypeDef* hi2c, uint8_t numClocks, uint8_t sendStopBits); // Use with caution
+
+/**
+ * @}
+ */
+/* end - MPU9250_Driver_Header */
 
 #endif /* MPU9250_H_ */

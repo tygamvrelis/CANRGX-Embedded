@@ -1,3 +1,8 @@
+/**
+ * @file MPUFilter.c
+ * @author Tyler
+ */
+
 /******************************* SOURCE LICENSE *********************************
 Copyright (c) 2018 MicroModeler.
 

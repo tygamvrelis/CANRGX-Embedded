@@ -1,0 +1,4 @@
+<map id="updateControlSignals" name="updateControlSignals">
+<area shape="rect" id="node2" href="$group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d" title="Sets the state of the specified magnet to coast, break, or PWM in the direction selected by the duty ..." alt="" coords="199,5,281,32"/>
+<area shape="rect" id="node3" href="$group___control_private_functions.html#ga9fa41aa2c8686b524807fa969084a7d1" title="Force PWM pin function to GPIO. " alt="" coords="329,5,491,32"/>
+</map>

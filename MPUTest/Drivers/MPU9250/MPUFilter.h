@@ -1,3 +1,8 @@
+/**
+ * @file MPUFilter.h
+ * @author Tyler
+ */
+
 /******************************* SOURCE LICENSE *********************************
 Copyright (c) 2018 MicroModeler.
 
@@ -12,8 +17,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ******************************* END OF LICENSE *********************************/
 
 // A commercial license for MicroModeler DSP can be obtained at http://www.micromodeler.com/launch.jsp
-
-// Begin header file, MPUFilter.h
 
 #ifndef MPUFILTER_H_ // Include guards
 #define MPUFILTER_H_

@@ -1,8 +1,10 @@
-/*
- * App_MPU9250.c
+/**
+ * @file App_MPU9250.c
+ * @author Tyler
+ * @brief Application code utilizing the MPU9250
  *
- *  Created on: Jul 28, 2018
- *      Author: Tyler
+ * @defgroup MPU9250_App MPU9250 Application Code
+ * @{
  */
 
 
@@ -22,12 +24,25 @@ extern osThreadId ControlTaskHandle;
 
 
 /******************************* Public variables ****************************/
-MPU9250_t myMPU9250; // Global MPU9250 object
+MPU9250_t myMPU9250; /**< Global MPU9250 object */
 
 
 
 
 /***************************** Public Functions ******************************/
+/**
+ * @defgroup MPU9250_App_Public_Functions MPU9250 Application Public Functions
+ * @ingroup MPU9250_App
+ * @{
+ */
+
+/**
+ * @brief   Updates the acceleration data container with fresh data
+ * @details Each axis of accelerometer data is digitally filtered
+ * @param   accelData Pointer to the acceleration data container
+ * @param   myMPU9250 Pointer to the data structure which stores the data read
+ *          from the MPU9250 sensor
+ */
 void updateAccelReading(
         accelerometerData_t* accelData,
         MPU9250_t* myMPU9250
@@ -50,6 +65,12 @@ void updateAccelReading(
     accelData->az = myMPU9250->az;
 }
 
+/**
+ * @brief Updates the magnetic flux density data container with fresh data
+ * @param magData Pointer to the magnetic flux density data container
+ * @param myMPU9250 Pointer to the data structure which stores the data read
+ *        from the MPU9250 sensor
+ */
 void updateMagReading(
         magnetometerData_t* magData,
         MPU9250_t* myMPU9250
@@ -67,6 +88,15 @@ void updateMagReading(
     magData->hz = myMPU9250->hz;
 }
 
+/**
+ * @brief Based on the latest accelerometer readings, this function determines
+ *        which state we are in: reduced gravity, or none. If the state is
+ *        different than the last time this thread ran its cycle, an event is
+ *        generated which notifies the control thread (to start/stop
+ *        experiments).
+ * @param myMPU9250 Pointer to the data structure which stores the data read
+ *        from the MPU9250 sensor
+ */
 void MPU9250EventHandler(MPU9250_t* myMPU9250){
     /* Initial state is sensing no event, and no command to transmit */
     static enum flightEvents_e sensedEvent = NONE;
@@ -93,3 +123,13 @@ void MPU9250EventHandler(MPU9250_t* myMPU9250){
         );
     }
 }
+
+/**
+ * @}
+ */
+/* end - MPU9250_App_Public_Functions */
+
+/**
+ * @}
+ */
+/* end - MPU9250_App */

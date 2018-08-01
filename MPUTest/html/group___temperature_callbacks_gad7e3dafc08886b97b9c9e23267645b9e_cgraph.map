@@ -1,0 +1,4 @@
+<map id="HAL_ADC_ConvHalfCpltCallback" name="HAL_ADC_ConvHalfCpltCallback">
+<area shape="rect" id="node2" href="$group___temperature_private_functions.html#ga8028bb3b253dbb516a4ff94c1dd0e38f" title="Processes the raw ADC data by block averaging the samples from a specified half of the raw data buffe..." alt="" coords="264,5,359,32"/>
+<area shape="rect" id="node3" href="$group___temperature_private_functions.html#ga42ae0e00c69e748ba833ba8a49905ab6" title="Given an ADC_HandleTypeDef pointer, this function returns the associated raw data buffer and the proc..." alt="" coords="407,5,555,32"/>
+</map>
