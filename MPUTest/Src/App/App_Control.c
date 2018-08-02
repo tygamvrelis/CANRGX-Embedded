@@ -337,6 +337,7 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
 
             // Turn on camera synchronization LED for about 3 frames
             setCameraLEDState(ON);
+            osTimerStop(tmrCameraLEDHandle);
             osTimerStart(tmrCameraLEDHandle, 100);
             break;
         case NONE:
@@ -365,6 +366,7 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
             // Turn off the camera synchronization LED (it is probably already
             // off due to the timer callback, but we do it anyway just to make
             // sure)
+            setCameraLEDState(OFF);
             osTimerStop(tmrCameraLEDHandle);
             break;
         default:
