@@ -1,6 +1,0 @@
-<map id="Control" name="Control">
-<area shape="rect" id="node1" href="$group___control_private_functions.html" title="Functions used internally. " alt="" coords="116,5,239,32"/>
-<area shape="rect" id="node2" href="$group___control_header.html" title="Header" alt="" coords="146,56,209,83"/>
-<area shape="rect" id="node3" href="$group___control___callbacks.html" title="Event handlers to update the status/camera synchronization LED states. " alt="" coords="138,107,217,133"/>
-<area shape="rect" id="node4" href="$group___control_public_functions.html" title="Functions used externally. " alt="" coords="118,157,237,184"/>
-</map>

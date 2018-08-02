@@ -1,0 +1,13 @@
+<map id="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Inc/userTypes.h" name="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Inc/userTypes.h">
+<area shape="rect" id="node2" href="$_app___comm_r_x_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_CommRX.h" alt="" coords="253,257,475,343"/>
+<area shape="rect" id="node4" href="$_app___comm_t_x_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_CommTX.h" alt="" coords="81,124,303,209"/>
+<area shape="rect" id="node6" href="$_app___control_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_Control.h" alt="" coords="499,124,720,209"/>
+<area shape="rect" id="node9" href="$_app___m_p_u9250_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_MPU9250.h" alt="" coords="744,124,965,209"/>
+<area shape="rect" id="node11" href="$_app___temperature_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_Temperature.h" alt="" coords="1112,124,1333,209"/>
+<area shape="rect" id="node3" href="$_app___comm_r_x_8c.html" title="Functions and data related to the reception side of PC communication. " alt="" coords="252,391,476,476"/>
+<area shape="rect" id="node5" href="$_app___comm_t_x_8c.html" title="Functions and data related to the transmission side of PC communication. " alt="" coords="5,257,229,343"/>
+<area shape="rect" id="node7" href="$_app___control_8c.html" title="All the functions related to generating control signals. " alt="" coords="499,257,723,343"/>
+<area shape="rect" id="node8" href="$main_8c.html" title=": Main program body " alt="" coords="747,265,960,335"/>
+<area shape="rect" id="node10" href="$_app___m_p_u9250_8c.html" title="Application code utilizing the MPU9250. " alt="" coords="984,257,1208,343"/>
+<area shape="rect" id="node12" href="$_app___temperature_8c.html" title="Functions and data structures related to acquiring temperature sensor data, and consequently interfac..." alt="" coords="1232,257,1456,343"/>
+</map>

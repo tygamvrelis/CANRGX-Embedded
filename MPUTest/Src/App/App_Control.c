@@ -302,7 +302,8 @@ static int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle)
 }
 
 /**
- * @brief Turns off the timer channels used for TEC PWM.
+ * @brief  Turns off the timer channels used for TEC PWM
+ * @return none
  */
 static void TEC_stop(void){
     HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
@@ -391,8 +392,9 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
  */
 
 /**
- * @brief Initializes the control state to IDLE, and asserts all control
- *        signals accordingly
+ * @brief  Initializes the control state to IDLE, and asserts all control
+ *         signals accordingly
+ * @return none
  */
 void controlInit(void){
     magnet1Info.magnet = MAGNET1;
@@ -520,8 +522,9 @@ void updateControlData(controlData_t* controlData){
 }
 
 /**
- * @brief Sets the control signals to their idle state. This turns off the
- *        PWM for the TECs (0 duty cycle) and brakes the magnets
+ * @brief  Sets the control signals to their idle state. This turns off the
+ *         PWM for the TECs (0 duty cycle) and brakes the magnets
+ * @return none
  */
 void controlSetSignalsToIdleState(void){
     TEC1DutyCycle = 0;

@@ -101,7 +101,8 @@ static temperatureData_t* temperatureDataPtr = NULL;
  */
 
 /**
- * @brief Initializes the buffer contents by writing in the start sequence
+ * @brief  Initializes the buffer contents by writing in the start sequence
+ * @return None
  */
 void commTXInit(void){
     // Dummy bits to indicate packet start

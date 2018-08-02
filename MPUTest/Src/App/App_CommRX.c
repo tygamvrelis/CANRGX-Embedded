@@ -66,11 +66,15 @@ static uint8_t buffer[3];
  */
 
 /**
- * @brief Helper method to pass an experiment number to the control task while
- *        simultaneously passing in the manual override start code
+ * @brief  Helper method to pass an experiment number to the control task while
+ *         simultaneously passing in the manual override start code
+ * @param  value The value to be passed alongside the manual override start
+ *         code
+ * @return Logical OR of the value passed in with the manual override start
+ *         bitmask
  */
-static inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
-    return MANUAL_OVERRIDE_START_BITMASK | x;
+static inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t value){
+    return MANUAL_OVERRIDE_START_BITMASK | value;
 }
 
 /**
@@ -89,7 +93,7 @@ static inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
  * @{
  */
 
-/** Initiates an interrupt-based reception of `sizeof(buffer)` bytes */
+/** @brief Initiates an interrupt-based reception of `sizeof(buffer)` bytes */
 void commRXInitReception(void){
     HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
 }
@@ -142,7 +146,10 @@ void commRXEventHandler(void){
     }
 }
 
-/** @brief Aborts the current interrupt-based reception */
+/**
+ * @brief  Aborts the current interrupt-based reception
+ * @return None
+ */
 void commRXCancelReception(void){
     HAL_UART_AbortReceive_IT(&huart2);
 }

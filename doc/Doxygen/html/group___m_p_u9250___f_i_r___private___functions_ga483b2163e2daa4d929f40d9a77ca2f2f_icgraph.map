@@ -1,0 +1,4 @@
+<map id="MPUFilter_writeInput" name="MPUFilter_writeInput">
+<area shape="rect" id="node2" href="$group___m_p_u9250___f_i_r___private___functions.html#ga13e6b9fc0b5c19bbf87f36128138bb7f" title="Fills the filter with dummy inputs so that when the system starts we will not accidentally start the ..." alt="" coords="196,5,383,32"/>
+<area shape="rect" id="node3" href="$group___m_p_u9250___f_i_r___header.html#ga250eb8f76ec3adf4dd1c6113295d9a18" title="Given fresh sensor data for acceleration in each axis, this function filters the data then writes in ..." alt="" coords="221,56,357,83"/>
+</map>
