@@ -33,14 +33,15 @@ class CANRGXUDPProtocol(asyncio.DatagramProtocol):
             'earth_info', (1000, 3), '>d', chunks=True, maxshape=(None, 3))
         self.linear_motion_ds = self.h5_file.create_dataset(
             'linear_motion', (1000, 6), '>f', chunks=True, maxshape=(None, 6))
-
+        self.sys_time_ds = self.h5_file.create_dataset(
+            'sys_time', (1000, 1), '>d', chunks=True, maxshape=(None, 1))
 
     def connection_made(self, transport):
         self.transport = transport
         print('Connection Made')
 
     def check_ds_size(self):
-        for ds in [self.gps_time_ds, self.mode_info_ds, self.attitude_info_ds, self.earth_info_ds, self.linear_motion_ds]:
+        for ds in [self.gps_time_ds, self.mode_info_ds, self.attitude_info_ds, self.earth_info_ds, self.linear_motion_ds, self.sys_time_ds]:
             if self.index +250 >= ds.shape[0]:
                 ds.resize(self.index+1000,0)
                 print('Resized')
@@ -53,13 +54,15 @@ class CANRGXUDPProtocol(asyncio.DatagramProtocol):
         self.attitude_info_ds[self.index, :] = np.frombuffer(data, '>f', 6, 16)
         self.earth_info_ds[self.index, :] = np.frombuffer(data, '>d', 3, 40)
         self.linear_motion_ds[self.index, :] = np.frombuffer(data, '>f', 6, 64)
-
+        self.sys_time_ds[self.index, 0] = time.time()
+        
         self.index += 1
         if(self.index%200==0):
             self.check_ds_size()
             print("Received from: ", addr, "GPSTime",
                   self.gps_time_ds[self.index - 1, 0], "index", self.index)
-        
+        if(self.index % 500 == 0):
+            self.h5_file.flush()
         #print("ModeInfo",ModeInfo)
         #print("AttitudeInfo",AttitudeInfo)
         #print("EarthInfo", EarthInfo)
