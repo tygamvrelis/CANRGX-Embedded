@@ -1,6 +1,0 @@
-<map id="Drivers/MPU9250/MPU9250.h" name="Drivers/MPU9250/MPU9250.h">
-<area shape="rect" id="node2" href="$_m_p_u9250_8c.html" title="Driver for MPU9250. " alt="" coords="5,80,200,107"/>
-<area shape="rect" id="node3" href="$_app___m_p_u9250_8h.html" title="Inc/App/App_MPU9250.h" alt="" coords="224,80,392,107"/>
-<area shape="rect" id="node4" href="$_app___m_p_u9250_8c.html" title="Application code utilizing the MPU9250. " alt="" coords="147,155,317,181"/>
-<area shape="rect" id="node5" href="$main_8c.html" title=": Main program body " alt="" coords="341,155,427,181"/>
-</map>

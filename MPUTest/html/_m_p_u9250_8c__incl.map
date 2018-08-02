@@ -1,7 +1,0 @@
-<map id="Drivers/MPU9250/MPU9250.c" name="Drivers/MPU9250/MPU9250.c">
-<area shape="rect" id="node2" href="$_m_p_u9250_8h.html" title="MPU9250.h" alt="" coords="186,80,277,107"/>
-<area shape="rect" id="node5" href="$i2c_8h_source.html" title="i2c.h" alt="" coords="206,155,257,181"/>
-<area shape="rect" id="node8" href="$_m_p_u_filter_8h.html" title="MPUFilter.h" alt="" coords="318,155,409,181"/>
-<area shape="rect" id="node11" href="$_m_p_u9250__t_8h.html" title="MPU9250_t.h" alt="" coords="494,229,595,256"/>
-<area shape="rect" id="node7" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="163,229,225,256"/>
-</map>

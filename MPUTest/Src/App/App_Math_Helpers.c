@@ -63,10 +63,12 @@ float trapezoid(uint32_t time, uint32_t period, float percentOn, float amplitude
  * @details The waveform looks something like this over 1 period, centered about
  *          the value 0:
  *
+ * @verbatim
  *           /--------\
  *          /          \
  *                      \          /
  *                       \--------/
+ * @endverbatim
  *
  * @param  time The input time at which the function is to be evaluated
  * @param  period The period of the whole AC form in ms

@@ -21,7 +21,7 @@
 
 
 /*********************************** Enums ***********************************/
-/** The temperature sensors in our system */
+/** @brief The temperature sensors in our system */
 enum tempSensors{
     TEMP1A, /**< Temperature sensor 1A */
     TEMP1B, /**< Temperature sensor 1B */
@@ -45,8 +45,9 @@ int Temp_Scan_Start(void);
 int Temp_Scan_Stop(void);
 
 /**
- * @brief Updates the temperature data container with the most recent filtered
- *        data. A block average over 32 samples is used for filtering
+ * @brief  Updates the temperature data container with the most recent filtered
+ *         data. A block average over 32 samples is used for filtering
+ * @return None
  */
 inline void updateTemperatureData(temperatureData_t* temperatureData){
     temperatureData->temp1a = ADC_processed[TEMP1A];

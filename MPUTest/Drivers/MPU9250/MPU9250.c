@@ -15,7 +15,10 @@
 
 
 /********************************* Constants *********************************/
-/** Any I2C transfer will wait up to 1 ms on a semaphore before timing out */
+/**
+ * @brief Any I2C transfer will wait up to 1 ms on a semaphore before timing
+ *        out
+ */
 static const TickType_t MAX_SEM_WAIT = 1;
 
 /* @brief The slave address that should be used when trying to get the
@@ -112,13 +115,16 @@ static const uint8_t MPU9250_MAG_ADDR = 0x0C << 1;
 
 
 // Scales for readings
-/** Accelerometer full-scale range in m/s^2 */
+/** @brief Accelerometer full-scale range in m/s^2 */
 static const float MPU9250_ACCEL_FULL_SCALE = 2 * 9.807;
 
-/** Gyroscope full-scale range in degrees/s */
+/** @brief Gyroscope full-scale range in degrees/s */
 static const float MPU9250_GYRO_FULL_SCALE = 250.0;
 
-/** Magnetometer full-scale range in microTeslas. See pg. 50 of register map */
+/**
+ * @brief Magnetometer full-scale range in microTeslas. See pg. 50 of register
+ *        map
+ */
 static const float MPU9250_MAG_FULL_SCALE = 4912.0;
 
 
@@ -238,7 +244,8 @@ int MPU9250Init(MPU9250_t* myMPU){
 }
 
 /**
- * @brief Reset the inertial measurement unit using blocking IO
+ * @brief  Reset the inertial measurement unit using blocking IO
+ * @return None
  */
 void resetIMUBlocking(void){
     uint8_t dataToWrite = 0x80;
@@ -247,7 +254,8 @@ void resetIMUBlocking(void){
 }
 
 /**
- * @brief Reset the magnetometer using blocking IO
+ * @brief  Reset the magnetometer using blocking IO
+ * @return None
  */
 void resetMagnetometerBlocking(void){
     uint8_t dataToWrite = 0x80;

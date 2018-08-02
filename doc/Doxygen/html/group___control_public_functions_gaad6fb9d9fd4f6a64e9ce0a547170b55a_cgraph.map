@@ -1,0 +1,5 @@
+<map id="controlInit" name="controlInit">
+<area shape="rect" id="node2" href="$group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef" title="Turns off the timer channels used for TEC PWM. " alt="" coords="134,5,213,32"/>
+<area shape="rect" id="node3" href="$group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d" title="Sets the state of the specified magnet to coast, break, or PWM in the direction selected by the duty ..." alt="" coords="132,56,215,83"/>
+<area shape="rect" id="node4" href="$group___control_private_functions.html#ga9fa41aa2c8686b524807fa969084a7d1" title="Force PWM pin function to GPIO. " alt="" coords="263,56,424,83"/>
+</map>
