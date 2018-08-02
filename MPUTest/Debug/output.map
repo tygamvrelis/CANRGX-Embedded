@@ -13,7 +13,7 @@ d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.20
 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libm.a(lib_a-s_matherr.o)
                               d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libm.a(lib_a-w_sqrt.o) (matherr)
 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard\libgcc.a(_arm_addsubdf3.o)
-                              d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard\libm.a(lib_a-e_sqrt.o) (__aeabi_dsub)
+                              Src/App/App_Math_Helpers.o (__aeabi_dsub)
 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard\libgcc.a(_arm_muldivdf3.o)
                               Drivers/MPU9250/MPU9250.o (__aeabi_dmul)
 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard\libgcc.a(_arm_cmpdf2.o)
@@ -6449,6 +6449,62 @@ Discarded input sections
  .debug_macro   0x00000000       0x16 Src/App/App_MPU9250.o
  .debug_macro   0x00000000       0xd6 Src/App/App_MPU9250.o
  .debug_macro   0x00000000       0x1c Src/App/App_MPU9250.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .group         0x00000000        0x8 Src/App/App_Math_Helpers.o
+ .text          0x00000000        0x0 Src/App/App_Math_Helpers.o
+ .data          0x00000000        0x0 Src/App/App_Math_Helpers.o
+ .bss           0x00000000        0x0 Src/App/App_Math_Helpers.o
+ .text.trapezoid
+                0x00000000       0xfc Src/App/App_Math_Helpers.o
+ .text.acTrapezoid
+                0x00000000      0x1d0 Src/App/App_Math_Helpers.o
+ .debug_info    0x00000000      0xbe8 Src/App/App_Math_Helpers.o
+ .debug_abbrev  0x00000000      0x269 Src/App/App_Math_Helpers.o
+ .debug_loc     0x00000000      0x9ac Src/App/App_Math_Helpers.o
+ .debug_aranges
+                0x00000000       0x28 Src/App/App_Math_Helpers.o
+ .debug_ranges  0x00000000       0xa0 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000      0x10b Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000      0x8bc Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x22 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x52 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x8d Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x35 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x9c Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000      0x174 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x57 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x58 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x1f Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x43 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x20 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000      0x187 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000      0x330 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000      0x1e1 Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0xef Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000       0x6a Src/App/App_Math_Helpers.o
+ .debug_macro   0x00000000      0x1df Src/App/App_Math_Helpers.o
+ .debug_line    0x00000000      0x446 Src/App/App_Math_Helpers.o
+ .debug_str     0x00000000     0x6cef Src/App/App_Math_Helpers.o
+ .comment       0x00000000       0x80 Src/App/App_Math_Helpers.o
+ .debug_frame   0x00000000       0xa0 Src/App/App_Math_Helpers.o
+ .ARM.attributes
+                0x00000000       0x39 Src/App/App_Math_Helpers.o
  .group         0x00000000        0x8 Src/App/App_Temperature.o
  .group         0x00000000        0x8 Src/App/App_Temperature.o
  .group         0x00000000        0x8 Src/App/App_Temperature.o
@@ -8875,6 +8931,7 @@ LOAD Src/App/App_CommRX.o
 LOAD Src/App/App_CommTX.o
 LOAD Src/App/App_Control.o
 LOAD Src/App/App_MPU9250.o
+LOAD Src/App/App_Math_Helpers.o
 LOAD Src/App/App_Temperature.o
 LOAD Src/adc.o
 LOAD Src/dma.o
