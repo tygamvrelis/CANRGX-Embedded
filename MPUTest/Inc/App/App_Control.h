@@ -49,7 +49,7 @@ enum driveMode_e{
 
 /** @brief The states the camera synchronization LED can be in */
 enum cameraState_e{
-    ON = GPIO_PIN_SET,   /**< LED is on */
+    ON = GPIO_PIN_SET,   /**< LED is on  */
     OFF = GPIO_PIN_RESET /**< LED is off */
 };
 
