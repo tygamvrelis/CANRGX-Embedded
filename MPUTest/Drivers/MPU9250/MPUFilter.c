@@ -125,6 +125,19 @@ static void MPUFilter_init(MPUFilterType * pThis){
 }
 
 /**
+ * @brief Fills the filter with dummy inputs so that when the system starts
+ *        we will not accidentally start the experiment while the filter is
+ *        "warming up" with samples
+ * @param pThis Pointer to filter data structure
+ * @param dummyInput The value to fill the filter buffer with
+ */
+static void MPUFilter_writeDummyData(MPUFilterType* pThis, float dummyInput){
+    for(uint8_t i = 0; i < MPUFilter_numTaps; ++i){
+        MPUFilter_writeInput(pThis, dummyInput);
+    }
+}
+
+/**
  * @}
  */
 /* end - MPU9250_FIR_Private_Functions */
@@ -145,8 +158,11 @@ static void MPUFilter_init(MPUFilterType * pThis){
  */
 void initAllMPU9250Filters(void){
     MPUFilter_init(&axFilter);
+    MPUFilter_writeDummyData(&axFilter, 1.0);
     MPUFilter_init(&ayFilter);
+    MPUFilter_writeDummyData(&ayFilter, 1.0);
     MPUFilter_init(&azFilter);
+    MPUFilter_writeDummyData(&azFilter, 9.81);
 }
 
 /**
