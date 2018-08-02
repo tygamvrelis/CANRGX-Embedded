@@ -1,0 +1,4 @@
+<map id="TEC_stop" name="TEC_stop">
+<area shape="rect" id="node2" href="$group___control_public_functions.html#gaad6fb9d9fd4f6a64e9ce0a547170b55a" title="Initializes the control state to IDLE, and asserts all control signals accordingly. " alt="" coords="187,5,266,32"/>
+<area shape="rect" id="node3" href="$group___control_public_functions.html#gafcfabfde443c3976d02dbd7b267cb659" title="Sets the control signals to their idle state. This turns off the PWM for the TECs (0 duty cycle) and ..." alt="" coords="132,56,321,83"/>
+</map>

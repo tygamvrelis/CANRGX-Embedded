@@ -67,7 +67,7 @@ typedef struct{
 
 
 /***************************** Private Variables *****************************/
-/** Filter data structures for x-, y-, and z-axis acceleration */
+/** @brief Filter data structures for x-, y-, and z-axis acceleration */
 static MPUFilterType azFilter, ayFilter, axFilter;
 
 
@@ -154,7 +154,8 @@ static void MPUFilter_writeDummyData(MPUFilterType* pThis, float dummyInput){
  */
 
 /**
- * @brief Initializes all filters for the accelerometer data
+ * @brief  Initializes all filters for the accelerometer data
+ * @return None
  */
 void initAllMPU9250Filters(void){
     MPUFilter_init(&axFilter);
