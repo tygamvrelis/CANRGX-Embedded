@@ -14,6 +14,7 @@
 
 /********************************** Includes *********************************/
 #include "App/App_Control.h"
+#include "App/App_Math_Helpers.h"
 
 
 
@@ -325,12 +326,33 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
         case REDUCEDGRAVITY:
             controllerState = nextControllerState;
 
-            TEC1DutyCycle = TEC_ON_DUTY_CYCLE;
-            TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
-            TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
+            // One-time update for the new state
+            switch(controllerState){
+                case IDLE:
+                case EXPERIMENT0:
+                case EXPERIMENT1:
+                case EXPERIMENT10:
+                    // These are baseline experiments
+                    break;
+                case EXPERIMENT2:
+                case EXPERIMENT3:
+                case EXPERIMENT4:
+                case EXPERIMENT5:
+                case EXPERIMENT6:
+                case EXPERIMENT7:
+                case EXPERIMENT8:
+                case EXPERIMENT9:
+                    // These experiments involve magnetism and heating
+                    TEC1DutyCycle = TEC_ON_DUTY_CYCLE;
+                    TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
+                    TEC_set_valuef(TEC1DutyCycle, TEC2DutyCycle);
 
-            magnet1Info.magnetState = PWM;
-            magnet2Info.magnetState = PWM;
+                    magnet1Info.magnetState = PWM;
+                    magnet2Info.magnetState = PWM;
+                    break;
+                default:
+                    break;
+            }
 
             // Make status LED blink at 10 Hz
             osTimerStop(tmrLEDBlinkHandle);
@@ -348,13 +370,22 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
             // at which point it will wrap around
             switch(nextControllerState){
                 case IDLE:
+                case EXPERIMENT0:
                 case EXPERIMENT1:
                 case EXPERIMENT2:
                 case EXPERIMENT3:
+                case EXPERIMENT4:
+                case EXPERIMENT5:
+                case EXPERIMENT6:
+                case EXPERIMENT7:
+                case EXPERIMENT8:
+                case EXPERIMENT9:
                     nextControllerState++;
                     break;
-                case EXPERIMENT4:
-                    nextControllerState = EXPERIMENT1;
+                case EXPERIMENT10:
+                    nextControllerState = EXPERIMENT0;
+                    break;
+                default:
                     break;
             }
 
@@ -471,40 +502,65 @@ void controlEventHandler(uint32_t notification){
  *        varying
  */
 void updateControlSignals(void){
-    // Update PWM duty cycle for magnets
+    uint32_t period_ms;
+    float val;
+
+    bool updateMagnets = true;
+    curTick = xTaskGetTickCount();
+
     switch(controllerState){
         case IDLE:
-            break;
+        case EXPERIMENT0:
         case EXPERIMENT1:
-            curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = 1; // sinf(0.002 * curTick);
-            magnet2Info.dutyCycle = 0; // sinf(0.002 * curTick);
-            setMagnet(&magnet1Info);
-            setMagnet(&magnet2Info);
+        case EXPERIMENT10:
+            // Baseline run: no magnetic field, no TECs
+            updateMagnets = false;
             break;
         case EXPERIMENT2:
-            curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = 0; // (1.0 + sinf(0.002 * curTick)) / 2.0;
-            magnet2Info.dutyCycle = 1; // (1.0 + sinf(0.002 * curTick)) / 2.0;
-            setMagnet(&magnet1Info);
-            setMagnet(&magnet2Info);
+        case EXPERIMENT8:
+            // Magnet1: +1, Magnet2: +1, TECs on (DC anti-Helmholtz)
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = 1.0;
             break;
         case EXPERIMENT3:
-            curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = 1; // sinf(0.002 * curTick);
-            magnet2Info.dutyCycle = 1; // cosf(0.002 * curTick);
-            setMagnet(&magnet1Info);
-            setMagnet(&magnet2Info);
+        case EXPERIMENT9:
+            // Magnet1: +1, Magnet2: -1, TECs on (DC Helmholtz)
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = -1.0;
             break;
         case EXPERIMENT4:
-            curTick = xTaskGetTickCount();
-            magnet1Info.dutyCycle = 1; // (1.0 + sinf(0.002 * curTick)) / 2.0;
-            magnet2Info.dutyCycle = -1; // (1.0 + cosf(0.002 * curTick)) / 2.0;
-            setMagnet(&magnet1Info);
-            setMagnet(&magnet2Info);
+            // Magnet1: +1, Magnet2: 0, TECs on
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = 0.0;
+            break;
+        case EXPERIMENT5:
+            // AC trapezoid anti-Helmholtz (in-phase)
+            period_ms = 2000;
+            val = acTrapezoid(curTick, (uint32_t)period_ms, 75.0, 1.0);
+
+            magnet1Info.dutyCycle = val;
+            magnet2Info.dutyCycle = val;
+            break;
+        case EXPERIMENT6:
+            // AC trapezoid Helmholtz (180 degrees out of phase)
+            period_ms = 2000;
+            val = acTrapezoid(curTick, (uint32_t)period_ms, 75.0, 1.0);
+
+            magnet1Info.dutyCycle = val;
+            magnet2Info.dutyCycle = -1.0 * val;
+            break;
+        case EXPERIMENT7:
+            // Magnet1: sin, Magnet2: cos
+            magnet1Info.dutyCycle = sinf(curTick / 500 * M_PI);
+            magnet2Info.dutyCycle = cosf(curTick / 500 * M_PI);
             break;
         default:
             break; // Should never reach here
+    }
+
+    if(updateMagnets){
+        setMagnet(&magnet1Info);
+        setMagnet(&magnet2Info);
     }
 }
 
