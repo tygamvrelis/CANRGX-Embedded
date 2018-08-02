@@ -59,6 +59,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+#include "App/App_Control.h"
 #include "App/App_MPU9250.h"
 /* USER CODE END Includes */
 
@@ -124,7 +125,10 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   /********** Start-up procedure prior to starting the scheduler **********/
-  MANUAL_MX_RTC_Init(); // Fix HAL bug where RTC is not initialized in the generated code
+  // The 2 functions below are fixes for cases where Cube did not generate
+  // correct peripheral initialization code
+  MANUAL_MX_RTC_Init();
+  MANUAL_ADC1_Init();
 
   HAL_Delay(100); // We're in no rush here...
 
@@ -261,9 +265,7 @@ int main(void)
   /*************************************************************************
    *               Turn on LED for camera synchronization                  *
    *************************************************************************/
-
-  // Turn on LED here
-  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_SET);
+  setCameraLEDState(ON);
 
   HAL_Delay(1500); // Wait 1500 ms, then send time. This way the PC will have logged data
   	  	  	  	   // demonstrating its accuracy over a reasonable time period. Also,
@@ -302,9 +304,7 @@ int main(void)
   /*************************************************************************
    *               Turn off LED for camera synchronization                 *
    *************************************************************************/
-
-  // Turn off LED here
-  HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, GPIO_PIN_RESET);
+  setCameraLEDState(OFF);
 
   /* USER CODE END 2 */
 

@@ -1,0 +1,6 @@
+<map id="RX" name="RX">
+<area shape="rect" id="node2" href="$group___comm_r_x_header.html" title="Header" alt="" coords="279,5,342,32"/>
+<area shape="rect" id="node4" href="$group___comm_r_x_public_functions.html" title="Functions used externally. " alt="" coords="253,56,368,83"/>
+<area shape="rect" id="node5" href="$group___comm_r_x_private_functions.html" title="Functions used internally. " alt="" coords="252,107,369,133"/>
+<area shape="rect" id="node3" href="$group___communication.html" title="PC&#45;MCU communication. " alt="" coords="5,56,117,83"/>
+</map>

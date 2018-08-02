@@ -1,8 +1,10 @@
-/*
- * App_MPU9250.h
+/**
+ * @file App_MPU9250.h
+ * @author Tyler
  *
- *  Created on: Jul 28, 2018
- *      Author: Tyler
+ * @defgroup MPU9250_App_Header Header
+ * @ingroup MPU9250_App
+ * @{
  */
 
 #ifndef APP_MPU9250_H_
@@ -26,6 +28,11 @@ extern MPU9250_t myMPU9250;
 
 
 /********************************* Functions *********************************/
+/**
+ * @brief  Applies the MPU9250 notification bitmask to a word of data
+ * @param  x The word of data to which the MPU9250 bitmask should be applied
+ * @return The logical OR of MPU_BITMASK and the word x
+ */
 inline uint32_t NOTIFY_FROM_MPU(uint32_t x){
     return MPU_BITMASK | x;
 }
@@ -41,5 +48,10 @@ void updateMagReading(
 );
 
 void MPU9250EventHandler(MPU9250_t* myMPU9250);
+
+/**
+ * @}
+ */
+/* end - MPU9250_App_Header */
 
 #endif /* APP_MPU9250_H_ */

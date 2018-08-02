@@ -1,8 +1,12 @@
-/*
- * App_CommRX.c
+/**
+ * @file App_CommRX.c
+ * @author Tyler
+ * @brief Functions and data related to the reception side of PC communication
  *
- *  Created on: Jul 29, 2018
- *      Author: Tyler
+ * @defgroup CommRX RX
+ * @brief Handles receiving commands from the PC program
+ * @ingroup Communication
+ * @{
  */
 
 /********************************** Includes *********************************/
@@ -19,8 +23,21 @@ extern UART_HandleTypeDef huart2;
 
 
 /********************************* Constants *********************************/
+/**
+ * @brief The manual override start command contains an 'S' followed by the
+ *        number of the experiment to be started
+ */
 static const char MANUAL_OVERRIDE_START_CHAR = 'S';
+
+/**
+ * @brief  The manual override stop command contains this sequence as its first
+ *         2 characters
+ */
 static const char MANUAL_OVERRIDE_STOP_SEQ[] = { 'X', 'X' };
+
+/**
+ * @brief The reset command contains this sequence as its first two characters
+ */
 static const char RESET_SEQ[] = { 'R', 'S' };
 
 
@@ -28,31 +45,69 @@ static const char RESET_SEQ[] = { 'R', 'S' };
 
 /***************************** Private Variables *****************************/
 /**
- * Buffer for received commands. All such commands are a fixed size of 3
- * characters.
- *
- * buffer[0] == control character,
- * buffer[1] == accompanying data or additional control character,
- * buffer[2] == '\n'
- * */
+ * @brief   Buffer for received commands. All such commands are a fixed size of
+ *          3 characters.
+ * @details
+ *  -# `buffer[0]` == control character,
+ *  -# `buffer[1]` == accompanying data or additional control character,
+ *  -# `buffer[2]` == '\\n'
+ */
 static uint8_t buffer[3];
 
 
 
 
 /***************************** Private Functions *****************************/
+/**
+ * @defgroup CommRXPrivateFunctions Private functions
+ * @brief Functions used internally
+ * @ingroup CommRX
+ * @{
+ */
+
+/**
+ * @brief Helper method to pass an experiment number to the control task while
+ *        simultaneously passing in the manual override start code
+ */
 static inline uint32_t NOTIFY_FROM_MANUAL_OVERRIDE_START(uint32_t x){
     return MANUAL_OVERRIDE_START_BITMASK | x;
 }
+
+/**
+ * @}
+ */
+/* end - CommRXPrivateFunctions */
 
 
 
 
 /***************************** Public Functions ******************************/
+/**
+ * @defgroup CommRXPublicFunctions Public functions
+ * @brief Functions used externally
+ * @ingroup CommRX
+ * @{
+ */
+
+/** Initiates an interrupt-based reception of `sizeof(buffer)` bytes */
 void commRXInitReception(void){
     HAL_UART_Receive_IT(&huart2, buffer, sizeof(buffer));
 }
 
+/**
+ * @brief   Upon receiving a full buffer of bytes, this function will be
+ *          invoked from the PC RX thread to parse the data in the buffer and
+ *          take the appropriate action depending on the message
+ * @details There are 4 cases:
+ *   -# Manual override start: notify the control task and pass in the
+ *      experiment start number with the manual override start bitmask
+ *   -# Manual override stop: notify the control task with the manual override
+ *      stop bitmask
+ *   -# Manual hard reset: enter a critical section, set control signals to
+ *      idle, wait 1 s for the magnetic field to drain its energy, then perform
+ *      a full system reset
+ *   -# Invalid case; ignore it
+ */
 void commRXEventHandler(void){
     if(buffer[0] == MANUAL_OVERRIDE_START_CHAR){
         // Manual override for starting experiment
@@ -87,6 +142,17 @@ void commRXEventHandler(void){
     }
 }
 
+/** @brief Aborts the current interrupt-based reception */
 void commRXCancelReception(void){
     HAL_UART_AbortReceive_IT(&huart2);
 }
+
+/**
+ * @}
+ */
+/* end - CommRXPublicFunctions */
+
+/**
+ * @}
+ */
+/* end - CommRX */

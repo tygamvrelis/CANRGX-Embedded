@@ -83,6 +83,8 @@ uint8_t xTXDataQueueBuffer[ 4 * sizeof( TXData_t ) ];
 osStaticMessageQDef_t xTXDataQueueControlBlock;
 osTimerId tmrLEDBlinkHandle;
 osStaticTimerDef_t tmrLEDBlinkControlBlock;
+osTimerId tmrCameraLEDHandle;
+osStaticTimerDef_t tmrCameraLEDControlBlock;
 osSemaphoreId semMPU9250Handle;
 osStaticSemaphoreDef_t semMPU9250ControlBlock;
 osSemaphoreId semTxHandle;
@@ -102,6 +104,7 @@ void StartMPU9250Task(void const * argument);
 void StartRxTask(void const * argument);
 void StartTempTask(void const * argument);
 void tmrLEDCallback(void const * argument);
+void tmrCameraLEDCallback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -135,7 +138,7 @@ return 0;
  * @brief Toggles the green LED, LD2
  * @note  Useful for debugging
  */
-inline void LED(){
+inline void ToggleStatusLED(){
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
 /* USER CODE END 1 */
@@ -199,6 +202,10 @@ void MX_FREERTOS_Init(void) {
   osTimerStaticDef(tmrLEDBlink, tmrLEDCallback, &tmrLEDBlinkControlBlock);
   tmrLEDBlinkHandle = osTimerCreate(osTimer(tmrLEDBlink), osTimerPeriodic, NULL);
 
+  /* definition and creation of tmrCameraLED */
+  osTimerStaticDef(tmrCameraLED, tmrCameraLEDCallback, &tmrCameraLEDControlBlock);
+  tmrCameraLEDHandle = osTimerCreate(osTimer(tmrCameraLED), osTimerOnce, NULL);
+
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
   osTimerStart(tmrLEDBlinkHandle, 1000); // Start timer to blink status LED
@@ -245,18 +252,20 @@ void MX_FREERTOS_Init(void) {
 }
 
 /* StartDefaultTask function */
-void StartDefaultTask(void const * argument){
+void StartDefaultTask(void const * argument)
+{
 
-    /* USER CODE BEGIN StartDefaultTask */
+  /* USER CODE BEGIN StartDefaultTask */
     for(;;){
 
     }
-    /* USER CODE END StartDefaultTask */
+  /* USER CODE END StartDefaultTask */
 }
 
 /* StartControlTask function */
-void StartControlTask(void const * argument){
-    /* USER CODE BEGIN StartControlTask */
+void StartControlTask(void const * argument)
+{
+  /* USER CODE BEGIN StartControlTask */
     TXData_t txDataControl;
     controlData_t controlData = { 0 };
 
@@ -286,12 +295,13 @@ void StartControlTask(void const * argument){
         updateControlData(&controlData);
         xQueueSend(xTXDataQueueHandle, &txDataControl, 1);
     }
-    /* USER CODE END StartControlTask */
+  /* USER CODE END StartControlTask */
 }
 
 /* StartTxTask function */
-void StartTxTask(void const * argument){
-    /* USER CODE BEGIN StartTxTask */
+void StartTxTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTxTask */
     // For intertask communication
     TXData_t receivedData;
 
@@ -322,12 +332,13 @@ void StartTxTask(void const * argument){
             commTXSendPacket(&xLastWakeTime, &cycleStartTick);
         }
     }
-    /* USER CODE END StartTxTask */
+  /* USER CODE END StartTxTask */
 }
 
 /* StartMPU9250Task function */
-void StartMPU9250Task(void const * argument){
-    /* USER CODE BEGIN StartMPU9250Task */
+void StartMPU9250Task(void const * argument)
+{
+  /* USER CODE BEGIN StartMPU9250Task */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -358,12 +369,13 @@ void StartMPU9250Task(void const * argument){
         // Send updates to control task if there is an event
         MPU9250EventHandler(&myMPU9250);
     }
-    /* USER CODE END StartMPU9250Task */
+  /* USER CODE END StartMPU9250Task */
 }
 
 /* StartRxTask function */
-void StartRxTask(void const * argument){
-    /* USER CODE BEGIN StartRxTask */
+void StartRxTask(void const * argument)
+{
+  /* USER CODE BEGIN StartRxTask */
     for(;;){
         commRXInitReception();
 
@@ -374,12 +386,13 @@ void StartRxTask(void const * argument){
             commRXCancelReception();
         }
     }
-    /* USER CODE END StartRxTask */
+  /* USER CODE END StartRxTask */
 }
 
 /* StartTempTask function */
-void StartTempTask(void const * argument){
-    /* USER CODE BEGIN StartTempTask */
+void StartTempTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTempTask */
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
@@ -399,14 +412,38 @@ void StartTempTask(void const * argument){
 
         xQueueSend(xTXDataQueueHandle, &txDataTemperature, 1);
     }
-    /* USER CODE END StartTempTask */
+  /* USER CODE END StartTempTask */
 }
 
 /* tmrLEDCallback function */
-void tmrLEDCallback(void const * argument){
-    /* USER CODE BEGIN tmrLEDCallback */
-    LED();
-    /* USER CODE END tmrLEDCallback */
+/**
+ * @defgroup Control_Callbacks Callbacks
+ * @brief Event handlers to update the status/camera synchronization LED states
+ * @ingroup Control
+ */
+
+/**
+ * @brief Callback to blink status LED
+ * @ingroup Control_Callbacks
+ */
+void tmrLEDCallback(void const * argument)
+{
+  /* USER CODE BEGIN tmrLEDCallback */
+    ToggleStatusLED();
+  /* USER CODE END tmrLEDCallback */
+}
+
+/* tmrCameraLEDCallback function */
+/**
+ * @brief Callback to turn off the camera synchronization LED, which is turned
+ *        on when a new reduced gravity event occurs
+ * @ingroup Control_Callbacks
+ */
+void tmrCameraLEDCallback(void const * argument)
+{
+  /* USER CODE BEGIN tmrCameraLEDCallback */
+    setCameraLEDState(OFF);
+  /* USER CODE END tmrCameraLEDCallback */
 }
 
 /* USER CODE BEGIN Application */

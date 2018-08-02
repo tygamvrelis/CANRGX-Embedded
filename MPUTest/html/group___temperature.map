@@ -1,0 +1,6 @@
+<map id="Temperature" name="Temperature">
+<area shape="rect" id="node1" href="$group___temperature_callbacks.html" title="Event handlers for when the sample buffers are sufficiently fresh. " alt="" coords="167,5,246,32"/>
+<area shape="rect" id="node3" href="$group___temperature_private_functions.html" title="Functions used internally. " alt="" coords="148,56,265,83"/>
+<area shape="rect" id="node4" href="$group___temperature_public_functions.html" title="Functions used externally. " alt="" coords="149,107,264,133"/>
+<area shape="rect" id="node5" href="$group___temperature_header.html" title="Header" alt="" coords="175,157,238,184"/>
+</map>

@@ -1,8 +1,11 @@
-/*
- * MPU9250.c
+/**
+ * @file MPU9250.c
+ * @author Tyler
+ * @brief Driver for MPU9250
  *
- *  Created on: April 8, 2018
- *      Author: Tyler
+ * @defgroup MPU9250_Driver MPU9250 Driver
+ * @brief Library for interfacing with MPU9250
+ * @{
  */
 
 /********************************** Includes *********************************/
@@ -32,78 +35,111 @@ static const uint8_t MPU9250_MAG_ADDR = 0x0C << 1;
 
 // Register addresses for configuration stuff
 // Accel and gyro addresses
-#define SMPLRT_DIV 0x19
-#define CONFIG 0x1A
-#define GYRO_CONFIG 0x1B
-#define ACCEL_CONFIG 0x1C
-#define ACCEL_CONFIG_2 0x1D
-#define I2C_MST_CTRL 0x24 // Used to set I2C clock speed
-#define I2C_SLV0_ADDR 0x25 // Physical address of I2C slave 0
-#define I2C_SLV0_REG 0x26 // Slave 0 register from where to begin data transfer
-#define I2C_SLV0_CTRL 0x27 // Control register for data transactions with slave 0
-#define I2C_SLV1_ADDR 0x2B // Physical address of I2C slave 1
-#define I2C_SLV1_REG 0x2C // Slave 1 register from where to begin data transfer
-#define I2C_SLV1_CTRL 0x2D // Control register for data transactions with slave 1
-#define INT_PIN_CFG 0x37 //
-#define EXT_SENS_DATA_00 0x49 // Holds data from external sensors (i.e. magnetometer)
-#define I2C_SLV0_DO 0x63 // Data out when writing to slave 0
-#define I2C_SLV1_DO 0x64 // Data out when writing to slave 1
-#define USER_CTRL 0x6A // Used to enable I2C interface module
-#define PWR_MGMT_1 0x6B // Used to set the clock source for the accel & gyro
-#define PWR_MGMT_2 0x6C // Used to force accelerometer and gyroscope on
-#define WHO_AM_I 0x75 // Should ALWAYS be 0x71 so this is a good test of communication
+#define SMPLRT_DIV 0x19       /**< Sample rate divider                       */
+#define CONFIG 0x1A           /**< Can be used to configure the DLPF         */
+#define GYRO_CONFIG 0x1B      /**< Can be used to change gyroscope range     */
+#define ACCEL_CONFIG 0x1C     /**< Can be used to change accelerometer range */
+#define ACCEL_CONFIG_2 0x1D   /**< Can be used to change gyroscope and
+                               *   accelerometer data rate and bandwidth     */
+
+#define I2C_MST_CTRL 0x24     /**< Used to set I2C clock speed               */
+#define I2C_SLV0_ADDR 0x25    /**< Physical address of I2C slave 0           */
+#define I2C_SLV0_REG 0x26     /**< Slave 0 register from where to begin data
+                               *   transfer                                  */
+
+#define I2C_SLV0_CTRL 0x27    /**< Control register for data transactions
+                               *   with slave 0                              */
+
+#define I2C_SLV1_ADDR 0x2B    /**< Physical address of I2C slave 1           */
+#define I2C_SLV1_REG 0x2C     /**< Slave 1 register from where to begin data
+                               *   transfer                                  */
+
+#define I2C_SLV1_CTRL 0x2D    /**< Control register for data transactions
+                               *   with slave 1                              */
+
+#define INT_PIN_CFG 0x37      /**< Used to configure I2C bypass to
+                               *   external sensor (i.e. magnetometer)       */
+
+#define EXT_SENS_DATA_00 0x49 /**< Holds data from external sensors (i.e.
+                               *   magnetometer)                             */
+
+#define I2C_SLV0_DO 0x63      /**< Data out when writing to slave 0          */
+#define I2C_SLV1_DO 0x64      /**< Data out when writing to slave 1          */
+#define USER_CTRL 0x6A        /**< Used to enable I2C interface module       */
+#define PWR_MGMT_1 0x6B       /**< Used to set the clock source for the accel
+                               *   & gyro                                    */
+
+#define PWR_MGMT_2 0x6C       /**< Used to force accelerometer and gyroscope
+                               *   on                                        */
+
+#define WHO_AM_I 0x75         /**< Should ALWAYS be 0x71 so this is a good
+                               *   test of communication                     */
 
 // Magnetometer data
-#define WIA 0x00 // Device ID, should always read 0x48
-#define ST1 0x02 // Data ready
-#define ST2 0x09 // Read this to indicate "read end". Also indicates if sensor overflow occurs
-#define CNTL1 0x0A // Changes bit depth and operating mode
-#define CNTL2 0x0B // Set the lsb to reset the sensor
+#define WIA 0x00    /**< Device ID, should always read 0x48                  */
+#define ST1 0x02    /**< Data ready                                          */
+#define ST2 0x09    /**< Read this to indicate "read end". Also indicates if
+                     *   sensor overflow occurs                              */
+
+#define CNTL1 0x0A  /**< Changes bit depth and operating mode                */
+#define CNTL2 0x0B  /**< Set the lsb to reset the sensor                     */
 
 // Register addresses for accelerometer data (pg. 8 register map)
-#define MPU9250_ACCEL_X_ADDR_H 0x3B // AXH
-#define MPU9250_ACCEL_X_ADDR_L 0x3C // AXL
-#define MPU9250_ACCEL_Y_ADDR_H 0x3D // AYH
-#define MPU9250_ACCEL_Y_ADDR_L 0x3E // AYL
-#define MPU9250_ACCEL_Z_ADDR_H 0x3F // AZH
-#define MPU9250_ACCEL_Z_ADDR_L 0x40 // AZL
+#define MPU9250_ACCEL_X_ADDR_H 0x3B /**< AXH */
+#define MPU9250_ACCEL_X_ADDR_L 0x3C /**< AXL */
+#define MPU9250_ACCEL_Y_ADDR_H 0x3D /**< AYH */
+#define MPU9250_ACCEL_Y_ADDR_L 0x3E /**< AYL */
+#define MPU9250_ACCEL_Z_ADDR_H 0x3F /**< AZH */
+#define MPU9250_ACCEL_Z_ADDR_L 0x40 /**< AZL */
 
 
 // Register addresses for gyroscope data (pg. 8 register map)
-#define MPU9250_GYRO_X_ADDR_H 0x43 // VXH
-#define MPU9250_GYRO_X_ADDR_L 0x44 // VXL
-#define MPU9250_GYRO_Y_ADDR_H 0x45 // VYH
-#define MPU9250_GYRO_Y_ADDR_L 0x46 // VYL
-#define MPU9250_GYRO_Z_ADDR_H 0x47 // VZH
-#define MPU9250_GYRO_Z_ADDR_L 0x48 // VZL
+#define MPU9250_GYRO_X_ADDR_H 0x43 /**< VXH */
+#define MPU9250_GYRO_X_ADDR_L 0x44 /**< VXL */
+#define MPU9250_GYRO_Y_ADDR_H 0x45 /**< VYH */
+#define MPU9250_GYRO_Y_ADDR_L 0x46 /**< VYL */
+#define MPU9250_GYRO_Z_ADDR_H 0x47 /**< VZH */
+#define MPU9250_GYRO_Z_ADDR_L 0x48 /**< VZL */
 
 
 // Register addresses for magnetometer data (pg. 47 register map)
-#define MPU9250_MAG_X_ADDR_L 0x03 // HXL
-#define MPU9250_MAG_X_ADDR_H 0x04 // HXH
-#define MPU9250_MAG_Y_ADDR_L 0x05 // HYL
-#define MPU9250_MAG_Y_ADDR_H 0x06 // HYH
-#define MPU9250_MAG_Z_ADDR_L 0x07 // HZL
-#define MPU9250_MAG_Z_ADDR_H 0x08 // HZH
+#define MPU9250_MAG_X_ADDR_L 0x03 /**< HXL */
+#define MPU9250_MAG_X_ADDR_H 0x04 /**< HXH */
+#define MPU9250_MAG_Y_ADDR_L 0x05 /**< HYL */
+#define MPU9250_MAG_Y_ADDR_H 0x06 /**< HYH */
+#define MPU9250_MAG_Z_ADDR_L 0x07 /**< HZL */
+#define MPU9250_MAG_Z_ADDR_H 0x08 /**< HZH */
 
 
 // Scales for readings
-static const float MPU9250_ACCEL_FULL_SCALE = 2 * 9.807; // twice the gravitational acceleration due to Earth
-static const float MPU9250_GYRO_FULL_SCALE = 250.0; // degree/s
-static const float MPU9250_MAG_FULL_SCALE = 4912.0; // microTeslas. See pg. 50 of the register map
+/** Accelerometer full-scale range in m/s^2 */
+static const float MPU9250_ACCEL_FULL_SCALE = 2 * 9.807;
+
+/** Gyroscope full-scale range in degrees/s */
+static const float MPU9250_GYRO_FULL_SCALE = 250.0;
+
+/** Magnetometer full-scale range in microTeslas. See pg. 50 of register map */
+static const float MPU9250_MAG_FULL_SCALE = 4912.0;
 
 
 
 
 /********************************* Functions *********************************/
-int MPU9250Init(MPU9250_t* myMPU){
-    /* Initializes the sensor object passed in.
-     *
-     * Arguments: pointer to MPU6050_t
-     *
-     * Returns: 1 if successful, returns a negative error code otherwise
-     */
+/**
+ * @defgroup MPU9250_Driver_Init_Functions Initialization Functions
+ * @ingroup MPU9250_Driver
+ * @brief Initialization routines
+ * @{
+ */
 
+/**
+ * @brief  Initializes the MPU9250 sensor by writing various settings to its
+ *         registers, and reading a few of them for verification
+ * @param  myMPU Pointer to the data structure which stores the data read from
+ *         the MPU9250 sensor
+ * @return 1 if successful, otherwise a negative error code
+ */
+int MPU9250Init(MPU9250_t* myMPU){
     myMPU->az = NAN;
     myMPU->ay = NAN;
     myMPU->ax = NAN;
@@ -117,6 +153,7 @@ int MPU9250Init(MPU9250_t* myMPU){
 
     /********** Check that MPU9250 is connected **********/
     uint8_t buff[1];
+
     // Check for bus communication essentially. If any function should fail and issue an early return, it would most likely
     // be this one.
     if(HAL_I2C_Mem_Read(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, WHO_AM_I,
@@ -200,30 +237,45 @@ int MPU9250Init(MPU9250_t* myMPU){
     return 1;
 }
 
+/**
+ * @brief Reset the inertial measurement unit using blocking IO
+ */
 void resetIMUBlocking(void){
     uint8_t dataToWrite = 0x80;
     HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1,
             I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
 }
 
+/**
+ * @brief Reset the magnetometer using blocking IO
+ */
 void resetMagnetometerBlocking(void){
     uint8_t dataToWrite = 0x80;
     HAL_I2C_Mem_Write(&hi2c3, MPU9250_ACCEL_AND_GYRO_ADDR, PWR_MGMT_1,
             I2C_MEMADD_SIZE_8BIT, &dataToWrite, sizeof(dataToWrite), 100);
 }
 
-int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
-    /* Read from the az, ay, ax register addresses and stores the results in the
-     * myMPU object passed in.
-     *
-     * Arguments:
-     * 	  myMPU, the object to store the acceleration values in
-     * 	  sem, handle for the semaphore to take while transferring data
-     *
-     * Returns:
-     *    1 if successful, -1 otherwise
-     */
+/**
+ * @}
+ */
+/* end - MPU9250_Driver_Init_Functions */
 
+/**
+ * @defgroup MPU9250_Driver_Threaded Readers
+ * @ingroup MPU9250_Driver
+ * @brief Sensor data readers used once the scheduler has started
+ * @{
+ */
+
+/**
+ * @brief  Read from the az, ay, ax register addresses and stores the results in
+ *         the myMPU object passed in
+ * @param  myMPU Pointer to the data structure which stores the data read from
+ *         the MPU9250 sensor
+ * @param  sem Handle for the semaphore to take while transferring data
+ * @return 1 if successful, -1 otherwise
+ */
+int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
     uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
     int16_t temp;
 
@@ -242,7 +294,7 @@ int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
         return -2;
     }
 
-    /* Process data; scale to physical units */
+    // Process data; scale to physical units
     temp = (mpu_buff[0] << 8 | mpu_buff[1]); // Shift bytes into appropriate positions
     myMPU->ax = (temp * MPU9250_ACCEL_FULL_SCALE / (32767.0)); // Scale to physical units
 
@@ -255,19 +307,15 @@ int accelReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
     return 1;
 }
 
+/**
+ * @brief  Read from the az, ay, ax register addresses and stores the results in
+ *         the myMPU object passed in
+ * @param  myMPU Pointer to the data structure which stores the data read from
+ *         the MPU9250 sensor
+ * @param  sem Handle for the semaphore to take while transferring data
+ * @return 1 if successful, -1 otherwise
+ */
 int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
-    /*
-     * Read from the az, ay, ax register addresses and stores the results in the
-     * myMPU object passed in.
-     *
-     * Arguments:
-     * 	  myMPU, the object to store the acceleration values in
-     * 	  sem, handle for the semaphore to take while transferring data
-     *
-     * Returns:
-     *    1 if successful, -1 otherwise
-     */
-
     uint8_t mpu_buff[6]; // Temporary buffer to hold data from sensor
     int16_t temp;
 
@@ -286,7 +334,7 @@ int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
         return -1;
     }
 
-    /* Process data; scale to physical units */
+    // Process data; scale to physical units
     temp = (mpu_buff[0] << 8 | mpu_buff[1]);
     myMPU->vx = (temp / (32767.0) * MPU9250_GYRO_FULL_SCALE);
 
@@ -299,21 +347,19 @@ int gyroReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
     return 1;
 }
 
+/**
+ * @brief  Reads from the magnetometer and stores the results in the myMPU
+ *         object passed in
+ * @note   The high and low bytes switch places for the magnetic field readings
+ *         due to the way the registers are mapped. Note that 7 bytes are read
+ *         because the magnetometer requires the ST2 register to be read in
+ *         addition to other data
+ * @param  myMPU Pointer to the data structure which stores the data read from
+ *         the MPU9250 sensor
+ * @param  sem Handle for the semaphore to take while transferring data
+ * @return 1 if successful, otherwise a negative error code
+ */
 int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
-    /* Reads from the magnetometer and stores the results in a buffer.
-     *
-     * Note that the high and low bytes switch places for the magnetic field readings
-     * due to the way the registers are mapped. Note that 7 bytes are read because the
-     * magnetometer requires the ST2 register to be read in addition to other data
-     *
-     * Arguments:
-     *     myMPU, the object to store the acceleration values in
-     *     sem, handle for the semaphore to take while transmitting
-     *
-     * Returns:
-     *     1 if successful, otherwise a negative error code
-     */
-
     uint8_t mpu_buff[7]; // Temporary buffer to hold data from sensor
     int16_t temp;
 
@@ -331,7 +377,7 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
         return -2;
     }
 
-    /* Process data; scale to physical units */
+    // Process data; scale to physical units
     temp = (mpu_buff[1] << 8 | mpu_buff[0]);
     myMPU->hx = (temp / (32760.0) * MPU9250_MAG_FULL_SCALE);
 
@@ -344,12 +390,41 @@ int magFluxReadDMA(MPU9250_t* myMPU, osSemaphoreId sem){
     return 1;
 }
 
-// Note: The following 2 functions are used as a workaround for an issue where the BUSY flag of the
-// I2C module is erroneously asserted in the hardware (a silicon bug, essentially). By checking the logs
-// for "nan", I have been able to see that this fix indeed will resolve I2C bus conflict. So it is useful to
-// have.
-//
-// Overall, use these functions with EXTREME caution.
+/**
+ * @}
+ */
+/* end - MPU9250_Driver_Threaded */
+
+/**
+ * @defgroup MPU9250_Driver_Error_Handlers Errata handlers
+ * @brief Handles a silicon bug in the I2C module that shows up occasionally
+ * @ingroup MPU9250_Driver
+ *
+ * @details
+ * These functions are used as a workaround for an issue where the BUSY flag of
+ * the I2C module is erroneously asserted in the hardware (a silicon bug,
+ * essentially). By checking the logs for "nan", I have been able to see that
+ * this fix indeed will resolve I2C bus conflict. So it is useful to have.
+ *
+ * Overall, use these functions with EXTREME caution.
+ *
+ * Resources used for resolution:
+ *  - https://electronics.stackexchange.com/questions/267972/i2c-busy-flag-strange-behaviour/281046#281046
+ *  - https://community.st.com/thread/35884-cant-reset-i2c-in-stm32f407-to-release-i2c-lines
+ *  - https://electronics.stackexchange.com/questions/272427/stm32-busy-flag-is-set-after-i2c-initialization
+ *  - http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf
+ *
+ * @{
+ */
+
+/**
+ * @brief  Helper function for generateClocks
+ * @param  port Pointer to the SDA port
+ * @param  pin The SDA pin number
+ * @param  state The state to compare SDA to (i.e. desired SDA state)
+ * @param  timeout The number of ms to wait before leaving function
+ * @return 1 if SDA pin is read to be state, 0 if timeout
+ */
 static uint8_t wait_for_gpio_state_timeout(
         GPIO_TypeDef* port,
         uint16_t pin,
@@ -357,21 +432,13 @@ static uint8_t wait_for_gpio_state_timeout(
         uint8_t timeout
 )
 {
-    /* Helper function for generateClocks.
-     *
-     * Arguments: port, points to the SDA port
-     * 			  pin, the SDA pin number
-     * 			  state, the state to compare SDA to (i.e. desired SDA state)
-     * 			  timeout, the number of ms to wait before leaving function
-     *
-     * Returns: 1 if SDA pin is read to be state, 0 if timeout
-     */
-
     uint32_t Tickstart = HAL_GetTick();
     uint8_t ret = 1;
-    /* Wait until flag is set */
+
+    // Wait until flag is set
     while ((state != HAL_GPIO_ReadPin(port, pin)) && (1 == ret)){
-        /* Check for the timeout */
+
+        // Check for the timeout
         if((timeout == 0U) || (HAL_GetTick() - Tickstart >= timeout)){
             ret = 0;
         }
@@ -380,26 +447,19 @@ static uint8_t wait_for_gpio_state_timeout(
     return ret;
 }
 
+/**
+ * @brief This function bit-bangs the I2C master clock, with the option of
+ *        sending stop bits
+ * @param hi2c Pointer to the I2C handle corresponding to the sensor
+ * @param numClocks The number of times to cycle the I2C master clock
+ * @param sendStopBits 1 if stop bits are to be sent on SDA
+ */
 void generateClocks(
         I2C_HandleTypeDef* hi2c,
         uint8_t numClocks,
         uint8_t sendStopBits
 )
 {
-    /* This function big-bangs the I2C master clock
-     *
-     * https://electronics.stackexchange.com/questions/267972/i2c-busy-flag-strange-behaviour/281046#281046
-     * https://community.st.com/thread/35884-cant-reset-i2c-in-stm32f407-to-release-i2c-lines
-     * https://electronics.stackexchange.com/questions/272427/stm32-busy-flag-is-set-after-i2c-initialization
-     * http://www.st.com/content/ccc/resource/technical/document/errata_sheet/f5/50/c9/46/56/db/4a/f6/CD00197763.pdf/files/CD00197763.pdf/jcr:content/translations/en.CD00197763.pdf
-     *
-     *
-     * Arguments: numClocks, the number of times to cycle the I2C master clock
-     * 			  sendStopBits, 1 if stop bits are to be sent on SDA
-     *
-     * Returns: none
-     */
-
     struct I2C_Module{
         I2C_HandleTypeDef* instance;
         uint16_t sdaPin;
@@ -516,3 +576,8 @@ void generateClocks(
 
     HAL_I2C_Init(handler);
 }
+
+/**
+ * @}
+ */
+/* end - MPU9250_Driver */
