@@ -78,7 +78,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.runNumberSpinBox.setAlignment(
             QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.runNumberSpinBox.setMinimum(1)
-        self.runNumberSpinBox.setMaximum(4)
+        self.runNumberSpinBox.setMaximum(11)
         self.runNumberSpinBox.setPrefix("S")
         self.bottomHLayout.addWidget(self.runNumberSpinBox)
 

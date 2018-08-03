@@ -536,7 +536,7 @@ void updateControlSignals(void){
         case EXPERIMENT5:
             // AC trapezoid anti-Helmholtz (in-phase)
             period_ms = 2000;
-            val = acTrapezoid(curTick, (uint32_t)period_ms, 75.0, 1.0);
+            val = acTrapezoid(curTick, (uint32_t)period_ms, 90.0, 1.0);
 
             magnet1Info.dutyCycle = val;
             magnet2Info.dutyCycle = val;
@@ -544,15 +544,15 @@ void updateControlSignals(void){
         case EXPERIMENT6:
             // AC trapezoid Helmholtz (180 degrees out of phase)
             period_ms = 2000;
-            val = acTrapezoid(curTick, (uint32_t)period_ms, 75.0, 1.0);
+            val = acTrapezoid(curTick, (uint32_t)period_ms, 90.0, 1.0);
 
             magnet1Info.dutyCycle = val;
             magnet2Info.dutyCycle = -1.0 * val;
             break;
         case EXPERIMENT7:
             // Magnet1: sin, Magnet2: cos
-            magnet1Info.dutyCycle = sinf(curTick / 500 * M_PI);
-            magnet2Info.dutyCycle = cosf(curTick / 500 * M_PI);
+            magnet1Info.dutyCycle = sinf(curTick*1.0f / 500.0f * M_PI);
+            magnet2Info.dutyCycle = cosf(curTick*1.0f / 500.0f * M_PI);
             break;
         default:
             break; // Should never reach here
