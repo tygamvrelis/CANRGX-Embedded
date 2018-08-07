@@ -116,7 +116,7 @@ void commRXEventHandler(void){
     if(buffer[0] == MANUAL_OVERRIDE_START_CHAR){
         // Manual override for starting experiment
         xTaskNotify(ControlTaskHandle,
-                    NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1] - '0'),
+                    NOTIFY_FROM_MANUAL_OVERRIDE_START(buffer[1]),
                     eSetBits
         );
     }
