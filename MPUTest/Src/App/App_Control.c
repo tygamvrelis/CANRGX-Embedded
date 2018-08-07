@@ -304,26 +304,11 @@ static int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle)
 
 /**
  * @brief  Stops the TECs
+ * @note   Sets the PWM duty cycle to 0 for both TECs
  * @return none
  */
 static void TEC_stop(void){
     TEC_set_valuef(0.0, 0.0);
-//    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
-//    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
-//
-//    GPIO_InitTypeDef GPIO_InitStruct;
-//
-//    GPIO_InitStruct.Pin = TEC_Left_Pin;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    HAL_GPIO_Init(TEC_Left_GPIO_Port, &GPIO_InitStruct);
-//    HAL_GPIO_WritePin(TEC_Left_GPIO_Port, TEC_Left_Pin, GPIO_PIN_RESET);
-//
-//    GPIO_InitStruct.Pin = TEC_Right_Pin;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    HAL_GPIO_Init(TEC_Right_GPIO_Port, &GPIO_InitStruct);
-//    HAL_GPIO_WritePin(TEC_Left_GPIO_Port, TEC_Left_Pin, GPIO_PIN_RESET);
 }
 
 /**
