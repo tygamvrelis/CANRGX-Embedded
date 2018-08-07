@@ -13,6 +13,7 @@ import time
 import os
 import numpy as np
 import sys
+import struct
 from datetime import datetime
 from canrgx_data_log_file import canrgx_log_files
 from PyQt5 import QtCore
@@ -149,7 +150,8 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.ser.write(bytes(msg.encode()))
 
     def execute_manual_start(self,program_id):
-        self.sendToMCU("S"+str(program_id)+"\n")
+        binary_id = struct.pack('<B', program_id)
+        self.sendToMCU("S" + binary_id.decode() + "\n")
     
     def execute_manual_stop(self):
         self.sendToMCU("XX\n")

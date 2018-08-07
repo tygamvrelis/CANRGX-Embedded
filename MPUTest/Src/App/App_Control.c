@@ -303,12 +303,27 @@ static int8_t TEC_set_valuef(float TEC_Top_duty_cycle, float TEC_Bot_duty_cycle)
 }
 
 /**
- * @brief  Turns off the timer channels used for TEC PWM
+ * @brief  Stops the TECs
  * @return none
  */
 static void TEC_stop(void){
-    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
+    TEC_set_valuef(0.0, 0.0);
+//    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
+//    HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
+//
+//    GPIO_InitTypeDef GPIO_InitStruct;
+//
+//    GPIO_InitStruct.Pin = TEC_Left_Pin;
+//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+//    GPIO_InitStruct.Pull = GPIO_NOPULL;
+//    HAL_GPIO_Init(TEC_Left_GPIO_Port, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(TEC_Left_GPIO_Port, TEC_Left_Pin, GPIO_PIN_RESET);
+//
+//    GPIO_InitStruct.Pin = TEC_Right_Pin;
+//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+//    GPIO_InitStruct.Pull = GPIO_NOPULL;
+//    HAL_GPIO_Init(TEC_Right_GPIO_Port, &GPIO_InitStruct);
+//    HAL_GPIO_WritePin(TEC_Left_GPIO_Port, TEC_Left_Pin, GPIO_PIN_RESET);
 }
 
 /**
@@ -472,7 +487,9 @@ void controlEventHandler(uint32_t notification){
         // This is the case for when a manual override START sequence is received. In
         // this case, the task notification holds the number of the experiment to run.
         receivedEvent = REDUCEDGRAVITY;
-        nextControllerState = notification & (~MANUAL_OVERRIDE_START_BITMASK);
+
+        // Notification value (indicating experiment number) + offset of first experiment number
+        nextControllerState = (notification & (~MANUAL_OVERRIDE_START_BITMASK)) + EXPERIMENT0;
         manualOverrideStart = true;
     }
     if((notification & MANUAL_OVERRIDE_STOP_BITMASK) == MANUAL_OVERRIDE_STOP_BITMASK){
