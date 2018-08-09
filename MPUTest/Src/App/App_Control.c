@@ -370,6 +370,8 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
             // at which point it will wrap around
             switch(nextControllerState){
                 case IDLE:
+                    nextControllerState = EXPERIMENT0;
+                    break;
                 case EXPERIMENT0:
                 case EXPERIMENT1:
                 case EXPERIMENT2:
@@ -444,7 +446,7 @@ void controlInit(void){
 
     currentEvent = NONE;
     controllerState = IDLE;
-    nextControllerState = EXPERIMENT1;
+    nextControllerState = EXPERIMENT0;
 }
 
 /**
@@ -473,8 +475,8 @@ void controlEventHandler(uint32_t notification){
         // this case, the task notification holds the number of the experiment to run.
         receivedEvent = REDUCEDGRAVITY;
 
-        // Notification value (indicating experiment number) + offset of first experiment number
-        nextControllerState = (notification & (~MANUAL_OVERRIDE_START_BITMASK)) + EXPERIMENT0;
+        // Notification value (indicating experiment number)
+        nextControllerState = (notification & (~MANUAL_OVERRIDE_START_BITMASK));
         manualOverrideStart = true;
     }
     if((notification & MANUAL_OVERRIDE_STOP_BITMASK) == MANUAL_OVERRIDE_STOP_BITMASK){
@@ -577,6 +579,7 @@ void updateControlData(controlData_t* controlData){
     controlData->mag2Power = (int16_t)(magnet2Info.dutyCycle * 10000);
     controlData->tec1Power = (uint16_t)(TEC1DutyCycle * 10000);
     controlData->tec2Power = (uint16_t)(TEC2DutyCycle * 10000);
+    controlData->state     = controllerState;
 }
 
 /**

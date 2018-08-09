@@ -42,7 +42,6 @@ enum flightEvents_e{
  *        varied
  */
 enum controllerStates_e{
-    IDLE,         /**< No experiment; idle signals                           */
     EXPERIMENT0,  /**< Baseline run: no magnetic field, no TECs              */
     EXPERIMENT1,  /**< Same as EXPERIMENT0                                   */
     EXPERIMENT2,  /**< Magnet1: +1, Magnet2: +1, TECs on (DC anti-Helmholtz) */
@@ -54,6 +53,7 @@ enum controllerStates_e{
     EXPERIMENT8,  /**< Same as EXPERIMENT2                                   */
     EXPERIMENT9,  /**< Same as EXPERIMENT3                                   */
     EXPERIMENT10, /**< Same as EXPERIMENT0                                   */
+    IDLE=0xFF     /**< No experiment; idle signals                           */
 };
 
 /**
@@ -103,10 +103,11 @@ typedef struct{
  *        precision of floats was not necessary for these particular quantities
  */
 typedef struct{
-    int16_t mag1Power;  /**< Duty cycle for magnet 1 PWM */
-    int16_t mag2Power;  /**< Duty cycle for magnet 2 PWM */
-    uint16_t tec1Power; /**< Duty cycle for TEC 1 PWM    */
-    uint16_t tec2Power; /**< Duty cycle for TEC 2 PWM    */
+    int16_t mag1Power;             /**< Duty cycle for magnet 1 PWM */
+    int16_t mag2Power;             /**< Duty cycle for magnet 2 PWM */
+    uint16_t tec1Power;            /**< Duty cycle for TEC 1 PWM    */
+    uint16_t tec2Power;            /**< Duty cycle for TEC 2 PWM    */
+    enum controllerStates_e state; /**< Current controller state    */
 }controlData_t;
 
 /**

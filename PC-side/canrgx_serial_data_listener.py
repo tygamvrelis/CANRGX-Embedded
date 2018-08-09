@@ -108,9 +108,9 @@ class CANRGXSerialDataListener(QtCore.QObject):
 
     def check_serial_buffer(self):
         try:
-            if self.ser.in_waiting < 50:
+            if self.ser.in_waiting < 51:
                 return
-            raw_data = self.ser.read(50)
+            raw_data = self.ser.read(51)
 
             header = self.canrgx_log.decode_data(raw_data)
             if(header != 65535):

@@ -32,7 +32,7 @@ extern TIM_HandleTypeDef htim10;
  * @brief Buffers sensor data to send to PC. The contents of this buffer are
  *        sent to the PC every 3 ms.
  */
-static uint8_t buffer[50] = {0};
+static uint8_t buffer[51] = {0};
 
 // Addresses in buffer for each datum
 static uint8_t* tickStart = &buffer[2];  /**< OS tick timestamp              */
@@ -52,6 +52,7 @@ static uint8_t* temp2a = &buffer[42];    /**< Temp sensor 2A                 */
 static uint8_t* temp2b = &buffer[44];    /**< Temp sensor 2B                 */
 static uint8_t* temp3a = &buffer[46];    /**< Temp sensor 3A                 */
 static uint8_t* temp3b = &buffer[48];    /**< Temp sensor 3B                 */
+static uint8_t* ctrlState = &buffer[50]; /**< Current state of controller    */
 
 /**
  * @brief   Used to track which sensors have fresh data in the buffer
@@ -161,10 +162,12 @@ void commTXEventHandler(TXData_t* receivedData){
             int16_t mag2data = controlDataPtr -> mag2Power;
             uint16_t tec1data = controlDataPtr -> tec1Power;
             uint16_t tec2data = controlDataPtr -> tec2Power;
+            uint8_t ctrlStateData = (uint8_t)(controlDataPtr -> state);
             memcpy(mag1Power, &mag1data, sizeof(int16_t));
             memcpy(mag2Power, &mag2data, sizeof(int16_t));
             memcpy(tec1Power, &tec1data, sizeof(uint16_t));
             memcpy(tec2Power, &tec2data, sizeof(uint16_t));
+            memcpy(ctrlState, &ctrlStateData, sizeof(uint8_t));
 
             break;
         case temperature_t:
