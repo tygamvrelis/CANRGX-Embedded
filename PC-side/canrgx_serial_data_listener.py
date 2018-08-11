@@ -13,6 +13,7 @@ import time
 import os
 import numpy as np
 import sys
+import struct
 from datetime import datetime
 from canrgx_data_log_file import canrgx_log_files
 from PyQt5 import QtCore
@@ -107,9 +108,9 @@ class CANRGXSerialDataListener(QtCore.QObject):
 
     def check_serial_buffer(self):
         try:
-            if self.ser.in_waiting < 50:
+            if self.ser.in_waiting < 51:
                 return
-            raw_data = self.ser.read(50)
+            raw_data = self.ser.read(51)
 
             header = self.canrgx_log.decode_data(raw_data)
             if(header != 65535):
@@ -149,7 +150,8 @@ class CANRGXSerialDataListener(QtCore.QObject):
         self.ser.write(bytes(msg.encode()))
 
     def execute_manual_start(self,program_id):
-        self.sendToMCU("S"+str(program_id)+"\n")
+        binary_id = struct.pack('<B', program_id)
+        self.sendToMCU("S" + binary_id.decode() + "\n")
     
     def execute_manual_stop(self):
         self.sendToMCU("XX\n")

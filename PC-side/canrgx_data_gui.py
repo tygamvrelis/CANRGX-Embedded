@@ -77,8 +77,8 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.runNumberSpinBox.setSizePolicy(sizePolicy)
         self.runNumberSpinBox.setAlignment(
             QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
-        self.runNumberSpinBox.setMinimum(1)
-        self.runNumberSpinBox.setMaximum(4)
+        self.runNumberSpinBox.setMinimum(0)
+        self.runNumberSpinBox.setMaximum(10)
         self.runNumberSpinBox.setPrefix("S")
         self.bottomHLayout.addWidget(self.runNumberSpinBox)
 
@@ -406,7 +406,7 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
 
 # Use python click
 @click.command()
-@click.option('--ser_port', default='COM12', help='Serial Port Name')
+@click.option('--ser_port', default='COM3', help='Serial Port Name')
 def main_gui(ser_port):
     # Main program runs from here. Standard Qt start procedure.
     qApp = QtWidgets.QApplication(sys.argv)
