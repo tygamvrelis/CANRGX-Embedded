@@ -17,7 +17,7 @@ class canrgx_log_files(QtCore.QObject):
 
     update_data = QtCore.pyqtSignal(
         np.ndarray, np.ndarray, np.ndarray, np.ndarray)
-
+    update_status = QtCore.pyqtSignal(np.uint8)
     for ds in [self.gps_time_ds, self.mode_info_ds, self.attitude_info_ds, self.earth_info_ds, self.linear_motion_ds, self.sys_time_ds]:
             if self.index + 250 >= ds.shape[0]:
                 ds.resize(self.index + 1000, 0)
@@ -97,6 +97,8 @@ class canrgx_log_files(QtCore.QObject):
             raw_bytes, self.signed_half_type, 4, 30) / 100.0
         self.tmp_record[self.i, :] = np.frombuffer(
             raw_bytes, self.half_type, 6, 38)
+        self.syt_record[self.i, 0] = np.frombuffer(
+            raw_bytes, np.uint8, 1, 44 )
 
         header = self.tic_record[self.i, 0]  # Return header
 
@@ -111,6 +113,8 @@ class canrgx_log_files(QtCore.QObject):
         # Every so often, we want to make sure our data is written to disk
         if self.i % 500 == 25:
             self.check_ds_size()
+        if self.i % 50 ==7:
+            self.update_status.emit(self.sts_record[self.i - 1, 0])
         # Close to full, create warning, should start the process
         #if self.i > self.max_n * 0.8 and self.i % 1000 == 0:
         #    print("OVF WARNING")

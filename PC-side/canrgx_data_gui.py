@@ -132,6 +132,17 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.errLabel.setText("CLEAR")
         self.bottomHLayout.addWidget(self.errLabel)
         
+        self.statusLabel = QtWidgets.QLabel(self.main_widget)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.statusLabel.sizePolicy().hasHeightForWidth())
+        self.statusLabel.setSizePolicy(sizePolicy)
+        self.statusLabel.setObjectName("ERR label")
+        self.statusLabel.setText("STATUS: N/A")
+        self.bottomHLayout.addWidget(self.statusLabel)
 
         self.graphVLayout.addLayout(self.bottomHLayout)
         self.mainLayout.addLayout(self.graphVLayout)
@@ -177,12 +188,22 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
             self.dataCanvas.new_data_slot
         )
         self.listener.canrgx_log.update_data.connect(self.updateNumDisp)
+        self.listener.canrgx_log.update_status.connect(self.updateStatus)
         
     def update_error(self, set_error):
         if set_error:
             self.errLabel.setText("ERROR")
         else:
             self.errLabel.setText("CLEAR")
+
+    def updateStatus(self, status_byte):
+        if status_byte == 255:
+            self.statusLabel.setText("STATUS: IDLE")
+        elif status_byte <=10 and status_byte>=0:
+            self.statusLabel.setText("STATUS: R#%02d"%(status_byte))
+        else:
+            self.statusLabel.setText("STATUS: Unkn")
+
     
     def manual_start_button_callback(self,checked):
         self.request_manual_start.emit(int(self.runNumberSpinBox.value()))
@@ -247,9 +268,6 @@ class CANRGXMainWindow(QtWidgets.QMainWindow):
         self.tmpDNum.display(tmp[3])
         self.tmpENum.display(tmp[4])
         self.tmpFNum.display(tmp[5])
-
-
-
 
     def setupNumDisp(self):
         self.numDispLayout = QtWidgets.QGridLayout()
