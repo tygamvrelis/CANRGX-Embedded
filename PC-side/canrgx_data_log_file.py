@@ -11,12 +11,17 @@ import numpy as np
 import struct
 import time
 from PyQt5 import QtCore
-
+import h5py
 
 class canrgx_log_files(QtCore.QObject):
 
     update_data = QtCore.pyqtSignal(
         np.ndarray, np.ndarray, np.ndarray, np.ndarray)
+
+    for ds in [self.gps_time_ds, self.mode_info_ds, self.attitude_info_ds, self.earth_info_ds, self.linear_motion_ds, self.sys_time_ds]:
+            if self.index + 250 >= ds.shape[0]:
+                ds.resize(self.index + 1000, 0)
+                print('Resized')
 
     def __init__(self, data_root, max_n=500000, parent=None):
         super(canrgx_log_files, self).__init__(parent)
@@ -24,6 +29,7 @@ class canrgx_log_files(QtCore.QObject):
         self.data_root = data_root
         self.max_n = max_n
 
+        '''
         self.tic_record = np.lib.format.open_memmap(
             self.data_root + "tic.npy", dtype=np.uint32,  mode='w+', shape=(self.max_n, 2))
         # MCU time, PC time
@@ -38,6 +44,30 @@ class canrgx_log_files(QtCore.QObject):
         # Temperature Sensor
         self.syt_record = np.lib.format.open_memmap(
             self.data_root + "syt.npy", dtype=np.float64, mode='w+', shape=(self.max_n, 1))
+        '''
+
+        self.h5_file = h5py.File(data_root + '.hdf5', 'w')
+
+        self.tic_record = self.h5_file.create_dataset('tic', 
+            (2000, 1), dtype=np.uint32, chunks=True, maxshape=(None, 2))
+        # MCU time, PC time
+        self.imu_record = self.h5_file.create_dataset('imu',
+            (2000, 6), dtype=np.float32, chunks=True, maxshape=(None, 6))
+        # Accelerometer and Magnometer data,
+        self.pwr_record = self.h5_file.create_dataset('pwr',
+            (2000, 4), dtype=np.float32, chunks=True, maxshape=(None, 4))
+        # Power of Magnets and TECs
+        self.tmp_record = self.h5_file.create_dataset('tmp',
+            (2000, 6), dtype=np.float32, chunks=True, maxshape=(None, 6))
+        # Temperature Sensor
+        self.sts_record = self.h5_file.create_dataset('sts',
+            (2000, 1), dtype=np.uint8, chunks=True, maxshape=(None, 1))
+        # Experiment status register
+        self.syt_record = self.h5_file.create_dataset('syt',
+            (2000, 1), dtype=np.float64, chunks=True, maxshape=(None, 1))
+        # System time record
+
+        self.h5_records=[self.tic_record,self.imu_record,self.pwr_record,self.tmp_record,self.sts_record,self.syt_record]
 
         # Initialize to -1, so we know what are the valid data.
         self.syt_record[:] = -1
@@ -53,27 +83,6 @@ class canrgx_log_files(QtCore.QObject):
         return self
 
     def decode_data(self, raw_bytes):
-        # self.tic_record [self.i,0] = struct.unpack('<H',raw_bytes[ 0: 2])[0] # header
-        # self.tic_record [self.i,1] = struct.unpack('<I',raw_bytes[ 2: 6])[0] # mcu time tic
-        #
-        # self.imu_record [self.i,0] = struct.unpack('<f',raw_bytes[ 6:10])[0] # acc_x
-        # self.imu_record [self.i,1] = struct.unpack('<f',raw_bytes[10:14])[0] # acc_y
-        # self.imu_record [self.i,2] = struct.unpack('<f',raw_bytes[14:18])[0] # acc_z
-        # self.imu_record [self.i,3] = struct.unpack('<f',raw_bytes[18:22])[0] # mag_x
-        # self.imu_record [self.i,4] = struct.unpack('<f',raw_bytes[22:26])[0] # mag_y
-        # self.imu_record [self.i,5] = struct.unpack('<f',raw_bytes[26:30])[0] # mag_z
-        #
-        # self.pwr_record [self.i,0] = struct.unpack('<H',raw_bytes[30:32])[0] # mag_1_duty_cycle
-        # self.pwr_record [self.i,1] = struct.unpack('<H',raw_bytes[32:34])[0] # mag_2_duty_cycle
-        # self.pwr_record [self.i,2] = struct.unpack('<H',raw_bytes[34:36])[0] # tec_1_duty_cycle
-        # self.pwr_record [self.i,3] = struct.unpack('<H',raw_bytes[36:38])[0] # tec_2_duty_cycle
-        #
-        # self.tmp_record [self.i,0] = struct.unpack('<H',raw_bytes[38:40])[0] # temperature_1
-        # self.tmp_record [self.i,1] = struct.unpack('<H',raw_bytes[40:42])[0] # temperature_2
-        # self.tmp_record [self.i,2] = struct.unpack('<H',raw_bytes[42:44])[0] # temperature_3
-        # self.tmp_record [self.i,3] = struct.unpack('<H',raw_bytes[44:46])[0] # temperature_4
-        # self.tmp_record [self.i,4] = struct.unpack('<H',raw_bytes[46:48])[0] # temperature_5
-        # self.tmp_record [self.i,5] = struct.unpack('<H',raw_bytes[48:50])[0] # temperature_6
 
         self.syt_record[self.i, 0] = time.time()  # System time stamp
 
@@ -96,13 +105,15 @@ class canrgx_log_files(QtCore.QObject):
         # Every so often, write results to terminal as sanity check, etc
         if self.i % 100 == 0:
             self.sanity_check()
-
+        
+        if self.i % 200 == 10    
+            self.h5_file.flush()
         # Every so often, we want to make sure our data is written to disk
-        if self.i % 1000 == 0:
-            self.flush()
+        if self.i % 500 == 25:
+            self.check_ds_size()
         # Close to full, create warning, should start the process
-        if self.i > self.max_n * 0.8 and self.i % 1000 == 0:
-            print("OVF WARNING")
+        #if self.i > self.max_n * 0.8 and self.i % 1000 == 0:
+        #    print("OVF WARNING")
         # print('*')
 
         return header
@@ -123,14 +134,11 @@ class canrgx_log_files(QtCore.QObject):
 
         self.update_data.emit(tic_tmp, imu_tmp, pwr_tmp, tmp_tmp)
 
-    def flush(self):
-        # Flush data to disk
-        self.tic_record.flush()
-        self.imu_record.flush()
-        self.pwr_record.flush()
-        self.tmp_record.flush()
-        self.syt_record.flush()
-        # os.fsync() # if we really wanna make sure the writes persist, this will flush the disk buffer. Slow though
+   def check_ds_size(self):
+        for ds in self.h5_records:
+            if self.i +500 >= ds.shape[0]:
+                ds.resize(self.index+1000,0)
+                print('Resized')
 
     def close(self):
         del self.tic_record
