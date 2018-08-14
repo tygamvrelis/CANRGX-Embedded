@@ -113,7 +113,8 @@ class CANRGXSerialDataListener(QtCore.QObject):
             raw_data = self.ser.read(51)
 
             header = self.canrgx_log.decode_data(raw_data)
-            if(header != 65535):
+
+            if(header != 0xFFFF):
                 # Did not receive expected header "0xFF 0xFF"
                 self.num_frame_shifts += 1
                 if self.frame_suceess:
