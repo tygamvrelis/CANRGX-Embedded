@@ -23,7 +23,7 @@ class canrgx_log_files(QtCore.QObject):
                 ds.resize(self.index + 1000, 0)
                 print('Resized')
 
-    def __init__(self, data_root, max_n=500000, parent=None):
+    def __init__(self, data_root, max_n=5000, parent=None):
         super(canrgx_log_files, self).__init__(parent)
 
         self.data_root = data_root

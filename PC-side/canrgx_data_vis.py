@@ -18,7 +18,7 @@ class canrgx_data_visualizer():
         self.process_data()
         self.visualize_data()
 
-    def load_data(self,data_root):
+    def load_data_legacy(self,data_root):
         # Load the data, and then erase empty data
         self.tic_record = np.load(data_root + "/tic.npy")
         self.imu_record = np.load(data_root + "/imu.npy")
@@ -40,7 +40,15 @@ class canrgx_data_visualizer():
             np.save(data_root + "/tmp.npy", self.tmp_record)
             np.save(data_root + "/syt.npy", self.syt_record)
 
-        
+    def load_data(self,data_file):
+
+        self.h5_file = h5py.File(data_file + '.hdf5', 'r')
+        self.tic_record = self.h5_file["tic"]
+        self.imu_record = self.h5_file["imu"]
+        self.pwr_record = self.h5_file["pwr"]
+        self.tmp_record = self.h5_file["tmp"]
+        self.syt_record = self.h5_file["syt"]
+
         
     def process_data(self):
         self.syt_record-=self.syt_record[0] #Shift time to 0
