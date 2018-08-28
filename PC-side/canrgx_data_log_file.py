@@ -18,10 +18,10 @@ class canrgx_log_files(QtCore.QObject):
     update_data = QtCore.pyqtSignal(
         np.ndarray, np.ndarray, np.ndarray, np.ndarray)
     update_status = QtCore.pyqtSignal(np.uint8)
-    for ds in [self.gps_time_ds, self.mode_info_ds, self.attitude_info_ds, self.earth_info_ds, self.linear_motion_ds, self.sys_time_ds]:
-            if self.index + 250 >= ds.shape[0]:
-                ds.resize(self.index + 1000, 0)
-                print('Resized')
+    # for ds in [self.gps_time_ds, self.mode_info_ds, self.attitude_info_ds, self.earth_info_ds, self.linear_motion_ds, self.sys_time_ds]:
+    #         if self.index + 250 >= ds.shape[0]:
+    #             ds.resize(self.index + 1000, 0)
+    #             print('Resized')
 
     def __init__(self, data_root, max_n=5000, parent=None):
         super(canrgx_log_files, self).__init__(parent)
@@ -49,8 +49,8 @@ class canrgx_log_files(QtCore.QObject):
         self.h5_file = h5py.File(data_root + '.hdf5', 'w')
 
         self.tic_record = self.h5_file.create_dataset('tic', 
-            (2000, 1), dtype=np.uint32, chunks=True, maxshape=(None, 2))
-        # MCU time, PC time
+            (2000, 2), dtype=np.uint32, chunks=True, maxshape=(None, 2))
+        # Header, MCU time
         self.imu_record = self.h5_file.create_dataset('imu',
             (2000, 6), dtype=np.float32, chunks=True, maxshape=(None, 6))
         # Accelerometer and Magnometer data,
@@ -83,8 +83,11 @@ class canrgx_log_files(QtCore.QObject):
         return self
 
     def decode_data(self, raw_bytes):
-
         self.syt_record[self.i, 0] = time.time()  # System time stamp
+        
+        # Resize buffer as needed
+        if self.i % 500 == 25:
+            self.check_ds_size()
 
         # Or, use np.frombuffer()
         self.tic_record[self.i, 0] = np.frombuffer(
@@ -97,8 +100,8 @@ class canrgx_log_files(QtCore.QObject):
             raw_bytes, self.signed_half_type, 4, 30) / 100.0
         self.tmp_record[self.i, :] = np.frombuffer(
             raw_bytes, self.half_type, 6, 38)
-        self.syt_record[self.i, 0] = np.frombuffer(
-            raw_bytes, np.uint8, 1, 44 )
+        self.sts_record[self.i, 0] = np.frombuffer(
+            raw_bytes, np.uint8, 1, 50)
 
         header = self.tic_record[self.i, 0]  # Return header
 
@@ -108,13 +111,14 @@ class canrgx_log_files(QtCore.QObject):
         if self.i % 100 == 0:
             self.sanity_check()
         
-        if self.i % 200 == 10    
-            self.h5_file.flush()
         # Every so often, we want to make sure our data is written to disk
-        if self.i % 500 == 25:
-            self.check_ds_size()
-        if self.i % 50 ==7:
+        if self.i % 200 == 10:    
+            self.h5_file.flush()
+        
+        # Update the status every so often
+        if self.i % 50 == 0:
             self.update_status.emit(self.sts_record[self.i - 1, 0])
+            
         # Close to full, create warning, should start the process
         #if self.i > self.max_n * 0.8 and self.i % 1000 == 0:
         #    print("OVF WARNING")
@@ -138,11 +142,11 @@ class canrgx_log_files(QtCore.QObject):
 
         self.update_data.emit(tic_tmp, imu_tmp, pwr_tmp, tmp_tmp)
 
-   def check_ds_size(self):
+    def check_ds_size(self):
         for ds in self.h5_records:
-            if self.i +500 >= ds.shape[0]:
-                ds.resize(self.index+1000,0)
-                print('Resized')
+            if self.i + 500 >= ds.shape[0]:
+                ds.resize(self.i+1000,0)
+        print('Resized data buffer')
 
     def close(self):
         del self.tic_record

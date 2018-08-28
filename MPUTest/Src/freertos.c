@@ -311,6 +311,8 @@ void StartTxTask(void const * argument)
     xLastWakeTime = xTaskGetTickCount();
     cycleStartTick = xTaskGetTickCount();
 
+    commTXInit();
+
     for(;;){
         // Trigger this thread every 1 ms. This way, we are guaranteed to meet
         // the 3 ms deadline
