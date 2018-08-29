@@ -329,11 +329,10 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
             // One-time update for the new state
             switch(controllerState){
                 case IDLE:
-                case EXPERIMENT0:
                 case EXPERIMENT1:
-                case EXPERIMENT10:
-                    // These are baseline experiments
+                    // Experiment 1 is a baseline
                     break;
+                case EXPERIMENT0:
                 case EXPERIMENT2:
                 case EXPERIMENT3:
                 case EXPERIMENT4:
@@ -342,6 +341,7 @@ static void processReceivedEvent(enum flightEvents_e receivedEvent){
                 case EXPERIMENT7:
                 case EXPERIMENT8:
                 case EXPERIMENT9:
+                case EXPERIMENT10:
                     // These experiments involve magnetism and heating
                     TEC1DutyCycle = TEC_ON_DUTY_CYCLE;
                     TEC2DutyCycle = TEC_ON_DUTY_CYCLE;
@@ -514,28 +514,27 @@ void updateControlSignals(void){
 
     switch(controllerState){
         case IDLE:
+            updateMagnets = false;
+            break;
         case EXPERIMENT0:
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = 0.0;
+            break;
         case EXPERIMENT1:
-        case EXPERIMENT10:
             // Baseline run: no magnetic field, no TECs
             updateMagnets = false;
             break;
         case EXPERIMENT2:
-        case EXPERIMENT8:
-            // Magnet1: +1, Magnet2: +1, TECs on (DC anti-Helmholtz)
             magnet1Info.dutyCycle = 1.0;
-            magnet2Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = -0.1;
             break;
         case EXPERIMENT3:
-        case EXPERIMENT9:
-            // Magnet1: +1, Magnet2: -1, TECs on (DC Helmholtz)
             magnet1Info.dutyCycle = 1.0;
-            magnet2Info.dutyCycle = -1.0;
+            magnet2Info.dutyCycle = -0.3;
             break;
         case EXPERIMENT4:
-            // Magnet1: +1, Magnet2: 0, TECs on
             magnet1Info.dutyCycle = 1.0;
-            magnet2Info.dutyCycle = 0.0;
+            magnet2Info.dutyCycle = -0.5;
             break;
         case EXPERIMENT5:
             // AC trapezoid anti-Helmholtz (in-phase)
@@ -546,6 +545,18 @@ void updateControlSignals(void){
             magnet2Info.dutyCycle = val;
             break;
         case EXPERIMENT6:
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = -0.1;
+            break;
+        case EXPERIMENT7:
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = -0.3;
+            break;
+        case EXPERIMENT8:
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = -0.5;
+            break;
+        case EXPERIMENT9:
             // AC trapezoid Helmholtz (180 degrees out of phase)
             period_ms = 2000;
             val = acTrapezoid(curTick, (uint32_t)period_ms, 90.0, 1.0);
@@ -553,10 +564,9 @@ void updateControlSignals(void){
             magnet1Info.dutyCycle = val;
             magnet2Info.dutyCycle = -1.0 * val;
             break;
-        case EXPERIMENT7:
-            // Magnet1: sin, Magnet2: cos
-            magnet1Info.dutyCycle = sinf(curTick*1.0f / 500.0f * M_PI);
-            magnet2Info.dutyCycle = cosf(curTick*1.0f / 500.0f * M_PI);
+        case EXPERIMENT10:
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = 1.0;
             break;
         default:
             break; // Should never reach here
