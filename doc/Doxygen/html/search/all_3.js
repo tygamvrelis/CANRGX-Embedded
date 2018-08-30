@@ -23,6 +23,7 @@ var searchData=
   ['controllerstate',['controllerState',['../group___control.html#ga25e98eb3709ea50b34c08328ddb5e787',1,'App_Control.c']]],
   ['controllerstates_5fe',['controllerStates_e',['../group___user_types.html#ga02062a8247dd3fe20512455456c3c234',1,'userTypes.h']]],
   ['controlsetsignalstoidlestate',['controlSetSignalsToIdleState',['../group___control_header.html#gafcfabfde443c3976d02dbd7b267cb659',1,'controlSetSignalsToIdleState(void):&#160;App_Control.c'],['../group___control_public_functions.html#gafcfabfde443c3976d02dbd7b267cb659',1,'controlSetSignalsToIdleState(void):&#160;App_Control.c']]],
+  ['ctrlstate',['ctrlState',['../group___comm_t_x.html#gae333827b024ce4bf3abbe6863911aaea',1,'App_CommTX.c']]],
   ['current_5fe',['current_e',['../group___control.html#ga74272f655c117071e9892aff60b6335a',1,'App_Control.c']]],
   ['current_5fnone',['CURRENT_NONE',['../group___control.html#gga74272f655c117071e9892aff60b6335aa605f042dc7bee6ec4afca1f5f9b52008',1,'App_Control.c']]],
   ['currentevent',['currentEvent',['../group___control.html#ga92cfb2de4679628b337e5a14fd586d63',1,'App_Control.c']]],

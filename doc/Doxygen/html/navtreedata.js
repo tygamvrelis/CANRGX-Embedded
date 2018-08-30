@@ -51,8 +51,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_app___comm_r_x_8c.html",
-"group___control_private_functions.html#ga9fa41aa2c8686b524807fa969084a7d1",
-"group___temperature_header.html#ggac831952ba3f5d17305689e91c859a896a5b02d874a1c8fdc02e93107a4a41911d"
+"group___control_private_functions.html#ga91fd2d380a9e378ac550fbc2eb6382f2",
+"group___temperature_header.html#gaaf412a639deba77bbb2d6026ff2cf537"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -17,6 +17,7 @@ var group___user_types =
     [ "controlData_t", "structcontrol_data__t.html", [
       [ "mag1Power", "structcontrol_data__t.html#a6e6a8ce33bc6adff416196ee713770ec", null ],
       [ "mag2Power", "structcontrol_data__t.html#a939cbf524a59c750c8bbf42d464559b5", null ],
+      [ "state", "structcontrol_data__t.html#a39408c5facb50b2b15975d49e0684344", null ],
       [ "tec1Power", "structcontrol_data__t.html#ace3b973e40a1a82e7aa94121178cea85", null ],
       [ "tec2Power", "structcontrol_data__t.html#a19dadd577e805fea20dac8ee6913055a", null ]
     ] ],
@@ -32,11 +33,18 @@ var group___user_types =
     [ "MANUAL_OVERRIDE_STOP_BITMASK", "group___user_types.html#ga0b1ce59174e4b2baaec9d90ed998e0c0", null ],
     [ "MPU_BITMASK", "group___user_types.html#ga76f4f7cd9b9ebff562e19782d4950200", null ],
     [ "controllerStates_e", "group___user_types.html#ga02062a8247dd3fe20512455456c3c234", [
-      [ "IDLE", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18", null ],
+      [ "EXPERIMENT0", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a05f0f9c98d71ef4496af10c76647340b", null ],
       [ "EXPERIMENT1", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a075beae84c7cd5a80338c8ac77d3eb97", null ],
       [ "EXPERIMENT2", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234aefde61326a8aefe3197847a08e7a41de", null ],
       [ "EXPERIMENT3", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234aed86bbcc9117e449b75437f4f47c9877", null ],
-      [ "EXPERIMENT4", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a574d2a9524c88992f7cf0ee7397b7de2", null ]
+      [ "EXPERIMENT4", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a574d2a9524c88992f7cf0ee7397b7de2", null ],
+      [ "EXPERIMENT5", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a23ae44431d0f154f918739ce4fc3e1af", null ],
+      [ "EXPERIMENT6", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234af517e2c1500f4d110f27e1eddec628f8", null ],
+      [ "EXPERIMENT7", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234aaab8e0a2447405fc0c857c9c1d564eb4", null ],
+      [ "EXPERIMENT8", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a62f03a77ab41dcc183cb6087e0fad165", null ],
+      [ "EXPERIMENT9", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a84ac829432d07540b85a466e7c5eb256", null ],
+      [ "EXPERIMENT10", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234a16844857e0783929bee7b69c2932cf37", null ],
+      [ "IDLE", "group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18", null ]
     ] ],
     [ "flightEvents_e", "group___user_types.html#ga12beaeaafb9410901d423f3789c5b659", [
       [ "NONE", "group___user_types.html#gga12beaeaafb9410901d423f3789c5b659ac157bdf0b85a40d2619cbc8bc1ae5fe2", null ],

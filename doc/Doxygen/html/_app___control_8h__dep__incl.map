@@ -1,6 +1,6 @@
-<map id="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Inc/App/App_Control.h" name="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Inc/App/App_Control.h">
-<area shape="rect" id="node2" href="$_app___comm_r_x_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_CommRX.h" alt="" coords="7,139,228,224"/>
-<area shape="rect" id="node4" href="$_app___control_8c.html" title="All the functions related to generating control signals. " alt="" coords="252,139,476,224"/>
-<area shape="rect" id="node5" href="$main_8c.html" title=": Main program body " alt="" coords="500,146,713,217"/>
-<area shape="rect" id="node3" href="$_app___comm_r_x_8c.html" title="Functions and data related to the reception side of PC communication. " alt="" coords="5,272,229,357"/>
+<map id="MPUTest/Inc/App/App_Control.h" name="MPUTest/Inc/App/App_Control.h">
+<area shape="rect" id="node2" href="$_app___comm_r_x_8h.html" title="MPUTest/Inc/App/App\l_CommRX.h" alt="" coords="7,95,158,136"/>
+<area shape="rect" id="node4" href="$_app___control_8c.html" title="All the functions related to generating control signals. " alt="" coords="183,95,337,136"/>
+<area shape="rect" id="node5" href="$main_8c.html" title=": Main program body " alt="" coords="362,102,505,129"/>
+<area shape="rect" id="node3" href="$_app___comm_r_x_8c.html" title="Functions and data related to the reception side of PC communication. " alt="" coords="5,184,160,225"/>
 </map>

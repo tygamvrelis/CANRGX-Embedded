@@ -1,6 +1,6 @@
-<map id="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Drivers/MPU9250/MPU9250.h" name="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Drivers/MPU9250/MPU9250.h">
-<area shape="rect" id="node4" href="$i2c_8h_source.html" title="i2c.h" alt="" coords="206,139,257,165"/>
-<area shape="rect" id="node7" href="$_m_p_u_filter_8h.html" title="MPUFilter.h" alt="" coords="318,139,409,165"/>
-<area shape="rect" id="node10" href="$_m_p_u9250__t_8h.html" title="MPU9250_t.h" alt="" coords="494,213,595,240"/>
-<area shape="rect" id="node6" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="163,213,225,240"/>
+<map id="MPUTest/Drivers/MPU9250/MPU9250.h" name="MPUTest/Drivers/MPU9250/MPU9250.h">
+<area shape="rect" id="node4" href="$i2c_8h_source.html" title="i2c.h" alt="" coords="206,95,257,121"/>
+<area shape="rect" id="node7" href="$_m_p_u_filter_8h.html" title="MPUFilter.h" alt="" coords="318,95,409,121"/>
+<area shape="rect" id="node10" href="$_m_p_u9250__t_8h.html" title="MPU9250_t.h" alt="" coords="494,169,595,196"/>
+<area shape="rect" id="node6" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="163,169,225,196"/>
 </map>

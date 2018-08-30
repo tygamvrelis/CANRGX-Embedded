@@ -104,6 +104,9 @@ Collaboration diagram for Header:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga9900948af4d741a79e320d1cb08f4835"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___math___helpers___header.html#ga9900948af4d741a79e320d1cb08f4835">sawtooth</a> (uint32_t time, uint32_t period, float phase, float amplitude)</td></tr>
+<tr class="memdesc:ga9900948af4d741a79e320d1cb08f4835"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function with which a periodic sawtooth waveform can be evaluated.  <a href="#ga9900948af4d741a79e320d1cb08f4835">More...</a><br /></td></tr>
+<tr class="separator:ga9900948af4d741a79e320d1cb08f4835"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5107b8ca83f89b145c227a759aa7c5ca"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___math___helpers___header.html#ga5107b8ca83f89b145c227a759aa7c5ca">trapezoid</a> (uint32_t time, uint32_t period, float percentOn, float amplitude)</td></tr>
 <tr class="memdesc:ga5107b8ca83f89b145c227a759aa7c5ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function with which a periodic trapezoidal waveform can be evaluated.  <a href="#ga5107b8ca83f89b145c227a759aa7c5ca">More...</a><br /></td></tr>
 <tr class="separator:ga5107b8ca83f89b145c227a759aa7c5ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -175,6 +178,74 @@ Here is the call graph for this function:</div>
 <area shape="rect" id="node2" href="group___math___helpers.html#ga5107b8ca83f89b145c227a759aa7c5ca" title="Function with which a periodic trapezoidal waveform can be evaluated. " alt="" coords="145,5,220,32"/>
 </map>
 </div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="group___math___helpers___header_gadf76d6333a173f56345d892414ab5df5_icgraph.png" border="0" usemap="#group___math___helpers___header_gadf76d6333a173f56345d892414ab5df5_icgraph" alt=""/></div>
+<map name="group___math___helpers___header_gadf76d6333a173f56345d892414ab5df5_icgraph" id="group___math___helpers___header_gadf76d6333a173f56345d892414ab5df5_icgraph">
+<area shape="rect" id="node2" href="group___control_public_functions.html#gae842d8967168109b231043ca7463c173" title="Updates the values of the time&#45;varying control signals, using different functions of time depending o..." alt="" coords="145,5,291,32"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ga9900948af4d741a79e320d1cb08f4835"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9900948af4d741a79e320d1cb08f4835">&#9670;&nbsp;</a></span>sawtooth()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float sawtooth </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>period</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>phase</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>amplitude</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Function with which a periodic sawtooth waveform can be evaluated. </p>
+<p>Computes y = A(2(t + phi*T/360)/T - 1), where t = time, T = period phi = phase in degrees </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The input time at which the function is to be evaluated </td></tr>
+    <tr><td class="paramname">period</td><td>The period of the sawtooth in ms </td></tr>
+    <tr><td class="paramname">phase</td><td>The waveform's positive phase offset, in degrees </td></tr>
+    <tr><td class="paramname">amplitude</td><td>The amplitude in [-1.0, 1.0] </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The value of the function given valid parameters, otherwise NAN. The return value will always be in range [-1.0, 1.0] given valid parameters </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="group___math___helpers___header_ga9900948af4d741a79e320d1cb08f4835_icgraph.png" border="0" usemap="#group___math___helpers___header_ga9900948af4d741a79e320d1cb08f4835_icgraph" alt=""/></div>
+<map name="group___math___helpers___header_ga9900948af4d741a79e320d1cb08f4835_icgraph" id="group___math___helpers___header_ga9900948af4d741a79e320d1cb08f4835_icgraph">
+<area shape="rect" id="node2" href="group___control_public_functions.html#gae842d8967168109b231043ca7463c173" title="Updates the values of the time&#45;varying control signals, using different functions of time depending o..." alt="" coords="128,5,273,32"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -233,6 +304,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="group___math___helpers___header_ga5107b8ca83f89b145c227a759aa7c5ca_icgraph.png" border="0" usemap="#group___math___helpers___header_ga5107b8ca83f89b145c227a759aa7c5ca_icgraph" alt=""/></div>
 <map name="group___math___helpers___header_ga5107b8ca83f89b145c227a759aa7c5ca_icgraph" id="group___math___helpers___header_ga5107b8ca83f89b145c227a759aa7c5ca_icgraph">
 <area shape="rect" id="node2" href="group___math___helpers.html#gadf76d6333a173f56345d892414ab5df5" title="Implements an AC trapezoid. " alt="" coords="128,5,220,32"/>
+<area shape="rect" id="node3" href="group___control_public_functions.html#gae842d8967168109b231043ca7463c173" title="Updates the values of the time&#45;varying control signals, using different functions of time depending o..." alt="" coords="268,5,413,32"/>
 </map>
 </div>
 
