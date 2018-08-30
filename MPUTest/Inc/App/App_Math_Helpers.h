@@ -21,6 +21,7 @@
 
 
 /********************************* Functions *********************************/
+float sawtooth(uint32_t time, uint32_t period, float phase, float amplitude);
 float trapezoid(uint32_t time, uint32_t period, float percentOn, float amplitude);
 float acTrapezoid(uint32_t time, uint32_t period, float percentOn, float amplitude);
 

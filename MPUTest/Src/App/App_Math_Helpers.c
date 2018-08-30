@@ -21,6 +21,33 @@
 /***************************** Public Functions ******************************/
 
 /**
+ * @brief   Function with which a periodic sawtooth waveform can be evaluated
+ * @details Computes y = A(2(t + phi*T/360)/T - 1), where
+ *          t = time,
+ *          T = period
+ *          phi = phase in degrees
+ * @param   time The input time at which the function is to be evaluated
+ * @param   period The period of the sawtooth in ms
+ * @param   phase The waveform's positive phase offset, in degrees
+ * @param   amplitude The amplitude in [-1.0, 1.0]
+ * @return  The value of the function given valid parameters, otherwise NAN.
+ *          The return value will always be in range [-1.0, 1.0] given valid
+ *          parameters
+ */
+float sawtooth(uint32_t time, uint32_t period, float phase, float amplitude){
+    if(amplitude < -1.0 || amplitude > 1.0){
+        return NAN;
+    }
+
+    float arg = time + phase * period / 360.0;
+    uint32_t n = (uint32_t)arg % period;
+
+    float value = 2 * (float)n / (float)period - 1.0;
+
+    return amplitude * value;
+}
+
+/**
  * @brief  Function with which a periodic trapezoidal waveform can be evaluated
  * @param  time The input time at which the function is to be evaluated
  * @param  period The period of the trapezoid in ms
