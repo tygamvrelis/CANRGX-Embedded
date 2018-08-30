@@ -1,5 +1,5 @@
-<map id="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Inc/App/App_Temperature.h" name="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Inc/App/App_Temperature.h">
-<area shape="rect" id="node2" href="$adc_8h_source.html" title="adc.h" alt="" coords="71,139,126,165"/>
-<area shape="rect" id="node6" href="$user_types_8h.html" title="Defines types, enums, and macros used throughout various program modules. " alt="" coords="151,139,244,165"/>
-<area shape="rect" id="node4" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="68,213,129,240"/>
+<map id="MPUTest/Inc/App/App_Temperature.h" name="MPUTest/Inc/App/App_Temperature.h">
+<area shape="rect" id="node2" href="$adc_8h_source.html" title="adc.h" alt="" coords="71,95,126,121"/>
+<area shape="rect" id="node6" href="$user_types_8h.html" title="Defines types, enums, and macros used throughout various program modules. " alt="" coords="151,95,244,121"/>
+<area shape="rect" id="node4" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="68,169,129,196"/>
 </map>

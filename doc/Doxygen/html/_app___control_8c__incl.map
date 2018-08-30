@@ -1,6 +1,7 @@
-<map id="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Src/App/App_Control.c" name="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Src/App/App_Control.c">
-<area shape="rect" id="node2" href="$_app___control_8h.html" title="App/App_Control.h" alt="" coords="167,139,297,165"/>
-<area shape="rect" id="node5" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="199,288,260,315"/>
-<area shape="rect" id="node7" href="$tim_8h_source.html" title="tim.h" alt="" coords="269,213,320,240"/>
-<area shape="rect" id="node9" href="$user_types_8h.html" title="Defines types, enums, and macros used throughout various program modules. " alt="" coords="344,213,437,240"/>
+<map id="MPUTest/Src/App/App_Control.c" name="MPUTest/Src/App/App_Control.c">
+<area shape="rect" id="node2" href="$_app___control_8h.html" title="App/App_Control.h" alt="" coords="197,95,328,121"/>
+<area shape="rect" id="node10" href="$_app___math___helpers_8h.html" title="App/App_Math_Helpers.h" alt="" coords="389,95,560,121"/>
+<area shape="rect" id="node5" href="$main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="201,244,263,271"/>
+<area shape="rect" id="node7" href="$tim_8h_source.html" title="tim.h" alt="" coords="269,169,320,196"/>
+<area shape="rect" id="node9" href="$user_types_8h.html" title="Defines types, enums, and macros used throughout various program modules. " alt="" coords="344,169,437,196"/>
 </map>

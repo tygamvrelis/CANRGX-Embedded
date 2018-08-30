@@ -139,12 +139,20 @@ Enumerations</h2></td></tr>
 <tr class="memdesc:ga12beaeaafb9410901d423f3789c5b659"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumerates the types of events the accelerometer can detect.  <a href="group___user_types.html#ga12beaeaafb9410901d423f3789c5b659">More...</a><br /></td></tr>
 <tr class="separator:ga12beaeaafb9410901d423f3789c5b659"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga02062a8247dd3fe20512455456c3c234"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___user_types.html#ga02062a8247dd3fe20512455456c3c234">controllerStates_e</a> { <br />
-&#160;&#160;<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18">IDLE</a>, 
+&#160;&#160;<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a05f0f9c98d71ef4496af10c76647340b">EXPERIMENT0</a>, 
 <a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a075beae84c7cd5a80338c8ac77d3eb97">EXPERIMENT1</a>, 
 <a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234aefde61326a8aefe3197847a08e7a41de">EXPERIMENT2</a>, 
 <a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234aed86bbcc9117e449b75437f4f47c9877">EXPERIMENT3</a>, 
 <br />
-&#160;&#160;<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a574d2a9524c88992f7cf0ee7397b7de2">EXPERIMENT4</a>
+&#160;&#160;<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a574d2a9524c88992f7cf0ee7397b7de2">EXPERIMENT4</a>, 
+<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a23ae44431d0f154f918739ce4fc3e1af">EXPERIMENT5</a>, 
+<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234af517e2c1500f4d110f27e1eddec628f8">EXPERIMENT6</a>, 
+<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234aaab8e0a2447405fc0c857c9c1d564eb4">EXPERIMENT7</a>, 
+<br />
+&#160;&#160;<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a62f03a77ab41dcc183cb6087e0fad165">EXPERIMENT8</a>, 
+<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a84ac829432d07540b85a466e7c5eb256">EXPERIMENT9</a>, 
+<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a16844857e0783929bee7b69c2932cf37">EXPERIMENT10</a>, 
+<a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18">IDLE</a> =0xFF
 <br />
  }</td></tr>
 <tr class="memdesc:ga02062a8247dd3fe20512455456c3c234"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumerates the states the controller can be in. Each corresponds to a specific function with which the duty cycle for the magnets will be varied.  <a href="group___user_types.html#ga02062a8247dd3fe20512455456c3c234">More...</a><br /></td></tr>
@@ -174,15 +182,29 @@ Enumerations</h2></td></tr>
 
 <p>Enumerates the states the controller can be in. Each corresponds to a specific function with which the duty cycle for the magnets will be varied. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18"></a>IDLE&#160;</td><td class="fielddoc"><p>No experiment; idle signals </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a05f0f9c98d71ef4496af10c76647340b"></a>EXPERIMENT0&#160;</td><td class="fielddoc"><p>Baseline run: no magnetic field, no TECs </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a075beae84c7cd5a80338c8ac77d3eb97"></a>EXPERIMENT1&#160;</td><td class="fielddoc"><p>sin between -1 and 1 for both magnets </p>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a075beae84c7cd5a80338c8ac77d3eb97"></a>EXPERIMENT1&#160;</td><td class="fielddoc"><p>Same as EXPERIMENT0 </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234aefde61326a8aefe3197847a08e7a41de"></a>EXPERIMENT2&#160;</td><td class="fielddoc"><p>sin between 0 and 1 for both magnets </p>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234aefde61326a8aefe3197847a08e7a41de"></a>EXPERIMENT2&#160;</td><td class="fielddoc"><p>Magnet1: +1, Magnet2: +1, TECs on (DC anti-Helmholtz) </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234aed86bbcc9117e449b75437f4f47c9877"></a>EXPERIMENT3&#160;</td><td class="fielddoc"><p>magnet 1 = sin, magnet 2 = cos; both between -1 &amp; 1 </p>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234aed86bbcc9117e449b75437f4f47c9877"></a>EXPERIMENT3&#160;</td><td class="fielddoc"><p>Magnet1: +1, Magnet2: -1, TECs on (DC Helmholtz) </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a574d2a9524c88992f7cf0ee7397b7de2"></a>EXPERIMENT4&#160;</td><td class="fielddoc"><p>magnet 1 = sin, magnet 2 = cos; both between 0 &amp; 1 </p>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a574d2a9524c88992f7cf0ee7397b7de2"></a>EXPERIMENT4&#160;</td><td class="fielddoc"><p>Magnet1: +1, Magnet2: 0, TECs on </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a23ae44431d0f154f918739ce4fc3e1af"></a>EXPERIMENT5&#160;</td><td class="fielddoc"><p>AC trapezoid anti-Helmholtz (in-phase) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234af517e2c1500f4d110f27e1eddec628f8"></a>EXPERIMENT6&#160;</td><td class="fielddoc"><p>AC trapezoid Helmholtz (180 degrees out of phase) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234aaab8e0a2447405fc0c857c9c1d564eb4"></a>EXPERIMENT7&#160;</td><td class="fielddoc"><p>Magnet1: sin, Magnet2: cos </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a62f03a77ab41dcc183cb6087e0fad165"></a>EXPERIMENT8&#160;</td><td class="fielddoc"><p>Same as EXPERIMENT2 </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a84ac829432d07540b85a466e7c5eb256"></a>EXPERIMENT9&#160;</td><td class="fielddoc"><p>Same as EXPERIMENT3 </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234a16844857e0783929bee7b69c2932cf37"></a>EXPERIMENT10&#160;</td><td class="fielddoc"><p>Same as EXPERIMENT0 </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18"></a>IDLE&#160;</td><td class="fielddoc"><p>No experiment; idle signals </p>
 </td></tr>
 </table>
 

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.14"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CAN-RGX: D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN-RGX/CANRGX-Embedded/MPUTest/Src/App/App_Control.c File Reference</title>
+<title>CAN-RGX: MPUTest/Src/App/App_Control.c File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -98,15 +98,17 @@ $(document).ready(function(){initNavTree('_app___control_8c.html','');});
 <p>All the functions related to generating control signals.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="_app___control_8h_source.html">App/App_Control.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="_app___math___helpers_8h_source.html">App/App_Math_Helpers.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for App_Control.c:</div>
 <div class="dyncontent">
-<div class="center"><img src="_app___control_8c__incl.png" border="0" usemap="#_d_1_2_users_2_tyler_2_documents_2tyler_2_school_2_university_01of_01_toronto_2_c_a_n-_r_g_x_2_c_a_n_r_g_x-_embedded_2_m_p_u_test_2_src_2_app_2_app___control_8c" alt=""/></div>
-<map name="_d_1_2_users_2_tyler_2_documents_2tyler_2_school_2_university_01of_01_toronto_2_c_a_n-_r_g_x_2_c_a_n_r_g_x-_embedded_2_m_p_u_test_2_src_2_app_2_app___control_8c" id="_d_1_2_users_2_tyler_2_documents_2tyler_2_school_2_university_01of_01_toronto_2_c_a_n-_r_g_x_2_c_a_n_r_g_x-_embedded_2_m_p_u_test_2_src_2_app_2_app___control_8c">
-<area shape="rect" id="node2" href="_app___control_8h.html" title="App/App_Control.h" alt="" coords="167,139,297,165"/>
-<area shape="rect" id="node5" href="main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="199,288,260,315"/>
-<area shape="rect" id="node7" href="tim_8h_source.html" title="tim.h" alt="" coords="269,213,320,240"/>
-<area shape="rect" id="node9" href="user_types_8h.html" title="Defines types, enums, and macros used throughout various program modules. " alt="" coords="344,213,437,240"/>
+<div class="center"><img src="_app___control_8c__incl.png" border="0" usemap="#_m_p_u_test_2_src_2_app_2_app___control_8c" alt=""/></div>
+<map name="_m_p_u_test_2_src_2_app_2_app___control_8c" id="_m_p_u_test_2_src_2_app_2_app___control_8c">
+<area shape="rect" id="node2" href="_app___control_8h.html" title="App/App_Control.h" alt="" coords="197,95,328,121"/>
+<area shape="rect" id="node10" href="_app___math___helpers_8h.html" title="App/App_Math_Helpers.h" alt="" coords="389,95,560,121"/>
+<area shape="rect" id="node5" href="main_8h.html" title=": Header for main.c file. This file contains the common defines of the application. " alt="" coords="201,244,263,271"/>
+<area shape="rect" id="node7" href="tim_8h_source.html" title="tim.h" alt="" coords="269,169,320,196"/>
+<area shape="rect" id="node9" href="user_types_8h.html" title="Defines types, enums, and macros used throughout various program modules. " alt="" coords="344,169,437,196"/>
 </map>
 </div>
 </div><table class="memberdecls">
@@ -133,7 +135,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga511a86d962f883370fa2a3b5768d9896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the PWM duty cycle used to drive the top and bottom TECs used for heating the parafluid.  <a href="group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896">More...</a><br /></td></tr>
 <tr class="separator:ga511a86d962f883370fa2a3b5768d9896"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaecaaa41b0f7f761b75d76eaf0629a9ef"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef">TEC_stop</a> (void)</td></tr>
-<tr class="memdesc:gaecaaa41b0f7f761b75d76eaf0629a9ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turns off the timer channels used for TEC PWM.  <a href="group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef">More...</a><br /></td></tr>
+<tr class="memdesc:gaecaaa41b0f7f761b75d76eaf0629a9ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the TECs.  <a href="group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef">More...</a><br /></td></tr>
 <tr class="separator:gaecaaa41b0f7f761b75d76eaf0629a9ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga22a13d2d4c22577079d3d7a45eb2708a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a">processReceivedEvent</a> (enum <a class="el" href="group___user_types.html#ga12beaeaafb9410901d423f3789c5b659">flightEvents_e</a> receivedEvent)</td></tr>
 <tr class="memdesc:ga22a13d2d4c22577079d3d7a45eb2708a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given an event that is different that the current event, this function handles the event by updating the controller state accordingly.  <a href="group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a">More...</a><br /></td></tr>
@@ -160,23 +162,41 @@ Variables</h2></td></tr>
 <tr class="separator:ga1fd9b1d4931209565f0cdc11ccf5a3b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad7adfeda17f2ba62d088e93ab7b61c1f"><td class="memItemLeft" align="right" valign="top">osTimerId&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#gad7adfeda17f2ba62d088e93ab7b61c1f">tmrCameraLEDHandle</a></td></tr>
 <tr class="separator:gad7adfeda17f2ba62d088e93ab7b61c1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabb75f288c9ae4fa6946db581bddf9291"><td class="memItemLeft" align="right" valign="top">static const float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#gabb75f288c9ae4fa6946db581bddf9291">TEC_ON_DUTY_CYCLE</a> = 1.00</td></tr>
+<tr class="memitem:gabb75f288c9ae4fa6946db581bddf9291"><td class="memItemLeft" align="right" valign="top">
+static const float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#gabb75f288c9ae4fa6946db581bddf9291">TEC_ON_DUTY_CYCLE</a> = 1.00</td></tr>
+<tr class="memdesc:gabb75f288c9ae4fa6946db581bddf9291"><td class="mdescLeft">&#160;</td><td class="mdescRight">When the TECs are on, they are given PWM signals with this duty cycle. <br /></td></tr>
 <tr class="separator:gabb75f288c9ae4fa6946db581bddf9291"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga98ad25c3b66dd3974da389fab8e5dbd9"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga98ad25c3b66dd3974da389fab8e5dbd9">TEC1DutyCycle</a> = 0</td></tr>
+<tr class="memitem:ga98ad25c3b66dd3974da389fab8e5dbd9"><td class="memItemLeft" align="right" valign="top">
+static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga98ad25c3b66dd3974da389fab8e5dbd9">TEC1DutyCycle</a> = 0</td></tr>
+<tr class="memdesc:ga98ad25c3b66dd3974da389fab8e5dbd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; TEC 1 PWM duty cycle. <br /></td></tr>
 <tr class="separator:ga98ad25c3b66dd3974da389fab8e5dbd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gafeb68fa8b721e3816901476505a30c8a"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#gafeb68fa8b721e3816901476505a30c8a">TEC2DutyCycle</a> = 0</td></tr>
+<tr class="memitem:gafeb68fa8b721e3816901476505a30c8a"><td class="memItemLeft" align="right" valign="top">
+static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#gafeb68fa8b721e3816901476505a30c8a">TEC2DutyCycle</a> = 0</td></tr>
+<tr class="memdesc:gafeb68fa8b721e3816901476505a30c8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; TEC 2 PWM duty cycle. <br /></td></tr>
 <tr class="separator:gafeb68fa8b721e3816901476505a30c8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5f3b7ab87f00f1c0f2a5427e958fb84e"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct_magnet_info__t.html">MagnetInfo_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga5f3b7ab87f00f1c0f2a5427e958fb84e">magnet1Info</a></td></tr>
+<tr class="memitem:ga5f3b7ab87f00f1c0f2a5427e958fb84e"><td class="memItemLeft" align="right" valign="top">
+static <a class="el" href="struct_magnet_info__t.html">MagnetInfo_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga5f3b7ab87f00f1c0f2a5427e958fb84e">magnet1Info</a></td></tr>
+<tr class="memdesc:ga5f3b7ab87f00f1c0f2a5427e958fb84e"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; Magnet 1 container (bottom magnet) <br /></td></tr>
 <tr class="separator:ga5f3b7ab87f00f1c0f2a5427e958fb84e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga272f96596755ce496a4705e7d2a98aaa"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct_magnet_info__t.html">MagnetInfo_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga272f96596755ce496a4705e7d2a98aaa">magnet2Info</a></td></tr>
+<tr class="memitem:ga272f96596755ce496a4705e7d2a98aaa"><td class="memItemLeft" align="right" valign="top">
+static <a class="el" href="struct_magnet_info__t.html">MagnetInfo_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga272f96596755ce496a4705e7d2a98aaa">magnet2Info</a></td></tr>
+<tr class="memdesc:ga272f96596755ce496a4705e7d2a98aaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; Magnet 1 container (top magnet) <br /></td></tr>
 <tr class="separator:ga272f96596755ce496a4705e7d2a98aaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga92cfb2de4679628b337e5a14fd586d63"><td class="memItemLeft" align="right" valign="top">static enum <a class="el" href="group___user_types.html#ga12beaeaafb9410901d423f3789c5b659">flightEvents_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga92cfb2de4679628b337e5a14fd586d63">currentEvent</a> = <a class="el" href="group___user_types.html#gga12beaeaafb9410901d423f3789c5b659ac157bdf0b85a40d2619cbc8bc1ae5fe2">NONE</a></td></tr>
+<tr class="memitem:ga92cfb2de4679628b337e5a14fd586d63"><td class="memItemLeft" align="right" valign="top">
+static enum <a class="el" href="group___user_types.html#ga12beaeaafb9410901d423f3789c5b659">flightEvents_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga92cfb2de4679628b337e5a14fd586d63">currentEvent</a> = <a class="el" href="group___user_types.html#gga12beaeaafb9410901d423f3789c5b659ac157bdf0b85a40d2619cbc8bc1ae5fe2">NONE</a></td></tr>
+<tr class="memdesc:ga92cfb2de4679628b337e5a14fd586d63"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; The current event driving execution. <br /></td></tr>
 <tr class="separator:ga92cfb2de4679628b337e5a14fd586d63"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga25e98eb3709ea50b34c08328ddb5e787"><td class="memItemLeft" align="right" valign="top">static enum <a class="el" href="group___user_types.html#ga02062a8247dd3fe20512455456c3c234">controllerStates_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga25e98eb3709ea50b34c08328ddb5e787">controllerState</a> = <a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18">IDLE</a></td></tr>
+<tr class="memitem:ga25e98eb3709ea50b34c08328ddb5e787"><td class="memItemLeft" align="right" valign="top">
+static enum <a class="el" href="group___user_types.html#ga02062a8247dd3fe20512455456c3c234">controllerStates_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga25e98eb3709ea50b34c08328ddb5e787">controllerState</a> = <a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234afd6a0e4343048b10646dd2976cc5ad18">IDLE</a></td></tr>
+<tr class="memdesc:ga25e98eb3709ea50b34c08328ddb5e787"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; The experiment currently being executed. <br /></td></tr>
 <tr class="separator:ga25e98eb3709ea50b34c08328ddb5e787"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3f90cd83431b9251da025588081cc50a"><td class="memItemLeft" align="right" valign="top">static enum <a class="el" href="group___user_types.html#ga02062a8247dd3fe20512455456c3c234">controllerStates_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga3f90cd83431b9251da025588081cc50a">nextControllerState</a> = <a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a075beae84c7cd5a80338c8ac77d3eb97">EXPERIMENT1</a></td></tr>
+<tr class="memitem:ga3f90cd83431b9251da025588081cc50a"><td class="memItemLeft" align="right" valign="top">
+static enum <a class="el" href="group___user_types.html#ga02062a8247dd3fe20512455456c3c234">controllerStates_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga3f90cd83431b9251da025588081cc50a">nextControllerState</a> = <a class="el" href="group___user_types.html#gga02062a8247dd3fe20512455456c3c234a075beae84c7cd5a80338c8ac77d3eb97">EXPERIMENT1</a></td></tr>
+<tr class="memdesc:ga3f90cd83431b9251da025588081cc50a"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; The experiment to be executed on the next reduced gravity cycle. <br /></td></tr>
 <tr class="separator:ga3f90cd83431b9251da025588081cc50a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga8fa1407723d035d0374b59613df42461"><td class="memItemLeft" align="right" valign="top">static TickType_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga8fa1407723d035d0374b59613df42461">curTick</a></td></tr>
+<tr class="memitem:ga8fa1407723d035d0374b59613df42461"><td class="memItemLeft" align="right" valign="top">
+static TickType_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control.html#ga8fa1407723d035d0374b59613df42461">curTick</a></td></tr>
+<tr class="memdesc:ga8fa1407723d035d0374b59613df42461"><td class="mdescLeft">&#160;</td><td class="mdescRight">State variable &ndash; Current system time. <br /></td></tr>
 <tr class="separator:ga8fa1407723d035d0374b59613df42461"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>

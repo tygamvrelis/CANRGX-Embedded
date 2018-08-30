@@ -1,9 +1,9 @@
-<map id="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Drivers/MPU9250/MPU9250_t.h" name="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Drivers/MPU9250/MPU9250_t.h">
-<area shape="rect" id="node2" href="$_m_p_u_filter_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Drivers/MPU9250\l/MPUFilter.h" alt="" coords="297,139,548,224"/>
-<area shape="rect" id="node3" href="$_m_p_u9250_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Drivers/MPU9250\l/MPU9250.h" alt="" coords="135,272,385,357"/>
-<area shape="rect" id="node8" href="$_m_p_u_filter_8c.html" title="API for filtering accelerometer data. Filter coefficients &amp; preliminary C code was generated with Mic..." alt="" coords="409,272,660,357"/>
-<area shape="rect" id="node4" href="$_m_p_u9250_8c.html" title="Driver for MPU9250. " alt="" coords="5,405,256,491"/>
-<area shape="rect" id="node5" href="$_app___m_p_u9250_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_MPU9250.h" alt="" coords="280,405,501,491"/>
-<area shape="rect" id="node6" href="$_app___m_p_u9250_8c.html" title="Application code utilizing the MPU9250. " alt="" coords="157,539,381,624"/>
-<area shape="rect" id="node7" href="$main_8c.html" title=": Main program body " alt="" coords="405,546,619,617"/>
+<map id="MPUTest/Drivers/MPU9250/MPU9250_t.h" name="MPUTest/Drivers/MPU9250/MPU9250_t.h">
+<area shape="rect" id="node2" href="$_m_p_u_filter_8h.html" title="MPUTest/Drivers/MPU9250\l/MPUFilter.h" alt="" coords="228,95,408,136"/>
+<area shape="rect" id="node3" href="$_m_p_u9250_8h.html" title="MPUTest/Drivers/MPU9250\l/MPU9250.h" alt="" coords="100,184,280,225"/>
+<area shape="rect" id="node8" href="$_m_p_u_filter_8c.html" title="API for filtering accelerometer data. Filter coefficients &amp; preliminary C code was generated with Mic..." alt="" coords="304,184,484,225"/>
+<area shape="rect" id="node4" href="$_m_p_u9250_8c.html" title="Driver for MPU9250. " alt="" coords="5,273,185,315"/>
+<area shape="rect" id="node5" href="$_app___m_p_u9250_8h.html" title="MPUTest/Inc/App/App\l_MPU9250.h" alt="" coords="209,273,360,315"/>
+<area shape="rect" id="node6" href="$_app___m_p_u9250_8c.html" title="Application code utilizing the MPU9250. " alt="" coords="121,363,275,404"/>
+<area shape="rect" id="node7" href="$main_8c.html" title=": Main program body " alt="" coords="300,370,443,397"/>
 </map>

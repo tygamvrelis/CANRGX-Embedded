@@ -1,8 +1,8 @@
-<map id="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Drivers/MPU9250/MPUFilter.h" name="D:/Users/Tyler/Documents/tyler/School/University of Toronto/CAN&#45;RGX/CANRGX&#45;Embedded/MPUTest/Drivers/MPU9250/MPUFilter.h">
-<area shape="rect" id="node2" href="$_m_p_u9250_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Drivers/MPU9250\l/MPU9250.h" alt="" coords="135,139,385,224"/>
-<area shape="rect" id="node7" href="$_m_p_u_filter_8c.html" title="API for filtering accelerometer data. Filter coefficients &amp; preliminary C code was generated with Mic..." alt="" coords="409,139,660,224"/>
-<area shape="rect" id="node3" href="$_m_p_u9250_8c.html" title="Driver for MPU9250. " alt="" coords="5,272,256,357"/>
-<area shape="rect" id="node4" href="$_app___m_p_u9250_8h.html" title="D:/Users/Tyler/Documents\l/tyler/School/University\l of Toronto/CAN&#45;RGX/CANRGX\l&#45;Embedded/MPUTest/Inc/App/App\l_MPU9250.h" alt="" coords="280,272,501,357"/>
-<area shape="rect" id="node5" href="$_app___m_p_u9250_8c.html" title="Application code utilizing the MPU9250. " alt="" coords="157,405,381,491"/>
-<area shape="rect" id="node6" href="$main_8c.html" title=": Main program body " alt="" coords="405,413,619,483"/>
+<map id="MPUTest/Drivers/MPU9250/MPUFilter.h" name="MPUTest/Drivers/MPU9250/MPUFilter.h">
+<area shape="rect" id="node2" href="$_m_p_u9250_8h.html" title="MPUTest/Drivers/MPU9250\l/MPU9250.h" alt="" coords="100,95,280,136"/>
+<area shape="rect" id="node7" href="$_m_p_u_filter_8c.html" title="API for filtering accelerometer data. Filter coefficients &amp; preliminary C code was generated with Mic..." alt="" coords="304,95,484,136"/>
+<area shape="rect" id="node3" href="$_m_p_u9250_8c.html" title="Driver for MPU9250. " alt="" coords="5,184,185,225"/>
+<area shape="rect" id="node4" href="$_app___m_p_u9250_8h.html" title="MPUTest/Inc/App/App\l_MPU9250.h" alt="" coords="209,184,360,225"/>
+<area shape="rect" id="node5" href="$_app___m_p_u9250_8c.html" title="Application code utilizing the MPU9250. " alt="" coords="121,273,275,315"/>
+<area shape="rect" id="node6" href="$main_8c.html" title=": Main program body " alt="" coords="300,281,443,307"/>
 </map>
