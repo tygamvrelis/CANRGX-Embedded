@@ -534,33 +534,32 @@ void updateControlSignals(void){
             updateMagnets = false;
             break;
         case EXPERIMENT1:
-            magnet1Info.dutyCycle = 1.0;
-            magnet2Info.dutyCycle = 0;
+            updateMagnets = false;
             break;
         case EXPERIMENT2:
             magnet1Info.dutyCycle = 1.0;
-            magnet2Info.dutyCycle = 0.1;
+            magnet2Info.dutyCycle = 0;
             break;
         case EXPERIMENT3:
+            magnet1Info.dutyCycle = 1.0;
+            magnet2Info.dutyCycle = 0.1;
+            break;
+        case EXPERIMENT4:
             period_ms = 2000;
             magnet1Info.dutyCycle = sawtooth(curTick, period_ms, 0.0, 1.0);
             magnet2Info.dutyCycle = sawtooth(curTick, period_ms, 90.0, 1.0);
             break;
-        case EXPERIMENT4:
+        case EXPERIMENT5:
             magnet1Info.dutyCycle = 1.0;
             magnet2Info.dutyCycle = 0.3;
             break;
-        case EXPERIMENT5:
+        case EXPERIMENT6:
             // AC trapezoid Helmholtz (180 degrees out of phase)
             period_ms = 2000;
             val = acTrapezoid(curTick, period_ms, 90.0, 1.0);
 
             magnet1Info.dutyCycle = val;
             magnet2Info.dutyCycle = -1.0 * val;
-            break;
-        case EXPERIMENT6:
-            magnet1Info.dutyCycle = 1.0;
-            magnet2Info.dutyCycle = 0.5;
             break;
         case EXPERIMENT7:
             magnet1Info.dutyCycle = sinf(curTick*1.0f / 1000.0f * M_PI);
