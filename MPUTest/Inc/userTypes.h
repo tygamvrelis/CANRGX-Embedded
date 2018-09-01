@@ -37,23 +37,24 @@ enum flightEvents_e{
 };
 
 /**
- * @brief Enumerates the states the controller can be in. Each corresponds to a
- *        specific function with which the duty cycle for the magnets will be
- *        varied
+ * @brief   Enumerates the states the controller can be in. Each corresponds to
+ *          a specific function with which the duty cycle for the magnets will
+ *          be varied (may or may not be time-dependent), as well as specific
+ *          PWM duty cycle for the TECs
  */
 enum controllerStates_e{
-    EXPERIMENT0,  /**< Baseline run: no magnetic field, no TECs              */
-    EXPERIMENT1,  /**< Same as EXPERIMENT0                                   */
-    EXPERIMENT2,  /**< Magnet1: +1, Magnet2: +1, TECs on (DC anti-Helmholtz) */
-    EXPERIMENT3,  /**< Magnet1: +1, Magnet2: -1, TECs on (DC Helmholtz)      */
-    EXPERIMENT4,  /**< Magnet1: +1, Magnet2: 0, TECs on                      */
-    EXPERIMENT5,  /**< AC trapezoid anti-Helmholtz (in-phase)                */
-    EXPERIMENT6,  /**< AC trapezoid Helmholtz (180 degrees out of phase)     */
-    EXPERIMENT7,  /**< Magnet1: sin, Magnet2: cos                            */
-    EXPERIMENT8,  /**< Same as EXPERIMENT2                                   */
-    EXPERIMENT9,  /**< Same as EXPERIMENT3                                   */
-    EXPERIMENT10, /**< Same as EXPERIMENT0                                   */
-    IDLE=0xFF     /**< No experiment; idle signals                           */
+    EXPERIMENT0,
+    EXPERIMENT1,
+    EXPERIMENT2,
+    EXPERIMENT3,
+    EXPERIMENT4,
+    EXPERIMENT5,
+    EXPERIMENT6,
+    EXPERIMENT7,
+    EXPERIMENT8,
+    EXPERIMENT9,
+    EXPERIMENT10,
+    IDLE=0xFF     /**< No experiment; idle signals */
 };
 
 /**
@@ -61,10 +62,10 @@ enum controllerStates_e{
  * might point to
  */
 typedef enum{
-    accelerometer_t, /**< Accelerometer data         */
-    magnetometer_t,  /**< Magnetic flux density data */
-    control_t,       /**< PWM signal data            */
-    temperature_t    /**< Temperature sensor data    */
+    accelerometer_t, /**< Acceleration along x-, y-, and z-axes          */
+    magnetometer_t,  /**< Magnetic flux density along x-, y-, and z-axes */
+    control_t,       /**< PWM signal amplitudes for magnets and TECs     */
+    temperature_t    /**< Temperature measured at various locations      */
 }TXDataTypes_e;
 
 
