@@ -152,7 +152,8 @@ Functions</h2></td></tr>
 <tr class="memdesc:gafcfabfde443c3976d02dbd7b267cb659"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the control signals to their idle state. This turns off the PWM for the TECs (0 duty cycle) and brakes the magnets.  <a href="#gafcfabfde443c3976d02dbd7b267cb659">More...</a><br /></td></tr>
 <tr class="separator:gafcfabfde443c3976d02dbd7b267cb659"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad0cf375a8aab8843514689bfcd765133"><td class="memItemLeft" align="right" valign="top"><a id="gad0cf375a8aab8843514689bfcd765133"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setCameraLEDState</b> (enum <a class="el" href="group___control_header.html#ga40e9cde7fbbbd9517b9eb0d35b3414eb">cameraState_e</a> state)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group___control_header.html#gad0cf375a8aab8843514689bfcd765133">setCameraLEDState</a> (enum <a class="el" href="group___control_header.html#ga40e9cde7fbbbd9517b9eb0d35b3414eb">cameraState_e</a> state)</td></tr>
+<tr class="memdesc:gad0cf375a8aab8843514689bfcd765133"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turns the camera synchronization LED on or off. <br /></td></tr>
 <tr class="separator:gad0cf375a8aab8843514689bfcd765133"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -277,7 +278,6 @@ Here is the call graph for this function:</div>
 <div class="center"><img src="group___control_header_ga3d48081d7ffbb94a15af09d4671c5044_cgraph.png" border="0" usemap="#group___control_header_ga3d48081d7ffbb94a15af09d4671c5044_cgraph" alt=""/></div>
 <map name="group___control_header_ga3d48081d7ffbb94a15af09d4671c5044_cgraph" id="group___control_header_ga3d48081d7ffbb94a15af09d4671c5044_cgraph">
 <area shape="rect" id="node2" href="group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a" title="Given an event that is different that the current event, this function handles the event by updating ..." alt="" coords="191,5,343,32"/>
-<area shape="rect" id="node3" href="group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896" title="Sets the PWM duty cycle used to drive the top and bottom TECs used for heating the parafluid..." alt="" coords="391,5,501,32"/>
 </map>
 </div>
 
@@ -392,18 +392,6 @@ Here is the call graph for this function:</div>
 
 <p>Updates the values of the time-varying control signals, using different functions of time depending on the experiment. </p>
 <dl class="section note"><dt>Note</dt><dd>The control signals for the magnets are the only ones that are time- varying </dd></dl>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="group___control_header_gae842d8967168109b231043ca7463c173_cgraph.png" border="0" usemap="#group___control_header_gae842d8967168109b231043ca7463c173_cgraph" alt=""/></div>
-<map name="group___control_header_gae842d8967168109b231043ca7463c173_cgraph" id="group___control_header_gae842d8967168109b231043ca7463c173_cgraph">
-<area shape="rect" id="node2" href="group___math___helpers___header.html#ga9900948af4d741a79e320d1cb08f4835" title="Function with which a periodic sawtooth waveform can be evaluated. " alt="" coords="207,5,282,32"/>
-<area shape="rect" id="node3" href="group___math___helpers___header.html#gadf76d6333a173f56345d892414ab5df5" title="Implements an AC trapezoid. " alt="" coords="199,56,291,83"/>
-<area shape="rect" id="node5" href="group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d" title="Sets the state of the specified magnet to coast, break, or PWM in the direction selected by the duty ..." alt="" coords="203,107,286,133"/>
-<area shape="rect" id="node4" href="group___math___helpers.html#ga5107b8ca83f89b145c227a759aa7c5ca" title="Function with which a periodic trapezoidal waveform can be evaluated. " alt="" coords="382,56,457,83"/>
-<area shape="rect" id="node6" href="group___control_private_functions.html#ga9fa41aa2c8686b524807fa969084a7d1" title="Force PWM pin function to GPIO. " alt="" coords="339,107,500,133"/>
-</map>
-</div>
 
 </div>
 </div>

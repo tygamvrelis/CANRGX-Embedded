@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['negative',['NEGATIVE',['../group___control.html#gga74272f655c117071e9892aff60b6335aa62d66a51fa7574c652597716f7709865',1,'App_Control.c']]],
-  ['none',['NONE',['../group___user_types.html#gga12beaeaafb9410901d423f3789c5b659ac157bdf0b85a40d2619cbc8bc1ae5fe2',1,'userTypes.h']]]
+  ['off',['OFF',['../group___control_header.html#gga40e9cde7fbbbd9517b9eb0d35b3414ebaac132f2982b98bcaa3445e535a03ff75',1,'App_Control.h']]],
+  ['on',['ON',['../group___control_header.html#gga40e9cde7fbbbd9517b9eb0d35b3414eba977d478dacaae531f95695750d1e9d03',1,'App_Control.h']]]
 ];

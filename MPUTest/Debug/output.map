@@ -10543,7 +10543,7 @@ LOAD d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15
                 0x00001471       0x22 d:/ac6/systemworkbench/plugins/fr.ac6.mcu.externaltools.arm-none.win32_1.15.0.201708311556/tools/compiler/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
 OUTPUT(MPUTest.elf elf32-littlearm)
 
-.debug_info     0x00000000    0x4711d
+.debug_info     0x00000000    0x47120
  .debug_info    0x00000000     0x1c92 Drivers/MPU9250/MPU9250.o
  .debug_info    0x00001c92      0xfe9 Drivers/MPU9250/MPUFilter.o
  .debug_info    0x00002c7b     0x1252 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
@@ -10579,17 +10579,17 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_info    0x000366e4     0x2a6a Src/freertos.o
  .debug_info    0x0003914e      0xd71 Src/gpio.o
  .debug_info    0x00039ebf     0x17b1 Src/i2c.o
- .debug_info    0x0003b670     0x2c30 Src/main.o
- .debug_info    0x0003e2a0      0xfb1 Src/rtc.o
- .debug_info    0x0003f251      0xeb7 Src/stm32f4xx_hal_msp.o
- .debug_info    0x00040108     0x141d Src/stm32f4xx_hal_timebase_TIM.o
- .debug_info    0x00041525     0x181f Src/stm32f4xx_it.o
- .debug_info    0x00042d44      0xd64 Src/system_stm32f4xx.o
- .debug_info    0x00043aa8     0x1aeb Src/tim.o
- .debug_info    0x00045593     0x15a8 Src/usart.o
- .debug_info    0x00046b3b       0xa7 startup/startup_stm32f446xx.o
- .debug_info    0x00046be2      0x1b9 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
- .debug_info    0x00046d9b      0x382 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
+ .debug_info    0x0003b670     0x2c33 Src/main.o
+ .debug_info    0x0003e2a3      0xfb1 Src/rtc.o
+ .debug_info    0x0003f254      0xeb7 Src/stm32f4xx_hal_msp.o
+ .debug_info    0x0004010b     0x141d Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_info    0x00041528     0x181f Src/stm32f4xx_it.o
+ .debug_info    0x00042d47      0xd64 Src/system_stm32f4xx.o
+ .debug_info    0x00043aab     0x1aeb Src/tim.o
+ .debug_info    0x00045596     0x15a8 Src/usart.o
+ .debug_info    0x00046b3e       0xa7 startup/startup_stm32f446xx.o
+ .debug_info    0x00046be5      0x1b9 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
+ .debug_info    0x00046d9e      0x382 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
 
 .debug_abbrev   0x00000000     0x8c48
  .debug_abbrev  0x00000000      0x41e Drivers/MPU9250/MPU9250.o
@@ -10965,7 +10965,7 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_macro   0x0002b937      0x386 Src/tim.o
  .debug_macro   0x0002bcbd      0x43d Src/usart.o
 
-.debug_line     0x00000000    0x26867
+.debug_line     0x00000000    0x26869
  .debug_line    0x00000000      0xe18 Drivers/MPU9250/MPU9250.o
  .debug_line    0x00000e18      0x57e Drivers/MPU9250/MPUFilter.o
  .debug_line    0x00001396      0xb1b Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
@@ -11001,17 +11001,17 @@ OUTPUT(MPUTest.elf elf32-littlearm)
  .debug_line    0x0001e36a      0xf44 Src/freertos.o
  .debug_line    0x0001f2ae      0x95e Src/gpio.o
  .debug_line    0x0001fc0c      0xcf6 Src/i2c.o
- .debug_line    0x00020902     0x1003 Src/main.o
- .debug_line    0x00021905      0x9b9 Src/rtc.o
- .debug_line    0x000222be      0x949 Src/stm32f4xx_hal_msp.o
- .debug_line    0x00022c07      0x991 Src/stm32f4xx_hal_timebase_TIM.o
- .debug_line    0x00023598      0xce0 Src/stm32f4xx_it.o
- .debug_line    0x00024278      0x982 Src/system_stm32f4xx.o
- .debug_line    0x00024bfa      0xad7 Src/tim.o
- .debug_line    0x000256d1      0xca6 Src/usart.o
- .debug_line    0x00026377       0x83 startup/startup_stm32f446xx.o
- .debug_line    0x000263fa      0x14d D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
- .debug_line    0x00026547      0x320 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
+ .debug_line    0x00020902     0x1005 Src/main.o
+ .debug_line    0x00021907      0x9b9 Src/rtc.o
+ .debug_line    0x000222c0      0x949 Src/stm32f4xx_hal_msp.o
+ .debug_line    0x00022c09      0x991 Src/stm32f4xx_hal_timebase_TIM.o
+ .debug_line    0x0002359a      0xce0 Src/stm32f4xx_it.o
+ .debug_line    0x0002427a      0x982 Src/system_stm32f4xx.o
+ .debug_line    0x00024bfc      0xad7 Src/tim.o
+ .debug_line    0x000256d3      0xca6 Src/usart.o
+ .debug_line    0x00026379       0x83 startup/startup_stm32f446xx.o
+ .debug_line    0x000263fc      0x14d D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_init_f32.o)
+ .debug_line    0x00026549      0x320 D:\Users\Tyler\Documents\tyler\School\University of Toronto\CAN-RGX\CANRGX-Embedded\MPUTest\Lib\libarm_cortexM4lf_math.a(arm_fir_f32.o)
 
 .debug_str      0x00000000    0xe1726
  .debug_str     0x00000000    0xd761e Drivers/MPU9250/MPU9250.o

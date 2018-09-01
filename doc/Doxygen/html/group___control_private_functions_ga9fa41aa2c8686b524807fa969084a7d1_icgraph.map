@@ -1,6 +1,5 @@
 <map id="MAGNET_MAKE_GPIO" name="MAGNET_MAKE_GPIO">
-<area shape="rect" id="node2" href="$group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d" title="Sets the state of the specified magnet to coast, break, or PWM in the direction selected by the duty ..." alt="" coords="215,56,297,83"/>
+<area shape="rect" id="node2" href="$group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d" title="Sets the state of the specified magnet to coast, break, or PWM in the direction selected by the duty ..." alt="" coords="215,31,297,57"/>
 <area shape="rect" id="node3" href="$group___control_public_functions.html#gaad6fb9d9fd4f6a64e9ce0a547170b55a" title="Initializes the control state to IDLE, and asserts all control signals accordingly. " alt="" coords="401,5,479,32"/>
-<area shape="rect" id="node4" href="$group___control_public_functions.html#gae842d8967168109b231043ca7463c173" title="Updates the values of the time&#45;varying control signals, using different functions of time depending o..." alt="" coords="367,56,513,83"/>
-<area shape="rect" id="node5" href="$group___control_public_functions.html#gafcfabfde443c3976d02dbd7b267cb659" title="Sets the control signals to their idle state. This turns off the PWM for the TECs (0 duty cycle) and ..." alt="" coords="345,107,535,133"/>
+<area shape="rect" id="node4" href="$group___control_public_functions.html#gafcfabfde443c3976d02dbd7b267cb659" title="Sets the control signals to their idle state. This turns off the PWM for the TECs (0 duty cycle) and ..." alt="" coords="345,56,535,83"/>
 </map>

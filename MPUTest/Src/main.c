@@ -124,6 +124,12 @@ int main(void)
   MX_TIM10_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+
+  // TODO: Refactor this to achieve 2 things primarily:
+  //     1. Cleaner startup code (separate into functions)
+  //     2. Have a state-based sequence with timeouts so that the startup
+  //        sequence cannot hang in the event of communication failures
+
   /********** Start-up procedure prior to starting the scheduler **********/
   // The 2 functions below are fixes for cases where Cube did not generate
   // correct peripheral initialization code
