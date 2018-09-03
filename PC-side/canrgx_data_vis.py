@@ -50,7 +50,7 @@ class canrgx_data_visualizer():
             self.h5_file = h5py.File(self.data_path + '.hdf5', 'r')
             self.tic_record = self.h5_file["tic"]
             self.imu_record = self.h5_file["imu"]
-            self.pwr_record = (np.array(self.h5_file["pwr"]).astype(np.dtype('<h'))) / 100.0
+            self.pwr_record = (np.array(self.h5_file["pwr"]).astype(np.dtype('<h')))
             self.tmp_record = (np.array(self.h5_file["tmp"]).astype(np.float32) / 4096.0 * 3.3 - 0.4) / 0.0195
             self.syt_record = self.h5_file["syt"]
             return True
@@ -75,10 +75,14 @@ class canrgx_data_visualizer():
         
 
     def visualize_data(self):
-        s = 3  
-        m = -1000
+        # Set image width and height
         size_x = 32
         size_y = 2
+        
+        # Adjust data sets so that they don't include weird values at the start
+        # and end
+        s = 3  
+        m = -1000
         time = self.data_time[s:m]
 
         fig1 = plt.figure()
@@ -113,7 +117,7 @@ class canrgx_data_visualizer():
         plt.plot(time, self.pwr_record[s:m,3],label='TEC B')
         plt.ylabel('Power Setting')
         plt.xlabel('MCU Tick Time (millisec)')
-        plt.legend(loc='best')
+        plt.legend(['Top mag', 'Bot mag', 'Top TEC', 'Bot TEC'], loc='best')
         self.save_vis('Power')
 
         fig4 = plt.figure()
@@ -128,6 +132,58 @@ class canrgx_data_visualizer():
         plt.xlabel('MCU Tick Time (millisec)')
         plt.legend(loc='best')
         self.save_vis('Temperature')
+        
+        fig5, ax5 = plt.subplots()
+        ax5_control = ax5.twinx()
+        fig5.set_size_inches(size_x, size_y)
+        ax5.plot(time, self.acc_nrm[s:m], color='k')
+        ax5_control.plot(time, self.pwr_record[s:m,0], color='r')
+        ax5_control.plot(time, self.pwr_record[s:m,1], color='g')
+        ax5_control.plot(time, self.pwr_record[s:m,2], color='b')
+        ax5_control.plot(time, self.pwr_record[s:m,3], color='m')
+        ax5.axhline(y=0, color='k', linestyle='--', linewidth = 0.5)
+        ax5.axhline(y=0.981, color='k', linestyle='--', linewidth = 0.5)
+        ax5.axhline(y=3.13, color='k', linestyle='--', linewidth = 0.5)
+        ax5.set_ylabel('Acceleration norm (m/s^2)')
+        ax5.set_xlabel('MCU Tick Time (millisec)')
+        ax5_control.set_ylabel('Control signals')
+        ax5.legend(['norm'], loc='best')
+        ax5_control.legend(['Top mag', 'Bot mag', 'Top TEC', 'Bot TEC'], loc='best')
+        self.save_vis('accel_and_control_overlay')
+        
+        fig6, ax6 = plt.subplots()
+        ax6_temp = ax6.twinx()
+        fig6.set_size_inches(size_x, size_y)
+        ax6.plot(time, self.acc_nrm[s:m],'k',label='norm')
+        ax6_temp.plot(time, self.tmp_record[s:m,2],label='Bottom TEC temp', color='r')
+        ax6_temp.plot(time, self.tmp_record[s:m,0],label='Top TEC temp', color='g')
+        ax6.axhline(y=0, color='k', linestyle='--', linewidth = 0.5)
+        ax6.axhline(y=0.981, color='k', linestyle='--', linewidth = 0.5)
+        ax6.axhline(y=3.13, color='k', linestyle='--', linewidth = 0.5)
+        ax6.set_ylabel('Acceleration norm (m/s^2)')
+        ax6.set_xlabel('MCU Tick Time (millisec)')
+        ax6_temp.set_ylabel('Temperature (deg Celsius)')
+        ax6.legend(loc='best')
+        ax6_temp.legend(loc='best')
+        self.save_vis('accel_and_temperature_overlay')
+        
+        fig7, ax7 = plt.subplots()
+        ax7_mag = ax7.twinx()
+        fig7.set_size_inches(size_x, size_y)
+        ax7.plot(time, self.acc_nrm[s:m],'k',label='acc norm')
+        ax7_mag.plot(time, self.mag_nrm[s:m],'k',label='mag norm')
+        ax7_mag.plot(time, self.mag_vec[s:m,0],'b',label='mag X')
+        ax7_mag.plot(time, self.mag_vec[s:m,1],'g',label='mag Y')
+        ax7_mag.plot(time, self.mag_vec[s:m,2],'r',label='mag Z')
+        ax7.axhline(y=0, color='k', linestyle='--', linewidth = 0.5)
+        ax7.axhline(y=0.981, color='k', linestyle='--', linewidth = 0.5)
+        ax7.axhline(y=3.13, color='k', linestyle='--', linewidth = 0.5)
+        ax7.set_ylabel('Acceleration norm (m/s^2)')
+        ax7.set_xlabel('MCU Tick Time (millisec)')
+        ax7_mag.set_ylabel('Magnetometer (G)')
+        ax7.legend(loc='best')
+        ax7_mag.legend(loc='best')
+        self.save_vis('accel_and_mag_overlay')
 
 
 if __name__ == '__main__':
