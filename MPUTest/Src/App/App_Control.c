@@ -504,6 +504,8 @@ void controlEventHandler(uint32_t notification){
     // exception is with manual override start, since it is possible
     // that it may be desired to change the experiment number without
     // pressing stop in between.
+    // TODO: Even though operator precedence is valid here, should use
+    // brackets to make the intent more clear
     if(receivedEvent != currentEvent || manualOverrideStart)
     {
         currentEvent = receivedEvent;
