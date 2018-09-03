@@ -24,10 +24,7 @@ for the JavaScript code in this file
 var NAVTREE =
 [
   [ "CAN-RGX", "index.html", [
-    [ "CAN-RGX - Embedded Systems for Team FAM", "index.html", [
-      [ "Introduction", "index.html#Introduction", null ],
-      [ "Overview", "index.html#High-level", null ]
-    ] ],
+    [ "CAN-RGX - Embedded Systems for Team FAM", "index.html", null ],
     [ "Modules", "modules.html", "modules" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
