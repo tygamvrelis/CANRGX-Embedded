@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.14"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CAN-RGX: Main Page</title>
+<title>CAN-RGX: CAN-RGX - Embedded Systems for Team FAM</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -87,10 +87,26 @@ $(document).ready(function(){initNavTree('index.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">CAN-RGX Documentation</div>  </div>
+<div class="title">CAN-RGX - Embedded Systems for Team FAM </div>  </div>
 </div><!--header-->
 <div class="contents">
-</div><!-- contents -->
+<div class="textblock"><h1><a class="anchor" id="Introduction"></a>
+Introduction</h1>
+<p>Convection is a common phenomenon behind many of the heat transfer processes on Earth. It is driven by the buoyant force resulting from the density differences of a fluid with temperature. In microgravity, there is no buoyant force and thus no convection. This poses challenges for conventional heat transfer methods.</p>
+<p>One approach to this problem involves using parafluids (fluids that respond to magnetism) under the influence of external magnetic fields to artificially introduce convection. Our experiment, which uses a Schlieren imaging system to visualize temperature gradients, has been designed to study this approach.</p>
+<p>The embedded systems are responsible for:</p><ol type="1">
+<li>Collecting sensor data</li>
+<li>Generating control signals</li>
+<li>Starting and stopping experiments, through both manual and automated mechanisms</li>
+<li>PC communication for streaming back data and receiving commands</li>
+</ol>
+<p>A STM32F446RE microcontroller on a Nucleo-F446RE is used to accomplish this. The software runs ontop of FreeRTOS, a real-time OS with a priority-based preemptive scheduler. All IO is DMA-based where possible, and interrupt-based otherwise.</p>
+<h1><a class="anchor" id="High-level"></a>
+Overview</h1>
+<p>Coming soon </p><div class="image">
+<img src="../../images/Flight_1_Design.jpg" width="80%" alt="Steady-state flow"/>
+</div>
+ </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

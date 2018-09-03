@@ -24,6 +24,10 @@ for the JavaScript code in this file
 var NAVTREE =
 [
   [ "CAN-RGX", "index.html", [
+    [ "CAN-RGX - Embedded Systems for Team FAM", "index.html", [
+      [ "Introduction", "index.html#Introduction", null ],
+      [ "Overview", "index.html#High-level", null ]
+    ] ],
     [ "Modules", "modules.html", "modules" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -51,7 +55,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_app___comm_r_x_8c.html",
-"group___control_private_functions.html#ga91fd2d380a9e378ac550fbc2eb6382f2",
+"group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896",
 "group___temperature_header.html#gaaf412a639deba77bbb2d6026ff2cf537"
 ];
 

@@ -1,4 +1,3 @@
 <map id="controlEventHandler" name="controlEventHandler">
 <area shape="rect" id="node2" href="$group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a" title="Given an event that is different that the current event, this function handles the event by updating ..." alt="" coords="191,5,343,32"/>
-<area shape="rect" id="node3" href="$group___control_private_functions.html#ga511a86d962f883370fa2a3b5768d9896" title="Sets the PWM duty cycle used to drive the top and bottom TECs used for heating the parafluid..." alt="" coords="391,5,501,32"/>
 </map>

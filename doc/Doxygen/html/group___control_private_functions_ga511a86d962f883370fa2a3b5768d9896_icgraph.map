@@ -1,7 +1,5 @@
 <map id="TEC_set_valuef" name="TEC_set_valuef">
-<area shape="rect" id="node2" href="$group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef" title="Stops the TECs. " alt="" coords="201,56,279,83"/>
-<area shape="rect" id="node5" href="$group___control_private_functions.html#ga22a13d2d4c22577079d3d7a45eb2708a" title="Given an event that is different that the current event, this function handles the event by updating ..." alt="" coords="164,107,316,133"/>
-<area shape="rect" id="node3" href="$group___control_public_functions.html#gaad6fb9d9fd4f6a64e9ce0a547170b55a" title="Initializes the control state to IDLE, and asserts all control signals accordingly. " alt="" coords="419,5,498,32"/>
-<area shape="rect" id="node4" href="$group___control_public_functions.html#gafcfabfde443c3976d02dbd7b267cb659" title="Sets the control signals to their idle state. This turns off the PWM for the TECs (0 duty cycle) and ..." alt="" coords="364,56,553,83"/>
-<area shape="rect" id="node6" href="$group___control_public_functions.html#ga3d48081d7ffbb94a15af09d4671c5044" title="Given a task notification value, this function extracts the command or event information from it..." alt="" coords="390,107,527,133"/>
+<area shape="rect" id="node2" href="$group___control_private_functions.html#gaecaaa41b0f7f761b75d76eaf0629a9ef" title="Stops the TECs. " alt="" coords="164,31,243,57"/>
+<area shape="rect" id="node3" href="$group___control_public_functions.html#gaad6fb9d9fd4f6a64e9ce0a547170b55a" title="Initializes the control state to IDLE, and asserts all control signals accordingly. " alt="" coords="346,5,425,32"/>
+<area shape="rect" id="node4" href="$group___control_public_functions.html#gafcfabfde443c3976d02dbd7b267cb659" title="Sets the control signals to their idle state. This turns off the PWM for the TECs (0 duty cycle) and ..." alt="" coords="291,56,480,83"/>
 </map>

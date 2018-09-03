@@ -60,7 +60,7 @@ enum cameraState_e{
 /** @brief Container for magnet state information */
 typedef struct{
     enum magnets_e magnet;           /**< Magnet 1 or magnet 2               */
-    enum magnetStates_e magnetState; /**< What the magnet is suppose to do   */
+    enum magnetStates_e magnetState; /**< The PWM driver setting             */
     enum driveMode_e driveMode;      /**< Channel polarity (i.e. whether 100%
                                       *   duty cycle is ON or OFF)           */
     float dutyCycle;                 /**< Only needed if magnetState is PWM  */
@@ -76,6 +76,7 @@ void updateControlSignals(void);
 void updateControlData(controlData_t* controlData);
 void controlSetSignalsToIdleState(void);
 
+/** @brief Turns the camera synchronization LED on or off */
 inline void setCameraLEDState(enum cameraState_e state){
     HAL_GPIO_WritePin(Camera_LED_GPIO_Port, Camera_LED_Pin, state);
 }

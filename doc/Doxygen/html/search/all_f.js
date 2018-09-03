@@ -1,6 +1,7 @@
 var searchData=
 [
   ['sawtooth',['sawtooth',['../group___math___helpers___header.html#ga9900948af4d741a79e320d1cb08f4835',1,'sawtooth(uint32_t time, uint32_t period, float phase, float amplitude):&#160;App_Math_Helpers.c'],['../group___math___helpers.html#ga9900948af4d741a79e320d1cb08f4835',1,'sawtooth(uint32_t time, uint32_t period, float phase, float amplitude):&#160;App_Math_Helpers.c']]],
+  ['setcameraledstate',['setCameraLEDState',['../group___control_header.html#gad0cf375a8aab8843514689bfcd765133',1,'App_Control.h']]],
   ['setmagnet',['setMagnet',['../group___control_private_functions.html#gae0ff9ac01b0747badbcbfbb1679da60d',1,'App_Control.c']]],
   ['setupadcprocessing',['setUpADCProcessing',['../group___temperature_private_functions.html#ga42ae0e00c69e748ba833ba8a49905ab6',1,'App_Temperature.c']]],
   ['smplrt_5fdiv',['SMPLRT_DIV',['../group___m_p_u9250___driver.html#ga7119c37e38b6736096ea1565459043ba',1,'MPU9250.c']]],
