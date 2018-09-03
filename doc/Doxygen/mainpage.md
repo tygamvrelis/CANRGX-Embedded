@@ -23,12 +23,12 @@ The embedded systems are responsible for:
 
 # High-level Overview
 A STM32F446RE microcontroller on a Nucleo-F446RE was chosen as the platform for the embedded systems. The software runs ontop of FreeRTOS, a real-time OS with a priority-based preemptive scheduler. All IO is DMA-based where possible, and interrupt-based otherwise. The peripherals involved are:
--# 1 MPU9250 inertial measurement unit and magnetometer
--# 2 2-wire PWM drivers for the magnets
--# 2 1-wire PWM drivers for the TECs
--# 6 analog temperature sensors
--# 1 LED for camera synchronization
--# 1 LED for indicating microcontroller status (integrated with development board)
+- MPU9250 inertial measurement unit and magnetometer
+- 2-wire PWM drivers for the magnets (x2)
+- 1-wire PWM drivers for the TECs (x2)
+- analog temperature sensors (x6)
+- LED for camera synchronization
+- LED for indicating microcontroller status (integrated with development board)
 
 
 ## Threads
@@ -43,9 +43,9 @@ The software consists of 6 threads (note: priority = 6 is the highest priority w
 
 ## PC Commands
 The PC interface supports 3 commands, which are treated as manual overrides:
--# **START_EXPERIMENT**: Starts the specified experiment (passed as an argument) by forcing a controller state transition
--# **STOP_EXPERIMENT**: Stops the currently-running experiment by forcing a controller state transition
--# **RESET_MCU**: Sets control signals to a safe (idle) state, waits up to 1 second for I/O transfers to finish, then performs a hard reset of the MCU
+-# **START_EXPERIMENT**: starts the specified experiment (passed as an argument) by forcing a controller state transition
+-# **STOP_EXPERIMENT**: stops the currently-running experiment by forcing a controller state transition
+-# **RESET_MCU**: sets control signals to a safe (idle) state, waits up to 1 second for I/O transfers to finish, then performs a hard reset of the MCU
 
 
 ## Principle of Operation

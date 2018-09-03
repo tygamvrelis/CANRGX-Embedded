@@ -112,14 +112,14 @@ $(document).ready(function(){initNavTree('index.html','');});
 <li>PC communication for streaming back data and receiving commands</li>
 </ol>
 <h1>High-level Overview</h1>
-<p>A STM32F446RE microcontroller on a Nucleo-F446RE was chosen as the platform for the embedded systems. The software runs ontop of FreeRTOS, a real-time OS with a priority-based preemptive scheduler. All IO is DMA-based where possible, and interrupt-based otherwise. The peripherals involved are:</p><ol type="1">
-<li>1 MPU9250 inertial measurement unit and magnetometer</li>
-<li>2 2-wire PWM drivers for the magnets</li>
-<li>2 1-wire PWM drivers for the TECs</li>
-<li>6 analog temperature sensors</li>
-<li>1 LED for camera synchronization</li>
-<li>1 LED for indicating microcontroller status (integrated with development board)</li>
-</ol>
+<p>A STM32F446RE microcontroller on a Nucleo-F446RE was chosen as the platform for the embedded systems. The software runs ontop of FreeRTOS, a real-time OS with a priority-based preemptive scheduler. All IO is DMA-based where possible, and interrupt-based otherwise. The peripherals involved are:</p><ul>
+<li>MPU9250 inertial measurement unit and magnetometer</li>
+<li>2-wire PWM drivers for the magnets (x2)</li>
+<li>1-wire PWM drivers for the TECs (x2)</li>
+<li>analog temperature sensors (x6)</li>
+<li>LED for camera synchronization</li>
+<li>LED for indicating microcontroller status (integrated with development board)</li>
+</ul>
 <h2>Threads</h2>
 <p>The software consists of 6 threads (note: priority = 6 is the highest priority while priority = 0 is the lowest priority):</p><ol type="1">
 <li><b>PC RX, priority 6</b>: event-based, receives command packets from PC</li>
@@ -131,9 +131,9 @@ $(document).ready(function(){initNavTree('index.html','');});
 </ol>
 <h2>PC Commands</h2>
 <p>The PC interface supports 3 commands, which are treated as manual overrides:</p><ol type="1">
-<li><b>START_EXPERIMENT</b>: Starts the specified experiment (passed as an argument) by forcing a controller state transition</li>
-<li><b>STOP_EXPERIMENT</b>: Stops the currently-running experiment by forcing a controller state transition</li>
-<li><b>RESET_MCU</b>: Sets control signals to a safe (idle) state, waits up to 1 second for I/O transfers to finish, then performs a hard reset of the MCU</li>
+<li><b>START_EXPERIMENT</b>: starts the specified experiment (passed as an argument) by forcing a controller state transition</li>
+<li><b>STOP_EXPERIMENT</b>: stops the currently-running experiment by forcing a controller state transition</li>
+<li><b>RESET_MCU</b>: sets control signals to a safe (idle) state, waits up to 1 second for I/O transfers to finish, then performs a hard reset of the MCU</li>
 </ol>
 <h2>Principle of Operation</h2>
 <p>The image below shows some of the possible interactions between the components of the system once the scheduler has started.</p>
