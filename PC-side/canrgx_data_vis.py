@@ -131,8 +131,8 @@ class canrgx_data_visualizer():
 
 
 if __name__ == '__main__':
-    #data_root=input("supply data root (top-level directory which contains subdirectories for each logging session):")
-    data_root = 'D:\\Users\\Tyler\\Documents\\tyler\\School\\University of Toronto\\CAN-RGX\CANRGX-Embedded\\PastFlightData\\Flight_1_August_30_2018'
+    data_root=input("supply data root (top-level directory which contains subdirectories for each logging session):")
+    #data_root = 'D:\\Users\\Tyler\\Documents\\tyler\\School\\University of Toronto\\CAN-RGX\CANRGX-Embedded\\PastFlightData\\Flight_1_August_30_2018'
     
     files = os.listdir(data_root)
     for dir in files:
