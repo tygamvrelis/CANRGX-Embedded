@@ -7,12 +7,6 @@ assignees: ''
 
 ---
 
----
-name: Feature request
-about: Create a request for new software features
-
----
-
 **Describe the feature**
 A clear and concise description of what the feature is.
 
