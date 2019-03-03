@@ -56,7 +56,7 @@ The image below shows some of the possible interactions between the components o
 
 
 ### PC Communication
-Once the scheduler begins, the RX thread runs. It initiates a reception then immediately blocks until a command packet is received or the waiting times out (in which case the receive buffer is cleared and a new reception is initiated). Time-triggering the data transmission thread results in packets being sent at a deterministic frequency, whose inverse is a multiple of the OS tick period (i.e. an integer number of milliseconds). Specifically, a packet is transmitted every 3 ms. This leads not only to improved system reliability—since there are no conditions that have to be met for packet transmission besides timing—but also, it eases data analysis since all points are lined up with integer time indices. While the RX and RX threads are not running, the data acquisition and control routines execute.
+Once the scheduler begins, the RX thread runs. It initiates a reception then immediately blocks until a command packet is received or the waiting times out (in which case the receive buffer is cleared and a new reception is initiated). Time-triggering the data transmission thread results in packets being sent at a deterministic frequency, whose inverse is a multiple of the OS tick period (i.e. an integer number of milliseconds). Specifically, a packet is transmitted every 3 ms. This leads not only to improved system reliability—since there are no conditions that have to be met for packet transmission besides timing—but also, it eases data analysis since all points are lined up with integer time indices. While the RX and TX threads are not running, the data acquisition and control routines execute.
 
 
 ### MPU9250
