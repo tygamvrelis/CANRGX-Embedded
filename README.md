@@ -3,8 +3,10 @@
 ## \_old
 Code used in early stages of development. These are a blank CubeMX project to illustrate pin assignments as of April 7, 2018, and ADC + serial code running on top of FreeRTOS
 
-## doc
-Various documentation, including an interactive HTML for the embedded program (generated using Doxygen), circuit schematics for the electrical systems, and a few other tidbits
+## docs
+Various documentation, including an interactive HTML for the embedded program (generated using Doxygen), circuit schematics for the electrical systems, and a few other tidbits.
+
+The website from the Doxygen build can be accessed here: https://tygamvrelis.github.io/CANRGX-Embedded/docs/Doxygen/html/index.html
 
 ## MPUTest
 The "master" embedded program, which is used in the actual experiment
